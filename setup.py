@@ -1,5 +1,11 @@
 """
-Install script -> Just do pip install -e .  (for editing)
+Filename: setup.py
+Author: William Bowley
+Version: 1.5
+Date: 2025-10-13
+
+Description:
+    Install script for blueshark v1.4 framework
 """
 
 from setuptools import setup, find_packages
@@ -16,8 +22,7 @@ setup(
     install_requires=[
         'PyYAML',
         'pyfemm',
-        'matplotlib',
-        'deap'
+        'matplotlib'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

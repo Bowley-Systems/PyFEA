@@ -48,6 +48,10 @@
     "setarcsegmentprop",
     "ylim",
     "radi",
-    "coilgun"
+    "coilgun",
+    "levelname",
+    "appox",
+    "sharex",
+    "Ralston"
   ]
 }

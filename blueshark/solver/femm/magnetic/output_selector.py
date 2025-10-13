@@ -25,7 +25,6 @@ Description:
     - circuit_power
     - circuit_voltage
     - circuit_current
-    - circuit_inductance
     - circuit_resistance
     - circuit_flux_linkage
 """
@@ -76,7 +75,6 @@ class FEMMagneticSelector(BaseSelector):
             "circuit_current":  (circuits.current, self._run_circuit),
             "circuit_resistance":   (circuits.resistance, self._run_circuit),
             "circuit_flux_linkage": (circuits.flux_linkage, self._run_circuit),
-            "circuit_inductance":   (circuits.inductance, self._run_circuit)
         }
 
         if isinstance(requested_outputs, str):

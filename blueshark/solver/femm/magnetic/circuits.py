@@ -44,30 +44,6 @@ def current(circuit_name: str) -> float:
     return round(current, PRECISION)
 
 
-def inductance(circuit_name: str) -> float:
-    """
-    Calculate the inductance of the specified circuit.
-
-    Args:
-        circuit_name (str): Name of the circuit.
-
-    Returns:
-        float: Inductance in henrys (always positive),
-               rounded to configured PRECISION.
-    """
-
-    circuit_props = utils.get_circuit_properties(circuit_name)
-    current = circuit_props[0]
-    flux_linkage = circuit_props[2]
-
-    if abs(current) > EPSILON:
-        inductance = flux_linkage / current
-    else:
-        inductance = 0.0
-
-    return round(abs(inductance), PRECISION)
-
-
 def flux_linkage(circuit_name: str) -> float:
     """
     Get the flux linkage of the specified circuit.
@@ -124,3 +100,28 @@ def resistance(circuit_name: str) -> float:
         resistance = 0.0
 
     return round(resistance, PRECISION)
+
+
+# This method is numerically unstable
+# def inductance(circuit_name: str) -> float:
+#     """
+#     Calculate the inductance of the specified circuit.
+
+#     Args:
+#         circuit_name (str): Name of the circuit.
+
+#     Returns:
+#         float: Inductance in henrys (always positive),
+#                rounded to configured PRECISION.
+#     """
+
+#     circuit_props = utils.get_circuit_properties(circuit_name)
+#     current = circuit_props[0]
+#     flux_linkage = circuit_props[2]
+
+#     if abs(current) > EPSILON:
+#         inductance = flux_linkage / current
+#     else:
+#         inductance = 0.0
+
+#     return round(abs(inductance), PRECISION)
