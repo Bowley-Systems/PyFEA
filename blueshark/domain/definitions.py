@@ -36,7 +36,7 @@ class PhysicsType(Enum):
     # Haven't been implemented yet
     ELECTRIC = auto()      # Current, voltage, electrostatics
     MECHANICAL = auto()    # Force, stress, motion
-    MULTIPHYSICS = auto()  # Combined physics simulations
+    # MULTIPHYSICS = auto()  # Combined physics simulations
 
 
 class Units(Enum):

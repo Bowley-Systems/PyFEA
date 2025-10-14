@@ -1,18 +1,18 @@
 """
 Filename: setup.py
 Author: William Bowley
-Version: 1.5
+Version: 1.4.1
 Date: 2025-10-13
 
 Description:
-    Install script for blueshark v1.4 framework
+    Install script for blueshark v1.4.1 framework
 """
 
 from setuptools import setup, find_packages
 
 setup(
     name='blueshark',
-    version='1.4.0',
+    version='1.4.1',
     description=(
         'Modular FEMM-based linear and tubular motor simulation framework'
     ),
@@ -37,5 +37,8 @@ setup(
         "blueshark.library": [
             "material.toml"
         ],
+        "blueshark.models.tlsm": [
+            "default.yaml"
+        ]
     },
 )

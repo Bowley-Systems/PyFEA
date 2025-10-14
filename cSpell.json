@@ -52,6 +52,11 @@
     "levelname",
     "appox",
     "sharex",
-    "Ralston"
+    "Ralston",
+    "TLSM",
+    "MULTIPHYSICS",
+    "Runge",
+    "Kutta",
+    "timelib"
   ]
 }

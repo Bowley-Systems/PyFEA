@@ -11,7 +11,7 @@ Description:
         - Millimeter, gram, second, ampere
 """
 
-from math import ceil, pi, exp
+from math import ceil, pi
 from blueshark.domain.constants import EPSILON
 
 
@@ -22,6 +22,14 @@ def calculate_inductance(field_energy: float, current: float) -> float:
 
     ind = (2*field_energy) / (current ** 2)
     return ind
+
+
+def induced_voltage(delta_flux_linkage: float, delta_time: float) -> float:
+    """
+    Calculates total induced (back-EMF) voltage.
+    E = Δψ / Δt
+    """
+    return delta_flux_linkage / delta_time
 
 
 def estimate_turns(
@@ -53,36 +61,61 @@ def projectile_drag(
     return drag_force
 
 
-def inst_current_charge(
-    time: float,
-    resistance: float,
-    inductance: float,
-    voltage: float
-) -> float:
-    """Calculates the current during charging in an RL circuit"""
-    if abs(inductance) < EPSILON or abs(resistance) < EPSILON:
-        return 0.0
-
-    tau = inductance / resistance
-    max_i = voltage / resistance
-    return max_i * (1 - exp((-time) / tau))
-
-
-def inst_current_discharge(
-    time: float,
-    time_offset: float,
-    initial_current: float,
-    resistance: float,
-    inductance: float
-) -> float:
-    """Calculates the current during discharging an RL circuit"""
-    if abs(inductance) < EPSILON or abs(resistance) < EPSILON:
-        return 0.0
-
-    tau = inductance / resistance
-    return initial_current * exp(-(time - time_offset) / tau)
-
-
 def clipping_current(current_limit: float, current: float) -> float:
     """ Limits the current to simulate a current limiting supply """
     return min(current_limit, current)
+
+
+def differential_currents(
+    time, current, voltage, inductance, resistance, e_induced
+) -> float:
+    """ Differential equation for current within the system """
+    _ = time
+
+    if voltage < 0:
+        return voltage / inductance
+    else:
+        return (voltage - resistance * current - e_induced) / inductance
+
+
+def rk_2nd_order_currents(
+    time: float,
+    current: float,
+    voltage: float,
+    resistance: float,
+    inductance: float,
+    delta_flux_linkage: float,
+    step_size: float
+) -> float:
+    """
+    Solves the differential equations for the currents
+    using Ralston's method
+    """
+    induced = induced_voltage(delta_flux_linkage, step_size)
+    if voltage < 0:
+        voltage += current * resistance - induced
+
+    k1 = differential_currents(
+        time, current, voltage, resistance, inductance, induced
+    )
+
+    k2 = differential_currents(
+        time + 3 / 4 * step_size,
+        current + 3 / 4 * step_size * k1,
+        voltage,
+        resistance,
+        inductance,
+        induced
+    )
+
+    # Final update using weighted average
+    current += (1 / 3 * k1 + 2 / 3 * k2) * step_size
+    return current, voltage
+
+
+def format_time(seconds: float) -> str:
+    """ Converts seconds into HH:MM:SS. """
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"

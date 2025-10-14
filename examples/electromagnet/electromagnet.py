@@ -32,22 +32,25 @@ renderer.create_circuit("phase_1", CircuitType.SERIES, 1)
 
 
 # Defines the shapes and boundary geometry
-domain: Geometry = {"shape": ShapeType.CIRCLE, "center": (0, 0), "radius": 20}
+domain = Geometry(shape=ShapeType.CIRCLE, center=(0, 0), radius=20)
 
-core: Geometry = {
-    "shape": ShapeType.RECTANGLE, "enclosed": True,
-    "points": [(1, -2.5), (1, 2.5), (-1, 2.5), (-1, -2.5)]
-}
+core = Geometry(
+    shape=ShapeType.RECTANGLE,
+    enclosed=True,
+    points=[(1, -2.5), (1, 2.5), (-1, 2.5), (-1, -2.5)]
+)
 
-positive: Geometry = {
-    "shape": ShapeType.RECTANGLE, "enclosed": True,
-    "points": [(1, -2.5), (1, 2.5), (3.5, 2.5), (3.5, -2.5)]
-}
+positive = Geometry(
+    shape=ShapeType.RECTANGLE,
+    enclosed=True,
+    points=[(1, -2.5), (1, 2.5), (3.5, 2.5), (3.5, -2.5)]
+)
 
-negative: Geometry = {
-    "shape": ShapeType.RECTANGLE, "enclosed": True,
-    "points": [(-1, -2.5), (-1, 2.5), (-3.5, 2.5), (-3.5, -2.5)]
-}
+negative = Geometry(
+    shape=ShapeType.RECTANGLE,
+    enclosed=True,
+    points=[(-1, -2.5), (-1, 2.5), (-3.5, 2.5), (-3.5, -2.5)]
+)
 
 # Draws the shapes to the renderer
 renderer.draw(core, iron, 2)
