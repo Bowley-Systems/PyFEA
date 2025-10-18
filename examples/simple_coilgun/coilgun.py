@@ -29,20 +29,21 @@ from blueshark.domain.definitions import (
 
 from physics import (
     estimate_turns, calculate_inductance, format_time,
-    projectile_drag, clipping_current, rk_2nd_order_currents
+    projectile_drag, clipping_current, rk_2nd_order_currents,
+    # induced_voltage
 )
 
 # Simulation CONSTANTS (mm, g, s)
 INITIAL_CURRENT = 1e-4  # Needed for the inductance calculations
 FLUID_DENSITY = 1.225e-6
 COEFFICIENT_DRAG = 0.82
-TIME_STEP = 5e-4
+TIME_STEP = 5e-5
 BOUNDARY_MATERIAL = "air"
 BOUNDARY_GROUP = 1
 FILE_LOCATION = "examples/simple_coilgun/coilgun.fem"
 
 # Circuit Parameters (volts, amp)
-voltage = 18            # Supply voltage
+supply_voltage = 18            # Supply voltage
 current_limit = 40      # Maximum current before clipping
 
 # Coil Parameters (mm)
@@ -120,11 +121,12 @@ renderer.draw_domain_boundary(domain, boundary_type=BoundaryType.NEUMANN)
 renderer.define_environment_region(BOUNDARY_GROUP, (50, 0), boundary_material)
 
 # Loop variables
-target_displacement = 2.5 * coil_length
+target_displacement = 2 * coil_length
 
 loop_time = 0.0
 flux = 0.0
-current = INITIAL_CURRENT
+inductor_current = INITIAL_CURRENT
+inductor_voltage = supply_voltage
 
 inductance = 0.0
 resistance = 0.0
@@ -168,16 +170,16 @@ while position < target_displacement:
     frame_flux = result["circuit_flux_linkage"]["stage_coil"]
     force, theta = result["force_stress_tensor"][PROJECTILE_GROUP]
 
-    inductance = calculate_inductance(stored_field_energy, current)
+    inductance = calculate_inductance(stored_field_energy, inductor_current)
     delta_flux = frame_flux - flux
     flux = frame_flux
 
     # Calculates the current for the next frame
-    current, voltage = rk_2nd_order_currents(
-        loop_time, current, voltage, dc_resistance, inductance,
-        delta_flux, TIME_STEP
+    inductor_current, _ = rk_2nd_order_currents(
+        loop_time, inductor_current, inductor_voltage, dc_resistance,
+        inductance, TIME_STEP
     )
-    current = clipping_current(current_limit, current)
+    inductor_current = clipping_current(current_limit, inductor_current)
 
     # Calculates magnetic and drag forces
     force = force * 1e6     # Scales FEM Newton output to mN
@@ -197,19 +199,30 @@ while position < target_displacement:
 
     # Moves the projectile element by the dz distance
     renderer.move_element(PROJECTILE_GROUP, dz, (pi / 2, 0, 0))
-    renderer.change_circuit_current("stage_coil", current)
+    renderer.change_circuit_current("stage_coil", inductor_current)
     loop_time += TIME_STEP
 
+    if inductor_voltage > 0:
+        inductor_voltage = supply_voltage - dc_resistance * inductor_current
+        # inductor_voltage -= induced_voltage(
+        #     inductor_current*inductance, TIME_STEP
+        # )
+
     # Switching mechanism
-    if position >= (coil_length / 2.0) and switch is False:
+    if position >= (coil_length / 2.0):
         # Voltage spikes very negatively at switching
-        voltage = -5 * voltage
-        switch = True
+        inductor_voltage = - dc_resistance * inductor_current
+        # inductor_voltage -= induced_voltage(
+        #     inductor_current*inductance, TIME_STEP
+        # )
+
+        if switch is False:
+            switch = True
 
     # Saving results for output
     time_series.append(loop_time)
-    voltage_series.append(voltage)
-    current_series.append(current)
+    voltage_series.append(inductor_voltage)
+    current_series.append(inductor_current)
     velocity_series.append(velocity)
 
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 10), sharex=True)

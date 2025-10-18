@@ -67,15 +67,12 @@ def clipping_current(current_limit: float, current: float) -> float:
 
 
 def differential_currents(
-    time, current, voltage, inductance, resistance, e_induced
+    time, current, voltage, inductance, resistance
 ) -> float:
     """ Differential equation for current within the system """
     _ = time
 
-    if voltage < 0:
-        return voltage / inductance
-    else:
-        return (voltage - resistance * current - e_induced) / inductance
+    return (voltage - resistance * current) / inductance
 
 
 def rk_2nd_order_currents(
@@ -84,28 +81,22 @@ def rk_2nd_order_currents(
     voltage: float,
     resistance: float,
     inductance: float,
-    delta_flux_linkage: float,
     step_size: float
 ) -> float:
     """
     Solves the differential equations for the currents
     using Ralston's method
     """
-    induced = induced_voltage(delta_flux_linkage, step_size)
-    if voltage < 0:
-        voltage += current * resistance - induced
-
     k1 = differential_currents(
-        time, current, voltage, resistance, inductance, induced
+        time, current, voltage, inductance, resistance
     )
 
     k2 = differential_currents(
         time + 3 / 4 * step_size,
         current + 3 / 4 * step_size * k1,
         voltage,
-        resistance,
         inductance,
-        induced
+        resistance,
     )
 
     # Final update using weighted average

@@ -12,7 +12,7 @@ This initial release supports FEMM (Finite Element Method Magnetics) as the prim
 ## Example Simulation
 This example demonstrates a **quasi-transient simulation** of a **Tubular Linear Synchronous Motor (TLSM)**. The figure below represents the key time-domain performance metrics: *Current, Force, and Velocity vs. Time*.
 
-<img src="media/dynamic_analysis.png" alt="Dynamic analysis example" height="500"/>
+<img src="media/dynamic_analysis.png" alt="Dynamic analysis example" height="750"/>
 
 *The full configuration and simulation code for this analysis is available here:
 [`tubular_motor`](./examples/tubular_motor/)*
