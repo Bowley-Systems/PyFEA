@@ -19,7 +19,7 @@ operation:
 model:
   number_pairs: 2                   # Number of N-S pairs in stator
   number_slots: 12                  # Number of slots within the armature
-  fill_factor: 0.6                  # Amount of copper within the coil (0->1) 
+  fill_factor: 0.6                  # Amount of conductor within the coil (0->1) 
   boundary_pairs: 5                 # Extra pairs per side to approximate infinite track
   boundary_material: Air            # Material of the boundary / domain
   boundary_shells: 7                # Number of shells for the NEUMANN Boundary condition

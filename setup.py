@@ -37,8 +37,8 @@ setup(
         "blueshark.library": [
             "material.toml"
         ],
-        "blueshark.models.tlsm": [
-            "default.yaml"
+        "blueshark.models": [
+            "**/*.yaml"
         ]
     },
 )

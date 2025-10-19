@@ -57,6 +57,12 @@
     "MULTIPHYSICS",
     "Runge",
     "Kutta",
-    "timelib"
+    "timelib",
+    "MSCG",
+    "frameon",
+    "whitegrid",
+    "labelsize",
+    "fontsize",
+    "ncol",
   ]
 }

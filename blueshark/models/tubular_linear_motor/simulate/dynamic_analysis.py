@@ -7,7 +7,7 @@ Date: 2025-10-09
 Description:
     Performs a dynamic analysis of the
     launch conditions of the proposed
-    design and visualizes results.
+    linear motor design and visualizes results.
 """
 
 import logging
@@ -16,15 +16,16 @@ import matplotlib.pyplot as plt
 import time as timelib
 import sys
 
+from typing import Sequence
 from dataclasses import dataclass
 
-from blueshark.models.tlsm.motor import TubularLinearMotor
+from blueshark.models.tubular_linear_motor.main import TubularLinearMotor
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
 from blueshark.simulate.static import static_simulation
 from blueshark.solver.femm.magnetic.solver import FEMMagneticSolver
 from blueshark.domain.physics.ripple import ripple_percent
 
-from blueshark.models.tlsm.physics.physics import (
+from blueshark.models.tubular_linear_motor.physics.physics import (
     Currents,
     Voltages,
     rk_2nd_order_currents,
@@ -153,52 +154,50 @@ def _time_progress(
         print(f"\nSimulation complete in {_format_time(elapsed)}")
 
 
-def _debug_plotting(
-    time_series: list,
-    pa_series: list,
-    pb_series: list,
-    pc_series: list,
-    force_series: list,
-    velocity_series: list
+def debug_plotting(
+    time_series: Sequence[float],
+    pa_series: Sequence[float],
+    pb_series: Sequence[float],
+    pc_series: Sequence[float],
+    force_series: Sequence[float],
+    velocity_series: Sequence[float],
 ) -> None:
-    """
-    Plots results from the dynamic simulation for debugging the code.
-    """
-    plt.figure(figsize=(10, 7))
+    """ Plot dynamic simulation results for debugging purposes. """
 
-    # Plots 3-phase currents
-    plt.subplot(3, 1, 1)
-    plt.plot(time_series, pa_series, label="Phase A", color="tab:brown")
-    plt.plot(time_series, pb_series, label="Phase B", color="tab:orange")
-    plt.plot(time_series, pc_series, label="Phase C", color="tab:green")
-    plt.title("Three-Phase Currents vs Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Current (A)")
-    plt.legend()
-    plt.grid(True)
+    plt.style.use("seaborn-v0_8-whitegrid")
+    fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
 
-    # Plots Force Vs Time
-    plt.subplot(3, 1, 2)
-    plt.plot(
-        time_series, force_series, label="Lorentz Force (N)", color="tab:red"
-    )
-    plt.title("Force vs Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Force (N)")
-    plt.grid(True)
+    # --- Three-phase currents ---
+    axes[0].plot(time_series, pa_series, label="Phase A", color="#8B4513",
+                 linewidth=2)
+    axes[0].plot(time_series, pb_series, label="Phase B", color="#FF8C00",
+                 linewidth=2)
+    axes[0].plot(time_series, pc_series, label="Phase C", color="#3CB371",
+                 linewidth=2)
+    axes[0].set_title("Three-Phase Currents vs Time", fontsize=14)
+    axes[0].set_ylabel("Current (A)")
+    axes[0].legend(loc="upper right", ncol=3, frameon=True)
+    axes[0].tick_params(axis="both", which="major", labelsize=10)
 
-    # Plots Velocity vs Time
-    plt.subplot(3, 1, 3)
-    plt.plot(
-        time_series, velocity_series, label="Velocity (m/s)", color="tab:blue"
-    )
-    plt.title("Velocity vs Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Velocity (m/s)")
-    plt.grid(True)
+    # --- Force vs Time ---
+    axes[1].plot(time_series, force_series, label="Lorentz Force (N)",
+                 color="#DC143C", linewidth=2)
+    axes[1].set_title("Force vs Time", fontsize=14)
+    axes[1].set_ylabel("Force (N)")
+    axes[1].legend(loc="upper right", frameon=True)
+    axes[1].tick_params(axis="both", which="major", labelsize=10)
 
-    # Adjust graphs to fit the figure area and shows them
-    plt.tight_layout()
+    # --- Velocity vs Time ---
+    axes[2].plot(time_series, velocity_series, label="Velocity (m/s)",
+                 color="#1E90FF", linewidth=2)
+    axes[2].set_title("Velocity vs Time", fontsize=14)
+    axes[2].set_xlabel("Time (s)")
+    axes[2].set_ylabel("Velocity (m/s)")
+    axes[2].legend(loc="upper left", frameon=True)
+    axes[2].tick_params(axis="both", which="major", labelsize=10)
+
+    # Adjust layout
+    fig.tight_layout(pad=2.0)
     plt.show()
 
 
@@ -342,7 +341,7 @@ def run_dynamic(
         return None
 
     if debugging:
-        _debug_plotting(
+        debug_plotting(
             time_data, pa_data, pb_data, pc_data, force_data, velocity_data
         )
 

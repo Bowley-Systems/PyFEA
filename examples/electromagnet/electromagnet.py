@@ -25,11 +25,10 @@ iron = manager.use_material("Pure Iron")
 air = manager.use_material("Air")
 
 # Initializes renderer, defines problems and circuit
-file_location = "examples/electromagnet/electromagnet.fem"
+file_location = "examples/electromagnet/outputs/electromagnet.fem"
 renderer = FEMMagneticRenderer(file_location)
 renderer.setup(CoordinateSystem.PLANAR, Units.CENTIMETERS, depth=10)
 renderer.create_circuit("phase_1", CircuitType.SERIES, 1)
-
 
 # Defines the shapes and boundary geometry
 domain = Geometry(shape=ShapeType.CIRCLE, center=(0, 0), radius=20)
@@ -73,5 +72,4 @@ renderer.define_environment_region(-1, (18, 0), air)
 result = static_simulation(
     renderer, FEMMagneticSolver, "all", [1, 2], "phase_1"
 )
-
 print(result)

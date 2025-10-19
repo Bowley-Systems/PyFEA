@@ -15,8 +15,8 @@ from blueshark.renderer.renderer_interface import MagneticRenderer
 from blueshark.solver.solver_interface import BaseSolver
 from blueshark.simulate.static import static_simulation
 
-from blueshark.models.tlsm.motor import TubularLinearMotor
-from blueshark.models.tlsm.physics.physics import dc_resistance
+from blueshark.models.tubular_linear_motor.main import TubularLinearMotor
+from blueshark.models.tubular_linear_motor.physics.physics import dc_resistance
 
 # Constant variables
 TEST_CURRENT = 1e-2  # Ampere's
@@ -26,7 +26,7 @@ def get_magnet_flux(
     motor: TubularLinearMotor,
     renderer: MagneticRenderer,
     solver: BaseSolver
-) -> float:
+) -> list[float, float, float]:
     """
     Gets the magnet flux when there is zero current flowing
     through the phases within the motor.
@@ -46,7 +46,9 @@ def get_magnet_flux(
         )
 
         magnet_flux = results_magnet["circuit_flux_linkage"]
-        return magnet_flux
+
+        print("Magnet flux results collected..")
+        return list(magnet_flux.values())
 
     except Exception as e:
         msg = f"Get magnet flux simulation failed for {motor}: {e}"
@@ -78,15 +80,15 @@ def get_phase_values(
             frame_current = TEST_CURRENT * i
             renderer.change_circuit_current(phases_a, frame_current)
 
-            results_magnet = static_simulation(
+            result_circuit = static_simulation(
                 renderer,
                 solver,
                 ["circuit_flux_linkage", "circuit_voltage"],
                 circuits=phases_a
             )
 
-            voltage = results_magnet["circuit_voltage"][phases_a]
-            flux_linkage = results_magnet["circuit_flux_linkage"][phases_a]
+            voltage = result_circuit["circuit_voltage"][phases_a]
+            flux_linkage = result_circuit["circuit_flux_linkage"][phases_a]
 
             flux.append(flux_linkage)
             current.append(frame_current)
@@ -97,9 +99,10 @@ def get_phase_values(
         resistance = sum(resistances) / len(resistances)
         inductance = (flux[-1] - flux[0]) / (current[-1] - current[0])
 
+        print("Phase A, B and C results collected..")
         return resistance, inductance
 
     except Exception as e:
-        msg = f"Get magnet flux simulation failed for {motor}: {e}"
+        msg = f"Get phases values simulation failed for {motor}: {e}"
         logging.error(msg)
         raise RuntimeError(msg)

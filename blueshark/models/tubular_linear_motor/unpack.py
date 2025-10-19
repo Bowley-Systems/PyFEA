@@ -7,6 +7,10 @@ Date: 2025-10-04
 Description:
     Unpacks data from the .YAML file for the tubular
     linear motor to use later.
+
+    NOTE:
+        Handles only static parameter definitions.
+        Specific dynamic definitions are handled by `main.py`
 """
 
 import yaml
@@ -30,7 +34,7 @@ class MotorUnpacker:
     ) -> None:
         """ Initializes the class and unpacks the .YAML file """
         if parameter_file is None:
-            parameter_file = "motor.yaml"
+            parameter_file = self.DEFAULT_FILE_NAME
 
         self.file = pathlib.Path(parameter_file)
         self.debugging = debugging

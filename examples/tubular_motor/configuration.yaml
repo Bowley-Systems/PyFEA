@@ -10,16 +10,16 @@ output:
   file_name: motor
 
 operation:
-  mass: 400                         # Moving mass
-  target_speed: 400                 # Target speed of the motor (mms^-1)
+  mass: 500                         # Moving mass
+  target_speed: 1000                # Target speed of the motor (mms^-1)
   supply_voltage: 24                # Supply voltage (volts)
-  current_limit:  3                 # Maximum current from the supply (amps)
-  de_solver_maximum_steps: 1000     # Maximum number of time steps before failing
+  current_limit:  2                 # Maximum current from the supply (amps)
+  de_solver_maximum_steps: 2500     # Maximum number of time steps before failing
 
 model:
-  number_pairs: 1                   # Number of N-S pairs in stator
-  number_slots: 6                   # Number of slots within the armature
-  fill_factor: 0.6                  # Amount of copper within the coil (0->1) 
+  number_pairs: 2                   # Number of N-S pairs in stator
+  number_slots: 12                  # Number of slots within the armature
+  fill_factor: 0.6                  # Amount of conductor within the coil (0->1) 
   boundary_pairs: 5                 # Extra pairs per side to approximate infinite track
   boundary_material: Air            # Material of the boundary / domain
   boundary_shells: 7                # Number of shells for the NEUMANN Boundary condition

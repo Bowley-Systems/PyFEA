@@ -1,8 +1,8 @@
 """
 Filename: main.py
 Author: William Bowley
-Version: 1.3
-Date: 2025-10-14
+Version: 0.3
+Date: 2025-10-19
 
 Description:
     Quasi-transient magnetic analysis for V1.0 TLSM.
@@ -14,31 +14,41 @@ Description:
 
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
 from blueshark.solver.femm.magnetic.solver import FEMMagneticSolver
-from blueshark.models.tlsm.unpack import MotorUnpacker
-from blueshark.models.tlsm.motor import TubularLinearMotor
-from blueshark.models.tlsm.simulate.dynamic_analysis import run_dynamic
-from blueshark.models.tlsm.simulate.static_analysis import (
-    get_phase_values, get_magnet_flux
+
+from blueshark.models.tubular_linear_motor.unpack import MotorUnpacker
+from blueshark.models.tubular_linear_motor.main import TubularLinearMotor
+from blueshark.models.tubular_linear_motor.simulate import (
+    run_dynamic, get_magnet_flux, get_phase_values
 )
 
-renderer_file = "examples/tubular_motor/configuration.yaml"
+# Defines the unpacker & renderer dependency
+parameter_file = "examples/tubular_motor/configuration.yaml"
+unpacker = MotorUnpacker(parameter_file)
 
-unpacker = MotorUnpacker(renderer_file)
-renderer = FEMMagneticRenderer(
-    f"{unpacker.folder_path}/{unpacker.file_name}.fem"
-)
+renderer_file = f"{unpacker.folder_path}/{unpacker.file_name}.fem"
+renderer = FEMMagneticRenderer(renderer_file)
+
+# Creates the motor instant, builds motor and defines domain
 motor = TubularLinearMotor(renderer, unpacker)
 motor.build()
 
-# Femm cannot automatically fill domain
-renderer.define_environment_region(
-    motor.BOUNDARY, (100, 100), motor.boundary_material
-)
+# Note: Femm cannot automatically fill domain; hence user has too.
+tag = (unpacker.slot_outer_radius * 1.2, 0)
+material = motor.boundary_material
+renderer.define_environment_region(motor.BOUNDARY, tag, material)
 
+# Performs a series of static frames to get key parameters
 resistance, inductance = get_phase_values(motor, renderer, FEMMagneticSolver)
 magnet_flux = get_magnet_flux(motor, renderer, FEMMagneticSolver)
-print(
-    run_dynamic(
-        motor, resistance, inductance, list(magnet_flux.values()), True
-    )
-)
+
+# Performs a quasi transient simulation of the motor
+results = run_dynamic(motor, resistance, inductance, magnet_flux, True)
+
+# Return results to the user via console
+simulation_results = {
+    "phase_resistance": resistance,
+    "phase_inductance": inductance,
+    "magnet_flux": magnet_flux,
+    "dynamic_results": results
+}
+print(f"\n{simulation_results}")

@@ -1,5 +1,5 @@
 """
-File: motor.py
+File: main.py
 Author: William Bowley
 Version: 0.2
 Date: 2025-10-14
@@ -8,8 +8,7 @@ Description:
     Basic model of a tubular linear motor for use in
     the simulation framework.
 
-    Parameters are defined through the motor unpacker
-    dependency
+    Parameters are defined through the unpacker dependency
 """
 
 from blueshark.domain.material_manager.manager import MaterialManager
@@ -27,8 +26,10 @@ from blueshark.domain.definitions import (
     CurrentPolarity
 )
 
-from blueshark.models.tlsm.unpack import MotorUnpacker
-from blueshark.models.tlsm.physics.number_turns import estimate_turns
+from blueshark.models.tubular_linear_motor.unpack import MotorUnpacker
+from blueshark.models.tubular_linear_motor.physics.number_turns import (
+    estimate_turns
+)
 
 
 class TubularLinearMotor:
@@ -162,7 +163,7 @@ class MagneticPhysics:
     def _add_armature(self) -> None:
         """ Adds the armature to the simulation space """
         # Generates slot origins according to rule:
-        # Origin = (slot_inner, pole_pitch * slot + offset)
+        # Origin = (slot_inner, slot_pitch * slot + offset)
         origins = []
 
         offset = -0.5 * self.motor.slot_pitch * self.load.number_slots
