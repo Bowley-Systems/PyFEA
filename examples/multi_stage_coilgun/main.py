@@ -21,6 +21,10 @@ from blueshark.models.coilgun_multi_stage.simulate import (
     get_circuit_values
 )
 
+from blueshark.models.coilgun_multi_stage.simulate.dynamic_analysis import (
+    launch_dynamic
+)
+
 # Defines the unpacker & renderer dependency
 parameter_file = "examples/multi_stage_coilgun/configuration.yaml"
 unpacker = CoilGunUnpacker(parameter_file)
@@ -37,6 +41,10 @@ material = coilgun.boundary_material
 renderer.define_environment_region(coilgun.BOUNDARY, tag, material)
 
 # Performs a series of static frames to get resistance, inductance
-resistance, inductance = get_circuit_values(
-    coilgun, renderer, FEMMagneticSolver
+resistance, inductance = get_circuit_values(coilgun, FEMMagneticSolver)
+
+# Performs a dynamic launch of the coilgun
+result = launch_dynamic(
+    coilgun, FEMMagneticSolver, resistance, inductance, True
 )
+print(f"\n{result}")

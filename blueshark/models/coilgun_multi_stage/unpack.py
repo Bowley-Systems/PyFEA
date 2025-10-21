@@ -142,6 +142,7 @@ class CoilGunUnpacker:
         self.projectile_outer_radi = self._require("outer_radi", projectile)
         self.projectile_material = self._require("material", projectile)
         self.projectile_density = self._require("material_density", projectile)
+        self.projectile_co_drag = self._require("coefficient_drag", projectile)
         self.projectile_axial_length = self._require(
             "axial_length", projectile
         )

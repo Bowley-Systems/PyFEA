@@ -79,7 +79,7 @@ def _magneto_static_frame(
 
         results = static_simulation(
             renderer,
-            FEMMagneticSolver,
+            FEMMagneticSolver,          # THIS IS A PROBLEM; SHOULD BE GENERIC
             ["circuit_flux_linkage", "circuit_power", "force_lorentz"],
             elements=groups,
             circuits=phases
@@ -162,41 +162,57 @@ def debug_plotting(
     force_series: Sequence[float],
     velocity_series: Sequence[float],
 ) -> None:
-    """ Plot dynamic simulation results for debugging purposes. """
+    """ Plot dynamic simulation results for debugging """
 
-    plt.style.use("seaborn-v0_8-whitegrid")
+    plt.style.use("dark_background")
     fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
 
-    # --- Three-phase currents ---
-    axes[0].plot(time_series, pa_series, label="Phase A", color="#8B4513",
-                 linewidth=2)
-    axes[0].plot(time_series, pb_series, label="Phase B", color="#FF8C00",
-                 linewidth=2)
-    axes[0].plot(time_series, pc_series, label="Phase C", color="#3CB371",
-                 linewidth=2)
-    axes[0].set_title("Three-Phase Currents vs Time", fontsize=14)
-    axes[0].set_ylabel("Current (A)")
-    axes[0].legend(loc="upper right", ncol=3, frameon=True)
-    axes[0].tick_params(axis="both", which="major", labelsize=10)
+    # Three-phase currents
+    axes[0].plot(time_series, pa_series, label="Phase A",
+                 color="#FFA07A", linewidth=2)
+    axes[0].plot(time_series, pb_series, label="Phase B",
+                 color="#FFD700", linewidth=2)
+    axes[0].plot(time_series, pc_series, label="Phase C",
+                 color="#00FA9A", linewidth=2)
+    axes[0].set_title("Three-Phase Currents vs Time",
+                      fontsize=14, color="white")
+    axes[0].set_ylabel("Current (A)", color="white")
+    axes[0].legend(loc="upper right", ncol=3, frameon=True,
+                   facecolor="#2C2C2C", edgecolor="white",
+                   labelcolor="white")
+    axes[0].tick_params(axis="both", which="major",
+                        labelsize=10, colors="white")
 
-    # --- Force vs Time ---
-    axes[1].plot(time_series, force_series, label="Lorentz Force (N)",
-                 color="#DC143C", linewidth=2)
-    axes[1].set_title("Force vs Time", fontsize=14)
-    axes[1].set_ylabel("Force (N)")
-    axes[1].legend(loc="upper right", frameon=True)
-    axes[1].tick_params(axis="both", which="major", labelsize=10)
+    # Force vs Time
+    axes[1].plot(time_series, force_series,
+                 label="Lorentz Force (N)", color="#FF4500",
+                 linewidth=2)
+    axes[1].set_title("Force vs Time", fontsize=14, color="white")
+    axes[1].set_ylabel("Force (N)", color="white")
+    axes[1].legend(loc="upper right", frameon=True,
+                   facecolor="#2C2C2C", edgecolor="white",
+                   labelcolor="white")
+    axes[1].tick_params(axis="both", which="major",
+                        labelsize=10, colors="white")
 
-    # --- Velocity vs Time ---
-    axes[2].plot(time_series, velocity_series, label="Velocity (m/s)",
-                 color="#1E90FF", linewidth=2)
-    axes[2].set_title("Velocity vs Time", fontsize=14)
-    axes[2].set_xlabel("Time (s)")
-    axes[2].set_ylabel("Velocity (m/s)")
-    axes[2].legend(loc="upper left", frameon=True)
-    axes[2].tick_params(axis="both", which="major", labelsize=10)
+    # Velocity vs Time
+    axes[2].plot(time_series, velocity_series,
+                 label="Velocity (m/s)", color="#1E90FF",
+                 linewidth=2)
+    axes[2].set_title("Velocity vs Time",
+                      fontsize=14, color="white")
+    axes[2].set_xlabel("Time (s)", color="white")
+    axes[2].set_ylabel("Velocity (m/s)", color="white")
+    axes[2].legend(loc="upper left", frameon=True,
+                   facecolor="#2C2C2C", edgecolor="white",
+                   labelcolor="white")
+    axes[2].tick_params(axis="both", which="major",
+                        labelsize=10, colors="white")
 
-    # Adjust layout
+    fig.patch.set_facecolor("#121212")
+    for ax in axes:
+        ax.set_facecolor("#1E1E1E")
+
     fig.tight_layout(pad=2.0)
     plt.show()
 
@@ -296,6 +312,10 @@ def run_dynamic(
             # Axial direction is vertical whereas radial is horizontal
             axial_force = axial_force * math.sin(axial_angle)
 
+            # Tracks mechanical and electrical
+            mechanical_energy += axial_force * velocity * time_step
+            electrical_energy += power * time_step
+
             # Calculates the current flux linkage for the frame
             flux_alpha, flux_beta = clark_transform(*frame_flux)
             d_flux_frame, q_flux_frame = park_transform(
@@ -316,10 +336,6 @@ def run_dynamic(
             )
 
             flux = frame_flux
-
-            # Energy tracking
-            mechanical_energy += axial_force * velocity * time_step
-            electrical_energy += power * time_step
             time += time_step
 
             # Collects data only during steady state current conditions

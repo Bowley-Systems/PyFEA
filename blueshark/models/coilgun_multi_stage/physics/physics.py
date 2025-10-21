@@ -13,6 +13,8 @@ Description:
 
 from math import pi
 
+from blueshark.domain.constants import EPSILON
+
 
 def dc_resistance(voltage: float, current: float) -> float:
     """
@@ -21,9 +23,20 @@ def dc_resistance(voltage: float, current: float) -> float:
     return voltage / current
 
 
+def calculate_inductance(
+    initial: float, flux_linkage: float, current: float
+) -> float:
+    """ Calculates the inductance via flux linkage """
+    if abs(current) < EPSILON or abs(current) < EPSILON:
+        return initial
+
+    ind = flux_linkage / current
+    return ind
+
+
 def projectile_drag(
-    density: float,
     velocity: float,
+    density: float,
     coefficient: float,
     radius: float
 ) -> float:
@@ -47,7 +60,7 @@ def differential_currents(
     """ Differential equation for current within the system """
     _ = time
 
-    return (voltage) / inductance
+    return voltage / inductance
 
 
 def rk_2nd_order_currents(
@@ -55,6 +68,7 @@ def rk_2nd_order_currents(
     current: float,
     voltage: float,
     inductance: float,
+    resistance: float,
     step_size: float
 ) -> float:
     """
@@ -62,9 +76,11 @@ def rk_2nd_order_currents(
     the inductor using Ralston's method
     """
     k1 = differential_currents(time, voltage, inductance)
+
+    voltage = voltage - resistance * 3 / 4 * step_size * k1
     k2 = differential_currents(
         time + 3 / 4 * step_size,
-        current + 3 / 4 * step_size * k1,
+        voltage,
         inductance
     )
 
@@ -82,7 +98,7 @@ def calculate_inductor_voltage(
     """
     Computes the inductor voltage during simulation
     """
-    v_drop = - current * resistance
+    v_drop = current * resistance
     v_inductor = supply_voltage - v_drop - induced_voltage
 
     return v_inductor

@@ -99,6 +99,11 @@ def get_phase_values(
         resistance = sum(resistances) / len(resistances)
         inductance = (flux[-1] - flux[0]) / (current[-1] - current[0])
 
+        # Resets all phases to zero current
+        phases = motor.PHASES
+        for phase in phases:
+            renderer.change_circuit_current(phase, 0)
+
         print("Phase A, B and C results collected..")
         return resistance, inductance
 

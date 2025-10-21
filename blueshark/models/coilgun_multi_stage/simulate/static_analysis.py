@@ -23,7 +23,6 @@ from blueshark.models.coilgun_multi_stage.physics.physics import (
 
 def get_circuit_values(
     coilgun: MultiStageCoilGun,
-    renderer: MagneticRenderer,
     solver: BaseSolver,
     num_steps: int = 5
 ) -> list[float, float]:
@@ -35,6 +34,7 @@ def get_circuit_values(
         Assumes the inductance and resistance are
         approximately the same across coil 1, coil 2 and coil n
     """
+    renderer: MagneticRenderer = coilgun.renderer
     try:
         # Uses the middle coil of the set
         coil_len = len(coilgun.CIRCUITS)
@@ -67,6 +67,11 @@ def get_circuit_values(
         # Average resistance and incremental inductance
         resistance = sum(resistances) / len(resistances)
         inductance = (flux[-1] - flux[0]) / (current[-1] - current[0])
+
+        # Resets all coil circuits to zero current
+        circuits = coilgun.CIRCUITS
+        for circuit in circuits:
+            renderer.change_circuit_current(circuit, 0)
 
         print(f"Coil 0->{coil_len} results collected..")
         return resistance, inductance

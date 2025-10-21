@@ -35,7 +35,7 @@ coil:
   fill_factor: 0.6                # Amount of conductor within the coil (0->1)
 
 shell:
-  enabled: True                  # Enables the modelling of the shell
+  enabled: False                  # Enables the modelling of the shell
   inner_radi: 17.5                # Inner radius of the shell
   outer_radi: 20.0                # Outer radius of the shell
   axial_length: 50                # Axial length of the shell
@@ -47,5 +47,6 @@ projectile:
   axial_length: 50.0             # Axial length of the projectile
   material: Pure Iron            # Material of the projectile
   material_density: 7.874e-3     # Density of the projectile material
+  coefficient_drag: 0.82         # Coefficient of drag
 
 

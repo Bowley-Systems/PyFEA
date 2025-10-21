@@ -1,7 +1,7 @@
 <p align="center">
   <img src="media/readme_banner.png" alt="BlueShark Logo" style="max-width:600px;">
   <br>
-  <em>Fast Electromechanical Design Explorer for Linear Motors – built with love by <a href="https://github.com/wgbowley">William Bowley</a> & friends</em>
+  <em>Electromechanical Design Explorer for Linear Motors – built with love by <a href="https://github.com/wgbowley">William Bowley</a> & Co.</em>
 </p>
 
 ---

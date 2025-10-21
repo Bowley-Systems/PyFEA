@@ -47,5 +47,6 @@ projectile:
   axial_length: 50.0             # Axial length of the projectile
   material: Pure Iron            # Material of the projectile
   material_density: 7.874e-3     # Density of the projectile material
+  coefficient_drag: 0.82         # Coefficient of drag
 
 

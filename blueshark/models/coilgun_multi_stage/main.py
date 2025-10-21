@@ -53,6 +53,8 @@ class MultiStageCoilGun:
         self._load_materials()
 
         # Defines universal & computes geometric parameters
+        self.coil_origins: list[tuple[float, float]] = None
+        self.projectile_origin: tuple[float, float] = None
         self.coil_pitch: float = None
         self.gap_activate: float = None
         self.coil_deactivate: float = None
@@ -64,7 +66,7 @@ class MultiStageCoilGun:
         self.PROJECTILE: int = 1
 
         # Note: Shifted by 1 to not interfere with the groups before it
-        self.COILS: list[int] = [i for i in range(1, self.load.stages+1)]
+        self.COILS: list[int] = [i for i in range(2, self.load.stages+2)]
         self.CIRCUITS: list[str] = [f"{i}" for i in self.COILS]
 
         # Choose physics strategy based on renderer type
@@ -161,6 +163,9 @@ class MagneticPhysics:
             r = self.load.coil_inner_radi
             origins.append((r, z))
 
+        # Storages origins for simulation usage
+        self.coilgun.coil_origins = origins
+
         # Calculates turns within the coil cross section
         turns = estimate_turns(
             self.load.coil_axial_length,
@@ -205,11 +210,17 @@ class MagneticPhysics:
     def _add_projectile(self) -> None:
         """ Adds the projectile to the simulation space """
         # Projectile origin
-        z_offset = -0.5 * self.coilgun.coil_pitch * self.load.stages
+        z_offset = (
+            -0.5 * self.coilgun.coil_pitch * self.load.stages
+            + self.coilgun.gap_activate
+        )
+
         origin = (
             self.load.projectile_inner_radi,
             z_offset - self.load.projectile_axial_length
         )
+        # Saves the projectile origin for later usage
+        self.coilgun.projectile_origin = origin
 
         # Draw the projectile and assign its physical / material properties
         projectile = self.coilgun._rectangle_geometry(
