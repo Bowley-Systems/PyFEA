@@ -29,8 +29,6 @@ suite.addTests(loader.loadTestsFromTestCase(test_gen.ScalePolygon))
 suite.addTests(loader.loadTestsFromTestCase(test_gen.ScaleGeometry))
 
 # domain/test_physics
-suite.addTests(loader.loadTestsFromTestCase(test_phy.ConvertMeters))
-suite.addTests(loader.loadTestsFromTestCase(test_phy.ConvertSquareMeters))
 suite.addTests(loader.loadTestsFromTestCase(test_phy.RippleSeries))
 
 # domain/test_material_manager

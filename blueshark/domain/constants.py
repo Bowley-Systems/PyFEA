@@ -13,7 +13,6 @@ Description:
 """
 
 from math import pi
-from blueshark.domain.definitions import Units
 
 PRECISION: int = 12
 # Number of decimal places for rounding or formatting output.
@@ -41,11 +40,3 @@ ROOM_CONVECTION = 10    # W/(m^2 * K)
 PI = pi
 TWO_PI = 2 * pi
 # Precompute π and 2π to avoid repeated calculations.
-
-CONVERSION_TO_METERS = {
-    Units.MICROMETERS: 1e-6,
-    Units.MILLIMETER: 1e-3,
-    Units.CENTIMETERS: 1e-2,
-    Units.METER: 1.0,
-}
-# Conversion factors from each unit to meters.

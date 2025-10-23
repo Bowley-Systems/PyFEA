@@ -39,9 +39,9 @@ class PhysicsType(Enum):
     # MULTIPHYSICS = auto()  # Combined physics simulations
 
 
-class Units(Enum):
+class RendererUnit(Enum):
     """
-    All units supported by the renderer & solvers.
+    All measurement units supported by the renderer & solvers.
     """
     MICROMETERS = auto()
     CENTIMETERS = auto()
@@ -55,7 +55,7 @@ class Problem:
     Defines the problem for the solver
     """
     frequency: Optional[float] = None
-    units: Optional[str] = None
+    RendererUnit: Optional[str] = None
     type: Optional[str] = None
     depth: Optional[float] = None
     tolerance: float = 0
@@ -97,7 +97,7 @@ class Connection(TypedDict, total=False):
 class Geometry(TypedDict, total=False):
     """
     Describes the geometry of an element.
-    Uses the units selected by the user.
+    Uses the RendererUnit selected by the user.
     Fields are optional depending on shape.
     """
     shape: ShapeType

@@ -16,7 +16,7 @@ from blueshark.renderer.renderer_interface import (
     BaseRenderer, MagneticRenderer
 )
 from blueshark.domain.definitions import (
-    Units,
+    RendererUnit,
     ShapeType,
     Geometry,
     Problem,
@@ -27,9 +27,7 @@ from blueshark.domain.definitions import (
 )
 
 from blueshark.models.coilgun_multi_stage.unpack import CoilGunUnpacker
-from blueshark.models.coilgun_multi_stage.physics.number_turns import (
-    estimate_turns
-)
+from blueshark.models.coilgun_multi_stage.physics import estimate_turns
 
 
 class MultiStageCoilGun:
@@ -44,7 +42,7 @@ class MultiStageCoilGun:
         self.renderer = renderer
         self.manager = MaterialManager()
         self.problem = Problem(
-            units=Units.MILLIMETER,
+            RendererUnit=RendererUnit.MILLIMETER,
             type=CoordinateSystem.AXI_SYMMETRIC
         )
 
@@ -78,7 +76,7 @@ class MultiStageCoilGun:
 
     def build(self) -> None:
         """ Setups the renderer problem, draw motor and sets its properties """
-        self.renderer.setup(self.problem.type, self.problem.units)
+        self.renderer.setup(self.problem.type, self.problem.RendererUnit)
 
         # Delegate to physics-specific implementation
         self.physics_impl.build()

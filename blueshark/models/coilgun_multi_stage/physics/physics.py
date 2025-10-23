@@ -7,7 +7,7 @@ Description:
     Physics module for the `coilgun.py` example
     script using FEM: Magnetic Renderer & Solver
 
-    Uses mm-g-s Units:
+    Uses mm-g-s units:
         - Millimeter, gram, second, ampere
 """
 

@@ -102,7 +102,7 @@ class CoilGunUnpacker:
         self.stages = self._require("stages", model)
         self.stage_gap = self._require("stage_gap", model)
         self.time_step = self._require("time_step", model)
-        self.initial_current = self._require("initial_current", model)
+        self.test_current = self._require("test_current", model)
         self.atmospheric_density = self._require("atmospheric_density", model)
 
     def _unpack_boundary(self, boundary: dict) -> None:

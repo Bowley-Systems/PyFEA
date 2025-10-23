@@ -47,8 +47,8 @@ class DynamicResults:
     force_I_rms: float      # N / A
     force_ripple: float     # % Peak-to-Peak
     displacement: float     # Displacement to reach target (m)
-    power_loss: float       # Power loss (W)
-    total_power: float      # Electrical input power (W)
+    average_power_loss: float   # Average Power loss (W)
+    average_input_power: float  # Average Electrical input power (W)
 
 
 @dataclass
@@ -377,6 +377,6 @@ def run_dynamic(
         force_I_rms=force_I_rms,
         force_ripple=force_ripple,
         displacement=displacement,
-        power_loss=losses,
-        total_power=(electrical_energy / time) if time > 0 else 0.0
+        average_power_loss=losses,
+        average_input_power=(electrical_energy / time) if time > 0 else 0.0
     )

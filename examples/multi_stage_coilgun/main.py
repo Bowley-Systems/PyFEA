@@ -18,11 +18,7 @@ from blueshark.solver.femm.magnetic.solver import FEMMagneticSolver
 from blueshark.models.coilgun_multi_stage.main import MultiStageCoilGun
 from blueshark.models.coilgun_multi_stage.unpack import CoilGunUnpacker
 from blueshark.models.coilgun_multi_stage.simulate import (
-    get_circuit_values
-)
-
-from blueshark.models.coilgun_multi_stage.simulate.dynamic_analysis import (
-    launch_dynamic
+    get_circuit_values, launch_dynamic
 )
 
 # Defines the unpacker & renderer dependency
@@ -32,6 +28,7 @@ unpacker = CoilGunUnpacker(parameter_file)
 renderer_path = f"{unpacker.folder_path}/{unpacker.file_name}.fem"
 renderer = FEMMagneticRenderer(renderer_path)
 
+# Builds the coil-gun from unpacker data
 coilgun = MultiStageCoilGun(renderer, unpacker)
 coilgun.build()
 

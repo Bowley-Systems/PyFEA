@@ -2,7 +2,7 @@ notes: |
   Tubular motors use Z-R (axial-radial) coordinate system.
   Only models the electric and magnetic materials.
 
-  Uses mm-g-s Units:
+  Uses mm-g-s units:
     - Millimeters, gram, second, amperes
 
 output:
@@ -10,31 +10,31 @@ output:
   file_name: motor
 
 operation:
-  mass: 500                         # Moving mass
-  target_speed: 1000                # Target speed of the motor (mms^-1)
-  supply_voltage: 24                # Supply voltage (volts)
-  current_limit:  2                 # Maximum current from the supply (amps)
-  de_solver_maximum_steps: 2500     # Maximum number of time steps before failing
+  mass: 500 # Moving mass
+  target_speed: 1000 # Target speed of the motor (mms^-1)
+  supply_voltage: 24 # Supply voltage (volts)
+  current_limit: 2 # Maximum current from the supply (amps)
+  de_solver_maximum_steps: 2500 # Maximum number of time steps before failing
 
 model:
-  number_pairs: 2                   # Number of N-S pairs in stator
-  number_slots: 12                  # Number of slots within the armature
-  fill_factor: 0.6                  # Amount of conductor within the coil (0->1) 
-  boundary_pairs: 5                 # Extra pairs per side to approximate infinite track
-  boundary_material: Air            # Material of the boundary / domain
-  boundary_shells: 7                # Number of shells for the NEUMANN Boundary condition
+  number_pairs: 2 # Number of N-S pairs in stator
+  number_slots: 12 # Number of slots within the armature
+  fill_factor: 0.6 # Amount of conductor within the coil (0->1) 
+  boundary_pairs: 5 # Extra pairs per side to approximate infinite track
+  boundary_material: Air # Material of the boundary / domain
+  boundary_shells: 7 # Number of shells for the NEUMANN Boundary condition
 
 armature:
-  inner_radius: 7.45                # Inner radius of the slots
-  outer_radius: 12                  # Outer radius of the slots
-  axial_length: 4                   # Slot length along axial (Z) direction
-  axial_spacing: 2                  # Spacing between the slots along axial (Z) direction
-  slot_material: Copper Wire        # Material of the slots
-  slot_wire_diameter: 0.4           # Diameter of the slots wire
+  inner_radius: 7.45 # Inner radius of the slots
+  outer_radius: 12 # Outer radius of the slots
+  axial_length: 4 # Slot length along axial (Z) direction
+  axial_spacing: 2 # Spacing between the slots along axial (Z) direction
+  slot_material: Copper Wire # Material of the slots
+  slot_wire_diameter: 0.4 # Diameter of the slots wire
 
 stator:
-  inner_radius: 0                   # Inner radius of the poles
-  outer_radius: 5                   # Outer radius of the poles
-  axial_length: 10                  # Length of the poles along axial (Z) direction
-  pole_material: NdFeB              # Material of the poles
-  pole_grade: N52                   # Grade of the poles
+  inner_radius: 0 # Inner radius of the poles
+  outer_radius: 5 # Outer radius of the poles
+  axial_length: 10 # Length of the poles along axial (Z) direction
+  pole_material: NdFeB # Material of the poles
+  pole_grade: N52 # Grade of the poles

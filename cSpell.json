@@ -66,6 +66,12 @@
     "ncol",
     "facecolor",
     "edgecolor",
-    "labelcolor"
+    "labelcolor",
+    "polyfit",
+    "DEKA",
+    "DECI",
+    "HECTO",
+    "CENTI",
+    "MILLI"
   ]
 }

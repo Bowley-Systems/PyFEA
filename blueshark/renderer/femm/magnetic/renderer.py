@@ -24,7 +24,7 @@ from blueshark.domain.constants import SETUP_CURRENT, DEFAULT_TOLERANCE
 from blueshark.renderer.femm.magnetic.materials import femm_add_material
 from blueshark.renderer.femm.magnetic.boundary import draw_domain
 from blueshark.domain.definitions import (
-    Units,
+    RendererUnit,
     Geometry,
     CoordinateSystem,
     CircuitType,
@@ -66,7 +66,7 @@ class FEMMagneticRenderer(MagneticRenderer):
     def setup(
         self,
         system: CoordinateSystem,
-        units: Units,
+        RendererUnit: RendererUnit,
         depth: float = 0,
         tolerance: float = DEFAULT_TOLERANCE,
         frequency: float = 0
@@ -76,7 +76,7 @@ class FEMMagneticRenderer(MagneticRenderer):
 
         Args:
             system: Coordinate System (enum)
-            units: Measurement system used by the renderer
+            RendererUnit: Measurement system used by the renderer
             depth: [Optional] Into the paper length (planar only)
             tolerance: [Optional] Precision value,
                         tells solver to stop iterating on the problem
@@ -104,19 +104,19 @@ class FEMMagneticRenderer(MagneticRenderer):
             msg = f"{system} isn't supported by FEMMagneticRenderer"
             raise ValueError(msg)
 
-        femm_units = None
-        match units:
-            case Units.MICROMETERS:
-                femm_units = "micrometers"
-            case Units.CENTIMETERS:
-                femm_units = "centimeters"
-            case Units.MILLIMETER:
-                femm_units = "millimeters"
-            case Units.METER:
-                femm_units = "meters"
+        femm_RendererUnit = None
+        match RendererUnit:
+            case RendererUnit.MICROMETERS:
+                femm_RendererUnit = "micrometers"
+            case RendererUnit.CENTIMETERS:
+                femm_RendererUnit = "centimeters"
+            case RendererUnit.MILLIMETER:
+                femm_RendererUnit = "millimeters"
+            case RendererUnit.METER:
+                femm_RendererUnit = "meters"
 
             case _:
-                msg = f"Unit '{units}' is not supported by FEMM"
+                msg = f"Unit '{RendererUnit}' is not supported by FEMM"
                 raise NotImplementedError(msg)
 
         try:
@@ -130,7 +130,7 @@ class FEMMagneticRenderer(MagneticRenderer):
 
             # Records the problem parameters for solver
             self.problem.frequency = frequency
-            self.problem.units = femm_units
+            self.problem.RendererUnit = femm_RendererUnit
             self.problem.type = problem_type
             self.problem.depth = depth
             self.problem.tolerance = tolerance
@@ -138,7 +138,7 @@ class FEMMagneticRenderer(MagneticRenderer):
             # Defines the problem within femm renderer
             femm.mi_probdef(
                 frequency,
-                femm_units,
+                femm_RendererUnit,
                 problem_type,
                 tolerance,
                 depth

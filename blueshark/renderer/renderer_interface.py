@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 
 from blueshark.domain.constants import SETUP_CURRENT
 from blueshark.domain.definitions import (
-    Geometry, Units, CoordinateSystem, CircuitType,
+    Geometry, RendererUnit, CoordinateSystem, CircuitType,
     CurrentPolarity, BoundaryType
 )
 
@@ -39,7 +39,7 @@ class BaseRenderer(ABC):
     def setup(
         self,
         system: CoordinateSystem,
-        units: Units
+        RendererUnit: RendererUnit
     ) -> Any:
         """
         Setup the rendering environment or simulation space

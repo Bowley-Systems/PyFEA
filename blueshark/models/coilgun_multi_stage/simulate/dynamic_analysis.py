@@ -33,8 +33,8 @@ class DynamicResults:
     """ Holds the dynamic launch results """
     final_velocity: float       # final velocity of the projectile (mms^-1)
     input_output: float         # Output / Input Ratio
-    power_loss: float           # Power loss (W)
-    total_power: float          # Electrical input power (W)
+    average_power_loss: float   # Average Power loss (W)
+    average_input_power: float  # Average Electrical input power (W)
 
 
 def _debug_plotting(
@@ -236,18 +236,25 @@ def launch_dynamic(
             time_series, position_series, force_series, velocity_series
         )
 
+    # Converting nJ to J
+    mechanical_energy = mechanical_energy / 1e9
+
     # Calculates outputs based on quasi-transient loop outputs
-    ratio = mechanical_energy / electrical_energy if electrical_energy else 0
+    ke = 1/2 * (velocity / 1000) ** 2 * (projectile_mass / 1000)
+    ratio = ke / electrical_energy if electrical_energy else 0
     losses = (
-        (electrical_energy - mechanical_energy) / loop_time
+        (electrical_energy - ke) / loop_time
         if loop_time > 0 else 0
     )
+
+    # New calculation for average total power (Power = Energy / Time)
+    average_input_power = electrical_energy / loop_time if loop_time > 0 else 0
 
     results = DynamicResults(
         velocity,
         ratio,
-        losses,
-        electrical_energy
+        losses,                 # Average Power Loss (W)
+        average_input_power     # Average Electrical Input Power (W)
     )
 
     return results

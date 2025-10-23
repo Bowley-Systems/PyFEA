@@ -119,7 +119,7 @@ class FEMMagneticSolver(BaseSolver):
 
         femm.mi_probdef(
             float(self.problem.frequency),
-            self.problem.units,
+            self.problem.RendererUnit,
             self.problem.type,
             float(self.problem.tolerance),
             float(self.problem.depth)

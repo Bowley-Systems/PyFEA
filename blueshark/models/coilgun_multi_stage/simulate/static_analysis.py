@@ -1,8 +1,8 @@
 """
 Filename: static_analysis.py
 Author: William Bowley
-Version: 0.2
-Date: 2025-10-09
+Version: 0.3
+Date: 2025-10-22
 
 Description:
     Performs a single magneto-static
@@ -10,15 +10,14 @@ Description:
 """
 
 import logging
+import numpy as np
 
 from blueshark.renderer.renderer_interface import MagneticRenderer
 from blueshark.solver.solver_interface import BaseSolver
 from blueshark.simulate.static import static_simulation
 
 from blueshark.models.coilgun_multi_stage.main import MultiStageCoilGun
-from blueshark.models.coilgun_multi_stage.physics.physics import (
-    dc_resistance
-)
+from blueshark.models.coilgun_multi_stage.physics import dc_resistance
 
 
 def get_circuit_values(
@@ -36,7 +35,6 @@ def get_circuit_values(
     """
     renderer: MagneticRenderer = coilgun.renderer
     try:
-        # Uses the middle coil of the set
         coil_len = len(coilgun.CIRCUITS)
         middle_index = coil_len // 2
         coil = coilgun.CIRCUITS[middle_index]
@@ -44,11 +42,10 @@ def get_circuit_values(
         flux = []
         current = []
         resistances = []
-
         for i in range(1, num_steps + 1):
-            frame_current = coilgun.load.initial_current * 10 ** i
+            # Increments current by current = test_current * 10^i
+            frame_current = coilgun.load.test_current * 10 ** i
             renderer.change_circuit_current(coil, frame_current)
-
             result_circuit = static_simulation(
                 renderer,
                 solver,
@@ -66,17 +63,19 @@ def get_circuit_values(
 
         # Average resistance and incremental inductance
         resistance = sum(resistances) / len(resistances)
-        inductance = (flux[-1] - flux[0]) / (current[-1] - current[0])
+
+        # Uses linear regression to appox df/di ~= inductance
+        coefficient = np.polyfit(current, flux, 1)
+        inductance = float(coefficient[0])
 
         # Resets all coil circuits to zero current
-        circuits = coilgun.CIRCUITS
-        for circuit in circuits:
+        for circuit in coilgun.CIRCUITS:
             renderer.change_circuit_current(circuit, 0)
 
         print(f"Coil 0->{coil_len} results collected..")
         return resistance, inductance
 
     except Exception as e:
-        msg = f"Get circuit values simulation failed for {coilgun}: {e}"
+        msg = f"Coil-gun circuit analysis failed | {coilgun}: {e}"
         logging.error(msg)
         raise RuntimeError(msg)

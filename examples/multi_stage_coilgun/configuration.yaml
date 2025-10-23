@@ -2,7 +2,7 @@ notes: |
   Multi Stage Coilgun use Z-R (axial-radial) coordinate system.
   Only models the electric and magnetic materials.
 
-  Uses mm-g-s Units:
+  Uses mm-g-s unit:
     - Millimeters, gram, second, amperes
 
 output:
@@ -10,43 +10,41 @@ output:
   file_name: coilgun
 
 model:
-  stages: 10                      # Number of acceleration stages
-  stage_gap: 10.0                 # Gap between stages, (coil activate half-way through)
-  time_step: 5.0e-5               # Time step for DE solve
-  initial_current: 1.0e-4         # Test current | REQUIRED for inductance calculations
-  atmospheric_density: 1.225e-6   # Air density at sea level (g/mm^3)
+  stages: 10 # Number of acceleration stages
+  stage_gap: 10 # Gap between stages, (coil activate half-way through)
+  time_step: 5.0e-5 # Time step for DE solve
+  test_current: 1.0e-4 # Test current | REQUIRED for inductance calculations
+  atmospheric_density: 1.225e-6 # Air density at sea level (g/mm^3)
 
 boundary:
-  boundary_material: Air          # Material of the boundary / domain
-  boundary_shells: 7              # Number of shells for the NEUMANN Boundary condition
+  boundary_material: Air # Material of the boundary / domain
+  boundary_shells: 7 # Number of shells for the NEUMANN Boundary condition
 
 controller:
-  activate_fraction: 0.5          # Switches on the coil at 50% of the stage gap
-  deactivate_fraction: 0.5        # Switches off the coil at 50% of the coil length
-  supply_voltage: 18              # Supply voltage (volt)
-  current_limit: 40               # Maximum supply current (amps)
+  activate_fraction: 0.5 # Switches on the coil at 50% of the stage gap
+  deactivate_fraction: 0.5 # Switches off the coil at 50% of the coil length
+  supply_voltage: 18 # Supply voltage (volt)
+  current_limit: 40 # Maximum supply current (amps)
 
 coil:
-  inner_radi: 6.25                # Inner radius of the coil
-  outer_radi: 17.5                # Outer radius of the coil
-  axial_length: 50                # Axial length of the coil
-  material: Copper Wire           # Material of the coil
-  wire_diameter: 1.5              # Diameter of the coil wire
-  fill_factor: 0.6                # Amount of conductor within the coil (0->1)
+  inner_radi: 6.25 # Inner radius of the coil
+  outer_radi: 17.5 # Outer radius of the coil
+  axial_length: 50 # Axial length of the coil
+  material: Copper Wire # Material of the coil
+  wire_diameter: 1.5 # Diameter of the coil wire
+  fill_factor: 0.6 # Amount of conductor within the coil (0->1)
 
 shell:
-  enabled: False                  # Enables the modelling of the shell
-  inner_radi: 17.5                # Inner radius of the shell
-  outer_radi: 20.0                # Outer radius of the shell
-  axial_length: 50                # Axial length of the shell
-  material: Pure Iron             # Material of the shell
+  enabled: False # Enables the modelling of the shell
+  inner_radi: 17.5 # Inner radius of the shell
+  outer_radi: 20.0 # Outer radius of the shell
+  axial_length: 50 # Axial length of the shell
+  material: Pure Iron # Material of the shell
 
 projectile:
-  inner_radi: 0.0                # Inner radius of the projectile
-  outer_radi: 4.0                # Outer radius of the projectile
-  axial_length: 50.0             # Axial length of the projectile
-  material: Pure Iron            # Material of the projectile
-  material_density: 7.874e-3     # Density of the projectile material
-  coefficient_drag: 0.82         # Coefficient of drag
-
-
+  inner_radi: 0.0 # Inner radius of the projectile
+  outer_radi: 4.0 # Outer radius of the projectile
+  axial_length: 50.0 # Axial length of the projectile
+  material: Pure Iron # Material of the projectile
+  material_density: 7.874e-3 # Density of the projectile material
+  coefficient_drag: 0.82 # Coefficient of drag

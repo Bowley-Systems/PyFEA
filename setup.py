@@ -22,7 +22,8 @@ setup(
     install_requires=[
         'PyYAML',
         'pyfemm',
-        'matplotlib'
+        'matplotlib',
+        'numpy'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
