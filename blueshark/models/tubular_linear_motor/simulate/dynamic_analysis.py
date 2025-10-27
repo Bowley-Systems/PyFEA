@@ -95,7 +95,8 @@ def _magneto_static_frame(
         force = force_data[0]
         angle = math.radians(force_data[1])
 
-        return _FrameResults(linkage_values, (force, angle), total_power)
+        result = _FrameResults(linkage_values, (force, angle), total_power)
+        return result
 
     except Exception as e:
         msg = f"Magneto-static frame failed for {renderer}: {e}"

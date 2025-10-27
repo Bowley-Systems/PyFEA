@@ -106,7 +106,7 @@ class FEMMagneticRenderer(MagneticRenderer):
 
         femm_unit = None
         match unit:
-            case units.MILLIMETER:
+            case units.MICROMETER:
                 femm_unit = "micrometers"
             case units.CENTIMETER:
                 femm_unit = "centimeters"
