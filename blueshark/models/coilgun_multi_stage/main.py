@@ -12,11 +12,11 @@ Description:
 """
 
 from blueshark.domain.material_manager.manager import MaterialManager
+from blueshark.domain.units import MILLIMETER
 from blueshark.renderer.renderer_interface import (
     BaseRenderer, MagneticRenderer
 )
 from blueshark.domain.definitions import (
-    RendererUnit,
     ShapeType,
     Geometry,
     Problem,
@@ -42,7 +42,7 @@ class MultiStageCoilGun:
         self.renderer = renderer
         self.manager = MaterialManager()
         self.problem = Problem(
-            RendererUnit=RendererUnit.MILLIMETER,
+            unit=MILLIMETER,
             type=CoordinateSystem.AXI_SYMMETRIC
         )
 
@@ -57,6 +57,7 @@ class MultiStageCoilGun:
         self.gap_activate: float = None
         self.coil_deactivate: float = None
         self.accelerator_length: float = None
+        self.number_of_turns: int = None
         self._compute_geometry()
 
         # Groups & circuits
@@ -76,7 +77,7 @@ class MultiStageCoilGun:
 
     def build(self) -> None:
         """ Setups the renderer problem, draw motor and sets its properties """
-        self.renderer.setup(self.problem.type, self.problem.RendererUnit)
+        self.renderer.setup(self.problem.type, self.problem.unit)
 
         # Delegate to physics-specific implementation
         self.physics_impl.build()
@@ -171,6 +172,7 @@ class MagneticPhysics:
             self.load.coil_wire_diameter,
             self.load.coil_fill_factor
         )
+        self.coilgun.number_of_turns = turns
 
         for index, origin in enumerate(origins):
             # Defines the coilgun circuit

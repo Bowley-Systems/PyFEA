@@ -12,11 +12,11 @@ Description:
 """
 
 from blueshark.domain.material_manager.manager import MaterialManager
+from blueshark.domain.units import MILLIMETER
 from blueshark.renderer.renderer_interface import (
     BaseRenderer, MagneticRenderer
 )
 from blueshark.domain.definitions import (
-    RendererUnit,
     ShapeType,
     Geometry,
     Problem,
@@ -52,7 +52,7 @@ class TubularLinearMotor:
         self.renderer = renderer
         self.manager = MaterialManager()
         self.problem = Problem(
-            RendererUnit=RendererUnit.MILLIMETER,
+            unit=MILLIMETER,
             type=CoordinateSystem.AXI_SYMMETRIC
         )
 
@@ -76,7 +76,7 @@ class TubularLinearMotor:
 
     def build(self) -> None:
         """ Setups the renderer problem, draw motor and sets its properties """
-        self.renderer.setup(self.problem.type, self.problem.RendererUnit)
+        self.renderer.setup(self.problem.type, self.problem.unit)
 
         # Delegate to physics-specific implementation
         self.physics_impl.build()

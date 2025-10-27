@@ -40,7 +40,7 @@ renderer.define_environment_region(coilgun.BOUNDARY, tag, material)
 # Performs a series of static frames to get resistance, inductance
 resistance, inductance = get_circuit_values(coilgun, FEMMagneticSolver)
 
-# Performs a dynamic launch of the coilgun
+# # Performs a dynamic launch of the coilgun
 result = launch_dynamic(
     coilgun, FEMMagneticSolver, resistance, inductance, True
 )

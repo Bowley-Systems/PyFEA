@@ -20,6 +20,11 @@ from dataclasses import dataclass
 from blueshark.renderer.renderer_interface import MagneticRenderer
 from blueshark.solver.solver_interface import BaseSolver
 from blueshark.simulate.static import static_simulation
+from blueshark.domain.conversion.manager import conversion
+from blueshark.domain.units import (
+    Unit, SIBase, PrefixScale, AMPERE, KILOGRAM,
+    NEWTON, SECOND, JOULE, METER_SECOND, METER
+)
 
 from blueshark.models.coilgun_multi_stage.physics.coil import coil
 from blueshark.models.coilgun_multi_stage.main import MultiStageCoilGun
@@ -27,11 +32,22 @@ from blueshark.models.coilgun_multi_stage.physics.physics import (
     format_time, projectile_drag
 )
 
+# Defines units
+GRAM = KILOGRAM.with_prefix(SIBase.GRAM, PrefixScale.BASE)
+MILLIMETER = METER.with_prefix(SIBase.METER, PrefixScale.MILLI)
+MILLIMETER_SECOND = METER_SECOND.with_prefix(SIBase.METER, PrefixScale.MILLI)
+
+MICRO_NEWTON = NEWTON.with_prefix(SIBase.GRAM, PrefixScale.BASE)\
+                        .with_prefix(SIBase.METER, PrefixScale.MILLI)
+
+NANO_JOULE = JOULE.with_prefix(SIBase.GRAM, PrefixScale.BASE)\
+                    .with_prefix(SIBase.METER, PrefixScale.MILLI)
+
 
 @dataclass
 class DynamicResults:
     """ Holds the dynamic launch results """
-    final_velocity: float       # final velocity of the projectile (mms^-1)
+    final_velocity: float       # final velocity of the projectile (m/s)
     input_output: float         # Output / Input Ratio
     average_power_loss: float   # Average Power loss (W)
     average_input_power: float  # Average Electrical input power (W)
@@ -76,7 +92,7 @@ def _debug_plotting(
 
 def _calculate_mass(
     model: MultiStageCoilGun,
-) -> float:
+) -> tuple[float, Unit]:
     """ Calculates the mass of the projectile for the launch """
 
     # Calculates the projectile volume
@@ -87,14 +103,14 @@ def _calculate_mass(
 
     # Calculates the projectiles mass
     mass = total_volume * model.load.projectile_density
-    return mass
+    return mass, GRAM
 
 
 def launch_dynamic(
     model: MultiStageCoilGun,
     solver: BaseSolver,
-    resistance: float,
-    inductance: float,
+    resistance: tuple[float, Unit],
+    inductance: tuple[float, Unit],
     debugging: bool = False
 ) -> DynamicResults:
 
@@ -107,34 +123,33 @@ def launch_dynamic(
                 model.coil_origins[n],
                 model.CIRCUITS[n],
                 model.COILS[n],
-                resistance,
-                inductance
+                resistance[0],
+                inductance[0]
             )
         )
 
     # Displacement goal, element list, mass & time step
     target_displacement = model.accelerator_length + model.coil_pitch
-    target_displacement = target_displacement
 
     elements = []
     elements.extend(model.COILS)
     elements.append(model.PROJECTILE)
 
     time_step = model.load.time_step
-    projectile_mass = _calculate_mass(model)
+    projectile_mass, mass_unit = _calculate_mass(model)
 
     # Initial loop values
-    currents = None
-    loop_time = 0.0
-    force = 0.0
-    velocity = 0.0
+    currents, current_unit = None, AMPERE
+    loop_time, _ = 0.0, SECOND
+    force, force_unit = 0.0, MICRO_NEWTON
+    velocity, _ = 0.0, MILLIMETER_SECOND
 
     # Front axial position of the projectile
     position = model.projectile_origin[1] + model.load.projectile_axial_length
-    displacement = 0.0
+    displacement, displacement_unit = 0.0, MILLIMETER
 
-    electrical_energy = 0.0
-    mechanical_energy = 0.0
+    electrical_energy, energy_unit = 0.0, NANO_JOULE
+    mechanical_energy, energy_unit = 0.0, NANO_JOULE
 
     # Data collection for matplotlib / json
     time_series = []
@@ -142,6 +157,7 @@ def launch_dynamic(
     velocity_series = []
     position_series = []
 
+    prev_msg_len = 0
     start_time = time.time()
     while displacement < target_displacement:
         # Updates the display for the user
@@ -152,12 +168,19 @@ def launch_dynamic(
         eta = (elapsed / progress - elapsed) if progress > 0 else 0
         msg = (
             f"\r[Progress: {progress*100:6.2f}%]"
-            f" Elapsed {format_time(elapsed)} | ETA: {format_time(eta)} |"
-            f" Net force: {force:6.2f} uN | Currents: {currents} A |"
-            f" Position: {position:6.2f} mm"
+            f" Elapsed {format_time(elapsed)} |"
+            f" ETA: {format_time(eta)} |"
+            f" Net force: {force:6.2f} {force_unit} |"
+            f" Currents: {currents} {current_unit} |"
+            f" Position: {displacement:6.2f} {displacement_unit}"
         )
-        sys.stdout.write(msg)
+
+        # Pad just enough spaces to clear leftovers
+        clear_msg = msg + " " * max(prev_msg_len - len(msg), 0)
+        sys.stdout.write(clear_msg)
         sys.stdout.flush()
+
+        prev_msg_len = len(msg)
 
         # Calculates the values from the last frame
         result = static_simulation(
@@ -176,11 +199,12 @@ def launch_dynamic(
         power = 0.0
         power_results = result["circuit_power"]
         for circuit in model.CIRCUITS:
-            power += abs(power_results[circuit])
+            value, _ = power_results[circuit]
+            power += abs(value)
 
         # Calculates magnetic and drag forces and updates trackers
-        force, angle = result["force_stress_tensor"][model.PROJECTILE]
-        force = force * 1e6     # Scales FEM newton output to g * mm * s^-2
+        force, angle, unit = result["force_stress_tensor"][model.PROJECTILE]
+        force, _ = conversion(force, unit, force_unit)
 
         angle = math.radians(angle)
         magnetic_force = force * math.sin(angle)    # Axially aligned force
@@ -209,8 +233,8 @@ def launch_dynamic(
         currents = []
         for instant in instances:
             circuit = instant.circuit
-            flux = result["circuit_flux_linkage"][circuit]
-            resistance = result["circuit_resistance"][circuit]
+            flux, _ = result["circuit_flux_linkage"][circuit]
+            resistance, _ = result["circuit_resistance"][circuit]
 
             current = instant.update(position, resistance, flux)
             currents.append(current)
@@ -227,7 +251,8 @@ def launch_dynamic(
 
         # Saving frame results (Next frame)
         time_series.append(loop_time)
-        force_series.append(net_force / 1e6)
+        graph_force, _ = conversion(net_force, force_unit, NEWTON)
+        force_series.append(graph_force)
         velocity_series.append(velocity)
         position_series.append(position)
 
@@ -237,10 +262,12 @@ def launch_dynamic(
         )
 
     # Converting nJ to J
-    mechanical_energy = mechanical_energy / 1e9
+    mechanical_energy, _ = conversion(mechanical_energy, energy_unit, JOULE)
+    velocity, _ = conversion(velocity, MILLIMETER_SECOND, METER_SECOND)
+    projectile_mass, _ = conversion(projectile_mass, mass_unit, KILOGRAM)
 
     # Calculates outputs based on quasi-transient loop outputs
-    ke = 1/2 * (velocity / 1000) ** 2 * (projectile_mass / 1000)
+    ke = 1/2 * projectile_mass * velocity ** 2
     ratio = ke / electrical_energy if electrical_energy else 0
     losses = (
         (electrical_energy - ke) / loop_time

@@ -1,11 +1,12 @@
 """
-Filename: conversion.py
+Filename: manager.py
 Author: William Bowley
 Version: 0.1
 Date: 2025-10-23
 
 Description:
     Converts different size units within the framework.
+    Also validates that the units are the same
 
     These are independent of specific renderer/
     solver implementations.
@@ -60,3 +61,26 @@ def conversion(
     factor = _computes_scale(old, new)
 
     return raw * factor, new
+
+
+def valid_unit(
+    reference: Unit, result: Unit
+) -> bool | None:
+    """ Validates that the units are the same """
+    # Check for same length between units
+    if len(reference.dims) != len(result.dims):
+        raise ValueError("The units don't have the same length")
+
+    # Check correctness between units
+    old_lookup = {
+        (dim.base, dim.prefix, dim.exponent): dim for dim in reference.dims
+    }
+    new_lookup = {
+        (dim.base, dim.prefix, dim.exponent): dim for dim in result.dims
+    }
+
+    if old_lookup.keys() != new_lookup.keys():
+        msg = f"Units are not the same: {result} | {reference}"
+        raise ValueError(msg)
+
+    return True

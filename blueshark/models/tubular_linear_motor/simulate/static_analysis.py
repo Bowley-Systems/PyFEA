@@ -45,10 +45,13 @@ def get_magnet_flux(
             circuits=phases
         )
 
-        magnet_flux = results_magnet["circuit_flux_linkage"]
+        flux_dict = results_magnet["circuit_flux_linkage"]
 
         print("Magnet flux results collected..")
-        return list(magnet_flux.values())
+
+        return [
+            value_unit_tuple[0] for value_unit_tuple in flux_dict.values()
+        ]
 
     except Exception as e:
         msg = f"Get magnet flux simulation failed for {motor}: {e}"
@@ -87,8 +90,8 @@ def get_phase_values(
                 circuits=phases_a
             )
 
-            voltage = result_circuit["circuit_voltage"][phases_a]
-            flux_linkage = result_circuit["circuit_flux_linkage"][phases_a]
+            voltage, _ = result_circuit["circuit_voltage"][phases_a]
+            flux_linkage, _ = result_circuit["circuit_flux_linkage"][phases_a]
 
             flux.append(flux_linkage)
             current.append(frame_current)

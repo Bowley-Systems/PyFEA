@@ -23,7 +23,9 @@ class CoordinateSystem(Enum):
     """
     AXI_SYMMETRIC = auto()
     PLANAR = auto()
-    SPATIAL = auto()
+
+    # Haven't been implemented yet
+    # SPATIAL = auto()
 
 
 class PhysicsType(Enum):
@@ -31,22 +33,12 @@ class PhysicsType(Enum):
     Defines the type of physics being simulated.
     """
     THERMAL = auto()       # Heat flow, temperature distribution
-    MAGNETIC = auto()      # Magnetic fields, Lorentz forces
+    MAGNETIC = auto()      # Magnetic fields, Lorentz forces, Circuits
 
     # Haven't been implemented yet
-    ELECTRIC = auto()      # Current, voltage, electrostatics
-    MECHANICAL = auto()    # Force, stress, motion
+    # ELECTRIC = auto()      # Current, voltage, electrostatics
+    # MECHANICAL = auto()    # Force, stress, motion
     # MULTIPHYSICS = auto()  # Combined physics simulations
-
-
-class RendererUnit(Enum):
-    """
-    All measurement units supported by the renderer & solvers.
-    """
-    MICROMETERS = auto()
-    CENTIMETERS = auto()
-    MILLIMETER = auto()
-    METER = auto()
 
 
 @dataclass
@@ -55,7 +47,7 @@ class Problem:
     Defines the problem for the solver
     """
     frequency: Optional[float] = None
-    RendererUnit: Optional[str] = None
+    unit: Optional[str] = None
     type: Optional[str] = None
     depth: Optional[float] = None
     tolerance: float = 0
@@ -97,7 +89,6 @@ class Connection(TypedDict, total=False):
 class Geometry(TypedDict, total=False):
     """
     Describes the geometry of an element.
-    Uses the RendererUnit selected by the user.
     Fields are optional depending on shape.
     """
     shape: ShapeType

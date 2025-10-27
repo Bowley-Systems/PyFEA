@@ -28,7 +28,7 @@ class coil:
         circuit: str,
         group: int,
         initial_resistance: float,
-        initial_inductance: float
+        initial_inductance: float,
     ) -> None:
         """ Initializes the class & defines dependencies"""
         self.model = model
@@ -53,6 +53,7 @@ class coil:
         self.voltage: float = 0.0
         self.inductance: float = 0.0
         self.resistance: float = 0.0
+        self.last_inductance: float = initial_inductance
 
     def update(
         self,
@@ -74,7 +75,11 @@ class coil:
             )
 
             # Calculates induced voltage and inductor voltage
-            induced_voltage = 0.0           # delta_flux / self.TIME_STEP
+            induced_voltage = - self.current * (
+                self.inductance - self.last_inductance
+            ) / self.TIME_STEP
+            self.last_inductance = self.inductance
+
             self.voltage = calculate_inductor_voltage(
                 self.supply, self.current, self.resistance, induced_voltage
             )

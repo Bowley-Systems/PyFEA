@@ -20,9 +20,7 @@ from typing import Union, Any
 from blueshark.solver.solver_interface import BaseSolver
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
 from blueshark.solver.femm.magnetic.output_selector import FEMMagneticSelector
-from blueshark.domain.constants import (
-    MAXIMUM_TOLERANCE, MAXIMUM_FAILS
-)
+from blueshark.domain.constants import MAXIMUM_TOLERANCE, MAXIMUM_FAILS
 
 
 class FEMMagneticSolver(BaseSolver):
@@ -119,7 +117,7 @@ class FEMMagneticSolver(BaseSolver):
 
         femm.mi_probdef(
             float(self.problem.frequency),
-            self.problem.RendererUnit,
+            self.problem.unit,
             self.problem.type,
             float(self.problem.tolerance),
             float(self.problem.depth)

@@ -17,9 +17,8 @@ Description:
     - force_stress_tensor
     - torque_stress_tensor
     - field_energy
-    - aj_interaction
-    - vector_potential
     - element_volume
+    - element_b_field
 
     Circuit-based outputs:
     - circuit_power
@@ -32,12 +31,7 @@ Description:
 from typing import Any, Callable, Union, Optional
 
 from blueshark.solver.output_interface import BaseSelector
-from blueshark.solver.femm.magnetic import (
-    circuits,
-    force,
-    torque,
-    elements
-)
+from blueshark.solver.femm.magnetic import circuits, force, torque, elements
 
 
 class FEMMagneticSelector(BaseSelector):
@@ -67,9 +61,10 @@ class FEMMagneticSelector(BaseSelector):
                 self._run_element
             ),
             "field_energy":     (elements.field_energy, self._run_element),
-            "aj_interaction":   (elements.aj_interaction, self._run_element),
-            "vector_potential": (elements.vector_potential, self._run_element),
             "element_volume":   (elements.element_volume, self._run_element),
+            "element_b_field":  (
+                elements.b_field_over_block, self._run_element
+            ),
             "circuit_power":    (circuits.power, self._run_circuit),
             "circuit_voltage":  (circuits.voltage, self._run_circuit),
             "circuit_current":  (circuits.current, self._run_circuit),

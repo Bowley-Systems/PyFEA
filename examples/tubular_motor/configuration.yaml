@@ -14,7 +14,7 @@ operation:
   target_speed: 1000 # Target speed of the motor (mms^-1)
   supply_voltage: 24 # Supply voltage (volts)
   current_limit: 2 # Maximum current from the supply (amps)
-  de_solver_maximum_steps: 2500 # Maximum number of time steps before failing
+  de_solver_maximum_steps: 1000 # Maximum number of time steps before failing
 
 model:
   number_pairs: 2 # Number of N-S pairs in stator

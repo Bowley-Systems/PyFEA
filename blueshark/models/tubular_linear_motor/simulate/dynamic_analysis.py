@@ -86,14 +86,16 @@ def _magneto_static_frame(
         )
 
         # Extraction of values and calculations
-        linkage = list(results["circuit_flux_linkage"].values())
-        power = sum(list(results["circuit_power"].values()))
+        linkage_values = [
+            v[0] for v in results["circuit_flux_linkage"].values()
+        ]
+        total_power = sum(v[0] for v in results["circuit_power"].values())
 
         force_data = results["force_lorentz"][groups]
         force = force_data[0]
         angle = math.radians(force_data[1])
 
-        return _FrameResults(linkage, (force, angle), power)
+        return _FrameResults(linkage_values, (force, angle), total_power)
 
     except Exception as e:
         msg = f"Magneto-static frame failed for {renderer}: {e}"
@@ -310,7 +312,8 @@ def run_dynamic(
             frame_flux = list(results.flux_linkage)
 
             # Axial direction is vertical whereas radial is horizontal
-            axial_force = axial_force * math.sin(axial_angle)
+            axial_force = axial_force * math.sin(axial_angle) 
+            # THIS IS A PROBLEM; SHOULD BE GENERIC
 
             # Tracks mechanical and electrical
             mechanical_energy += axial_force * velocity * time_step

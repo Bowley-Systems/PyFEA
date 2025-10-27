@@ -12,9 +12,9 @@ from blueshark.domain.material_manager.manager import MaterialManager
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
 from blueshark.solver.femm.magnetic.solver import FEMMagneticSolver
 from blueshark.simulate.static import static_simulation
-
+from blueshark.domain.units import CENTIMETER
 from blueshark.domain.definitions import (
-    Geometry, ShapeType, RendererUnit, CoordinateSystem, CircuitType,
+    Geometry, ShapeType, CoordinateSystem, CircuitType,
     CurrentPolarity, BoundaryType
 )
 
@@ -27,7 +27,7 @@ air = manager.use_material("Air")
 # Initializes renderer, defines problems and circuit
 file_location = "examples/electromagnet/outputs/electromagnet.fem"
 renderer = FEMMagneticRenderer(file_location)
-renderer.setup(CoordinateSystem.PLANAR, RendererUnit.CENTIMETERS, depth=10)
+renderer.setup(CoordinateSystem.PLANAR, CENTIMETER, depth=10)
 renderer.create_circuit("phase_1", CircuitType.SERIES, 1)
 
 # Defines the shapes and boundary geometry

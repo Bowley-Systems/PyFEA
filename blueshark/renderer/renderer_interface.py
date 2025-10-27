@@ -17,8 +17,9 @@ from typing import Any, Optional
 from abc import ABC, abstractmethod
 
 from blueshark.domain.constants import SETUP_CURRENT
+from blueshark.domain.units import Unit
 from blueshark.domain.definitions import (
-    Geometry, RendererUnit, CoordinateSystem, CircuitType,
+    Geometry, CoordinateSystem, CircuitType,
     CurrentPolarity, BoundaryType
 )
 
@@ -39,7 +40,7 @@ class BaseRenderer(ABC):
     def setup(
         self,
         system: CoordinateSystem,
-        RendererUnit: RendererUnit
+        unit: Unit
     ) -> Any:
         """
         Setup the rendering environment or simulation space

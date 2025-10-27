@@ -5,12 +5,16 @@ notes: |
   Uses mm-g-s unit:
     - Millimeters, gram, second, amperes
 
+  NOTE: 
+    - This model does not model a flyback diode and as such
+      the LR decade is faster.
+
 output:
   folder_path: examples/multi_stage_coilgun/outputs/
   file_name: coilgun
 
 model:
-  stages: 10 # Number of acceleration stages
+  stages: 1 # Number of acceleration stages
   stage_gap: 10 # Gap between stages, (coil activate half-way through)
   time_step: 5.0e-5 # Time step for DE solve
   test_current: 1.0e-4 # Test current | REQUIRED for inductance calculations

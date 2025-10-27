@@ -79,7 +79,7 @@ def rk_2nd_order_currents(
 
     voltage = voltage - resistance * 3 / 4 * step_size * k1
     k2 = differential_currents(
-        time + 3 / 4 * step_size,
+        time,
         voltage,
         inductance
     )
@@ -99,7 +99,7 @@ def calculate_inductor_voltage(
     Computes the inductor voltage during simulation
     """
     v_drop = current * resistance
-    v_inductor = supply_voltage - v_drop - induced_voltage
+    v_inductor = supply_voltage - v_drop + induced_voltage
 
     return v_inductor
 
