@@ -19,7 +19,7 @@ from blueshark.domain.conversion.manager import conversion
 from blueshark.domain.units import Unit, HENRY, OHM, VOLT, WEBER
 
 from blueshark.models.coilgun_multi_stage.main import MultiStageCoilGun
-from blueshark.models.coilgun_multi_stage.physics import dc_resistance
+from blueshark.models.coilgun_multi_stage.modelling import dc_resistance
 
 
 def get_circuit_values(
@@ -53,6 +53,10 @@ def get_circuit_values(
         for i in range(1, num_steps + 1):
             # Increments current by current = test_current * 10^i
             frame_current = coilgun.load.test_current * 10 ** i
+            if frame_current > 10:
+                msg = "Frame current is too high. Decrease test_current"
+                raise ValueError(msg)
+
             renderer.change_circuit_current(coil, frame_current)
             result_circuit = static_simulation(
                 renderer,
@@ -84,7 +88,10 @@ def get_circuit_values(
         for circuit in coilgun.CIRCUITS:
             renderer.change_circuit_current(circuit, 0)
 
-        msg = f"Collected coil data from 0 → {coil_len-1}."
+        msg = (
+            "Collected coil data from 0 → "
+            f"{coil_len-1 if coil_len != 1 else 1}"
+        )
         logging.info(msg)
         if verbose:
             print(msg)

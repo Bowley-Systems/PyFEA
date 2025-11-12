@@ -4,8 +4,7 @@ Author: William Bowley
 Version: 0.1
 Date: 2025-10-19
 Description:
-    Physics module for the `coilgun.py` example
-    script using FEM: Magnetic Renderer & Solver
+    Physics module for the `coilgun_multi_stage` module
 
     Uses mm-g-s units:
         - Millimeter, gram, second, ampere
@@ -27,7 +26,7 @@ def calculate_inductance(
     initial: float, flux_linkage: float, current: float
 ) -> float:
     """ Calculates the inductance via flux linkage """
-    if abs(current) < EPSILON or abs(current) < EPSILON:
+    if abs(current) < EPSILON or abs(flux_linkage) < EPSILON:
         return initial
 
     ind = flux_linkage / current
@@ -51,20 +50,17 @@ def projectile_drag(
 
 def clipping_current(current_limit: float, current: float) -> float:
     """ Limits the current to simulate a current limiting supply """
+    # Current clipping only applies to the positive peak as the negative
+    # peak for a coilgun is caused by the field collapsing which isn't clamped
     return min(current_limit, current)
 
 
-def differential_currents(
-    time, voltage, inductance
-) -> float:
+def differential_currents(voltage, inductance) -> float:
     """ Differential equation for current within the system """
-    _ = time
-
     return voltage / inductance
 
 
 def rk_2nd_order_currents(
-    time: float,
     current: float,
     voltage: float,
     inductance: float,
@@ -75,14 +71,11 @@ def rk_2nd_order_currents(
     Solves the differential equation for the current within
     the inductor using Ralston's method
     """
-    k1 = differential_currents(time, voltage, inductance)
+    k1 = differential_currents(voltage, inductance)
 
+    # Updates the voltage for the next predicted frame
     voltage = voltage - resistance * 3 / 4 * step_size * k1
-    k2 = differential_currents(
-        time,
-        voltage,
-        inductance
-    )
+    k2 = differential_currents(voltage, inductance)
 
     # Updates final using weighted average
     current += (1 / 3 * k1 + 2 / 3 * k2) * step_size

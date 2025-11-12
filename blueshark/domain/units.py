@@ -38,6 +38,7 @@ class SIBase(Enum):
     GRAM = auto()
     AMPERE = auto()
     KELVIN = auto()
+    DIMENSIONLESS = auto()
 
 
 @dataclass()
@@ -56,7 +57,7 @@ class Unit:
     """ Defines a unit composed of multiple dimensions. """
 
     def __init__(self, *dimensions: Union[Dimension, list[Dimension]]) -> None:
-        dims = []
+        dims: list = []
         for d in dimensions:
             if isinstance(d, list):
                 dims.extend(d)
@@ -67,6 +68,10 @@ class Unit:
     def __repr__(self) -> str:
         """ Formatted unit representation. """
         parts = []
+
+        if len(self.dims) == 0:
+            return "DIMLESS"
+
         for dim in self.dims:
             prefix = "" if dim.prefix is PrefixScale.BASE else dim.prefix.name
             exponent = "" if dim.exponent == 1 else f"^{dim.exponent}"
@@ -91,6 +96,9 @@ class Unit:
 
 
 """ Defines default units for the framework / user """
+
+# Dimensionless: Unit-less (radians, factors, angle, etc)
+DIMENSIONLESS = Unit()
 
 # Time: Second (s)
 SECOND = Unit(Dimension(SIBase.SECOND))
@@ -191,4 +199,3 @@ HENRY = Unit(
     Dimension(SIBase.SECOND, exponent=-2),
     Dimension(SIBase.AMPERE, exponent=-2)
 )
-

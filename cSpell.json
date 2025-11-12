@@ -72,6 +72,8 @@
     "DECI",
     "HECTO",
     "CENTI",
-    "MILLI"
+    "MILLI",
+    "pbounds",
+    "DIMLESS"
   ]
 }

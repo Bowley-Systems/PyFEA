@@ -26,9 +26,9 @@ from blueshark.domain.units import (
     NEWTON, SECOND, JOULE, METER_SECOND, METER
 )
 
-from blueshark.models.coilgun_multi_stage.physics.coil import coil
+from blueshark.models.coilgun_multi_stage.modelling.coil import Coil
 from blueshark.models.coilgun_multi_stage.main import MultiStageCoilGun
-from blueshark.models.coilgun_multi_stage.physics.physics import (
+from blueshark.models.coilgun_multi_stage.modelling.physics import (
     format_time, projectile_drag
 )
 
@@ -69,7 +69,7 @@ def _debug_plotting(
 
     # Position vs Time
     axes[0].plot(time_series, position_series, color="#00BFFF", linewidth=2)
-    axes[0].set_ylabel("Position (mm)", color="white")
+    axes[0].set_ylabel("Position (m)", color="white")
     axes[0].set_title("Projectile Position vs Time", color="white")
     axes[0].tick_params(colors="white")
 
@@ -82,7 +82,7 @@ def _debug_plotting(
     # Velocity vs Time
     axes[2].plot(time_series, velocity_series, color="#7CFC00", linewidth=2)
     axes[2].set_xlabel("Time (s)", color="white")
-    axes[2].set_ylabel("Velocity (mm/s)", color="white")
+    axes[2].set_ylabel("Velocity (m/s)", color="white")
     axes[2].set_title("Projectile Velocity vs Time", color="white")
     axes[2].tick_params(colors="white")
 
@@ -93,8 +93,10 @@ def _debug_plotting(
 def _calculate_mass(
     model: MultiStageCoilGun,
 ) -> tuple[float, Unit]:
-    """ Calculates the mass of the projectile for the launch """
-
+    """
+    Calculates the mass of the projectile for the launch
+    - Units in parameter file is in g-mm-s
+    """
     # Calculates the projectile volume
     height = model.load.projectile_axial_length
     volume_1 = math.pi * model.load.projectile_inner_radi ** 2 * height
@@ -111,14 +113,14 @@ def launch_dynamic(
     solver: BaseSolver,
     resistance: tuple[float, Unit],
     inductance: tuple[float, Unit],
-    debugging: bool = False
+    debugging: bool = True
 ) -> DynamicResults:
 
     # Creates the coil instances
-    instances: list[coil] = []
+    instances: list[Coil] = []
     for n in range(0, model.load.stages):
         instances.append(
-            coil(
+            Coil(
                 model,
                 model.coil_origins[n],
                 model.CIRCUITS[n],
@@ -142,7 +144,7 @@ def launch_dynamic(
     currents, current_unit = None, AMPERE
     loop_time, _ = 0.0, SECOND
     force, force_unit = 0.0, MICRO_NEWTON
-    velocity, _ = 0.0, MILLIMETER_SECOND
+    velocity, velocity_unit = 0.0, MILLIMETER_SECOND
 
     # Front axial position of the projectile
     position = model.projectile_origin[1] + model.load.projectile_axial_length
@@ -162,14 +164,17 @@ def launch_dynamic(
     while displacement < target_displacement:
         # Updates the display for the user
         elapsed = time.time() - start_time
-        progress = (
-            displacement / target_displacement if displacement > 0 else 0
-        )
-        eta = (elapsed / progress - elapsed) if progress > 0 else 0
+        progress = displacement / target_displacement
+        if progress > 1e-6:
+            eta = (elapsed / progress) - elapsed
+        else:
+            eta = float('inf')
+
+        eta = eta if progress > 0 else 0
         msg = (
             f"\r[Progress: {progress*100:6.2f}%]"
             f" Elapsed {format_time(elapsed)} |"
-            f" ETA: {format_time(eta)} |"
+            f" ETA: {format_time(eta) if eta != float('inf') else eta} |"
             f" Net force: {force:6.2f} {force_unit} |"
             f" Currents: {currents} {current_unit} |"
             f" Position: {displacement:6.2f} {displacement_unit}"
@@ -250,11 +255,14 @@ def launch_dynamic(
         loop_time += time_step
 
         # Saving frame results (Next frame)
-        time_series.append(loop_time)
         graph_force, _ = conversion(net_force, force_unit, NEWTON)
+        graph_velocity, _ = conversion(velocity, velocity_unit, METER_SECOND)
+        graph_position, _ = conversion(position, MILLIMETER, METER)
+
+        time_series.append(loop_time)
         force_series.append(graph_force)
-        velocity_series.append(velocity)
-        position_series.append(position)
+        velocity_series.append(graph_velocity)
+        position_series.append(graph_position)
 
     if debugging:
         _debug_plotting(
@@ -269,6 +277,8 @@ def launch_dynamic(
     # Calculates outputs based on quasi-transient loop outputs
     ke = 1/2 * projectile_mass * velocity ** 2
     ratio = ke / electrical_energy if electrical_energy else 0
+    ratio = 0 if ratio < 0 or ratio > 1 else ratio
+
     losses = (
         (electrical_energy - ke) / loop_time
         if loop_time > 0 else 0

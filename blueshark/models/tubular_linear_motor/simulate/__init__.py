@@ -1,10 +1,10 @@
 # Blueshark/models/tubular_linear_motor/simulate/__init__.py
 
-from .dynamic_analysis import run_dynamic
 from .static_analysis import get_magnet_flux, get_phase_values
+from .phase_shift import find_optimal_phase_shift
 
 __all__ = [
-    "run_dynamic",
     "get_magnet_flux",
-    "get_phase_values"
+    "get_phase_values",
+    "find_optimal_phase_shift"
 ]

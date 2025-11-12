@@ -23,7 +23,8 @@ setup(
         'PyYAML',
         'pyfemm',
         'matplotlib',
-        'numpy'
+        'numpy',
+        'bayesian-optimization'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

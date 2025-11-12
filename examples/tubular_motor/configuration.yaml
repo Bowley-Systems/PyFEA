@@ -10,10 +10,11 @@ output:
   file_name: motor
 
 operation:
-  mass: 500 # Moving mass
-  target_speed: 1000 # Target speed of the motor (mms^-1)
+  mass: 400 # Moving mass
+  target_speed: 400 # Target speed of the motor (mms^-1)
   supply_voltage: 24 # Supply voltage (volts)
   current_limit: 2 # Maximum current from the supply (amps)
+  test_current: 1.0e-4    # Test current | REQUIRED for inductance calculations
   de_solver_maximum_steps: 1000 # Maximum number of time steps before failing
 
 model:

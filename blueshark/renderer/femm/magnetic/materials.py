@@ -52,7 +52,7 @@ def femm_add_material(material: dict[str, Any]) -> None:
     coercivity = magnetic_data.get("coercivity", 0.0)        # A/m
     current_density = magnetic_data.get("current_density", 0.0)  # A/mm²
 
-    # Maxwell stress tensor is only valid in non-conductive environments 
+    # Maxwell stress tensor is only valid in non-conductive environments
     # Assumes (conductivity=0)
     if tag != "environmental":
         conductivity = electric_data.get("conductivity", 0.0)    # expect S/m

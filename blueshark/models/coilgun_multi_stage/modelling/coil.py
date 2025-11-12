@@ -10,7 +10,7 @@ Description:
 """
 
 from blueshark.models.coilgun_multi_stage.main import MultiStageCoilGun
-from blueshark.models.coilgun_multi_stage.physics.physics import (
+from blueshark.models.coilgun_multi_stage.modelling.physics import (
     calculate_inductor_voltage,
     calculate_inductance,
     rk_2nd_order_currents,
@@ -18,7 +18,7 @@ from blueshark.models.coilgun_multi_stage.physics.physics import (
 )
 
 
-class coil:
+class Coil:
     """ Model of a single coil within the coilgun with physics """
 
     def __init__(
@@ -75,9 +75,11 @@ class coil:
             )
 
             # Calculates induced voltage and inductor voltage
+            # This represents the motional EMF of the system
             induced_voltage = - self.current * (
                 self.inductance - self.last_inductance
             ) / self.TIME_STEP
+
             self.last_inductance = self.inductance
 
             self.voltage = calculate_inductor_voltage(
@@ -86,7 +88,6 @@ class coil:
 
             # Calculates the current within the inductor via di/dt = v/l
             self.current = rk_2nd_order_currents(
-                self.time,
                 self.current,
                 self.voltage,
                 self.inductance,

@@ -34,8 +34,10 @@ The figure below shows **Current, Force, and Velocity vs. Time**:
 
 ## Installation
 
-### 1. Install FEMM (Windows Only)
+### 1. Install FEMM
 FEMM is a free, open-source tool for low-frequency electromagnetic simulations, ideal for motor design.  
+> [!CAUTION]
+> FEMM is a Windows-only application. Linux/macOS support requires setting up a compatibility layer (like Wine) or waiting for support for a cross-platform solver.
 
 - Download and install FEMM from the official website:  
   [https://www.femm.info/wiki/HomePage](https://www.femm.info/wiki/HomePage)  

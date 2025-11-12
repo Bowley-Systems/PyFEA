@@ -27,9 +27,6 @@ def estimate_turns(
         height: Slot height.
         wire_diameter: Diameter of the wire including insulation (mm).
         fill_factor: Fraction of slot area filled by copper; Default 0.7
-
-    Returns:
-        int: Estimated number of turns.
     """
     if length <= 0 or height <= 0 or wire_diameter <= 0:
         msg = "All dimensions must be positive and non-zero."

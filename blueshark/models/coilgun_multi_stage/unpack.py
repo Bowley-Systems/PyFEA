@@ -105,6 +105,9 @@ class CoilGunUnpacker:
         self.test_current = self._require("test_current", model)
         self.atmospheric_density = self._require("atmospheric_density", model)
 
+        if not isinstance(self.stages, int) or self.stages < 1:
+            raise ValueError("stages must be a positive integer")
+
     def _unpack_boundary(self, boundary: dict) -> None:
         """ Unpacks values from the boundary section """
         self.boundary_material = self._require("boundary_material", boundary)
@@ -118,6 +121,12 @@ class CoilGunUnpacker:
         self.deactivate_fraction = self._require(
             "deactivate_fraction", controller
         )
+
+        if not (0.0 < self.activate_fraction < 1.0):
+            raise ValueError("activate_fraction must be between 0.0 and 1.0")
+
+        if not (0.0 < self.deactivate_fraction < 1.0):
+            raise ValueError("deactivate_fraction must be between 0.0 and 1.0")
 
     def _unpack_coil(self, coil: dict) -> None:
         """ Unpacks values from the coil section """

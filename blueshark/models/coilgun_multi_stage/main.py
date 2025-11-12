@@ -1,7 +1,7 @@
 """
 File: main.py
 Author: William Bowley
-Version: 0.1
+Version: 0.2
 Date: 2025-10-19
 
 Description:
@@ -27,7 +27,7 @@ from blueshark.domain.definitions import (
 )
 
 from blueshark.models.coilgun_multi_stage.unpack import CoilGunUnpacker
-from blueshark.models.coilgun_multi_stage.physics import estimate_turns
+from blueshark.models.coilgun_multi_stage.modelling import estimate_turns
 
 
 class MultiStageCoilGun:
@@ -76,7 +76,9 @@ class MultiStageCoilGun:
             raise ValueError(msg)
 
     def build(self) -> None:
-        """ Setups the renderer problem, draw motor and sets its properties """
+        """
+        Setups the renderer problem, draw coilgun and sets its properties
+        """
         self.renderer.setup(self.problem.type, self.problem.unit)
 
         # Delegate to physics-specific implementation
@@ -252,7 +254,7 @@ class MagneticPhysics:
         )
 
     def _create_circuits(self) -> None:
-        """ Creates circuits for each phase of the motor """
+        """ Creates circuits for each circuit of the coilgun """
         for circuit in self.coilgun.CIRCUITS:
             self.renderer.create_circuit(
                 circuit,
@@ -260,19 +262,19 @@ class MagneticPhysics:
             )
 
 
-class ThermalPhysics:
-    """ Thermal implementation of the tubular linear motor """
-    def __init__(self, motor):
-        self.motor = motor
+# class ThermalPhysics:
+#     """ Thermal implementation of the coilgun """
+#     def __init__(self, coilgun):
+#         self.coilgun = coilgun
 
-    def setup(self):
-        self._add_heating_elements()
-        self._add_convection_boundaries()
+#     def setup(self):
+#         self._add_heating_elements()
+#         self._add_convection_boundaries()
 
-    def _add_heating_elements(self):
-        # Thermal-specific logic
-        pass
+#     def _add_heating_elements(self):
+#         # Thermal-specific logic
+#         pass
 
-    def _add_convection_boundaries(self):
-        # Thermal-specific logic
-        pass
+#     def _add_convection_boundaries(self):
+#         # Thermal-specific logic
+#         pass

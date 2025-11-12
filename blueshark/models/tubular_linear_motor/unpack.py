@@ -98,6 +98,7 @@ class MotorUnpacker:
         self.target_speed = self._require("target_speed", operation)
         self.supply_voltage = self._require("supply_voltage", operation)
         self.current_limit = self._require("current_limit", operation)
+        self.test_current = self._require("test_current", operation)
         self.de_maximum_steps = self._require(
             "de_solver_maximum_steps",
             operation

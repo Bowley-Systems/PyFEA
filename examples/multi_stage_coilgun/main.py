@@ -6,10 +6,7 @@ Date: 2025-10-19
 
 Description:
     Quasi-transient magnetic analysis for multi-stage coilgun.
-
-    NOTE:
-    - This is a prototype example it may or may not function
-      correctly depending on many factors.
+    Reference: configurations.yaml
 """
 
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
@@ -41,7 +38,5 @@ renderer.define_environment_region(coilgun.BOUNDARY, tag, material)
 resistance, inductance = get_circuit_values(coilgun, FEMMagneticSolver)
 
 # # Performs a dynamic launch of the coilgun
-result = launch_dynamic(
-    coilgun, FEMMagneticSolver, resistance, inductance, True
-)
+result = launch_dynamic(coilgun, FEMMagneticSolver, resistance, inductance)
 print(f"\n{result}")

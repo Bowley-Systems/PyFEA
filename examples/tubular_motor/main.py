@@ -5,11 +5,12 @@ Version: 0.3
 Date: 2025-10-19
 
 Description:
-    Quasi-transient magnetic analysis for V1.0 TLSM.
+    Closed-loop quasi-transient magnetic analysis for V1.0 TLSM.
+    Reference: configuration.yaml
 
     NOTE:
-    - This is a prototype example it may or may not function
-      correctly depending on many factors.
+    - This is a prototype example it will not function correctly.
+      It is not finished.
 """
 
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
@@ -18,7 +19,7 @@ from blueshark.solver.femm.magnetic.solver import FEMMagneticSolver
 from blueshark.models.tubular_linear_motor.unpack import MotorUnpacker
 from blueshark.models.tubular_linear_motor.main import TubularLinearMotor
 from blueshark.models.tubular_linear_motor.simulate import (
-    run_dynamic, get_magnet_flux, get_phase_values
+    get_magnet_flux, get_phase_values, find_optimal_phase_shift
 )
 
 # Defines the unpacker & renderer dependency
@@ -38,17 +39,12 @@ material = motor.boundary_material
 renderer.define_environment_region(motor.BOUNDARY, tag, material)
 
 # Performs a series of static frames to get key parameters
-resistance, inductance = get_phase_values(motor, renderer, FEMMagneticSolver)
+print("1. Beginning static characterization of the motor...")
 magnet_flux = get_magnet_flux(motor, renderer, FEMMagneticSolver)
+resistance, inductance = get_phase_values(motor, renderer, FEMMagneticSolver)
+phase_shift = find_optimal_phase_shift(motor, renderer, FEMMagneticSolver)
 
-# Performs a quasi transient simulation of the motor
-results = run_dynamic(motor, resistance, inductance, magnet_flux, True)
+# print(magnet_flux, resistance, inductance, phase_shift)
 
-# Return results to the user via console
-simulation_results = {
-    "phase_resistance": resistance,
-    "phase_inductance": inductance,
-    "magnet_flux": magnet_flux,
-    "dynamic_results": results
-}
-print(f"\n{simulation_results}")
+# Performs a close loop quasi transient analysis of the between two points
+print("2. Beginning point to point launch of the motor...")

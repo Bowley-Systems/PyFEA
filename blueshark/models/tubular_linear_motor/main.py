@@ -27,7 +27,7 @@ from blueshark.domain.definitions import (
 )
 
 from blueshark.models.tubular_linear_motor.unpack import MotorUnpacker
-from blueshark.models.tubular_linear_motor.physics.number_turns import (
+from blueshark.models.tubular_linear_motor.modelling.number_turns import (
     estimate_turns
 )
 
@@ -179,7 +179,7 @@ class MagneticPhysics:
             self.load.slot_wire_diameter,
             self.load.fill_factor
         )
-
+        print(turns)
         for index, origin in enumerate(origins):
             # Sets phase of slot in pattern [a, b, c]
             phases = self.motor.PHASES
