@@ -5,8 +5,10 @@ Version: 0.1
 Date: 2025-10-19
 
 Description:
-    Quasi-transient magnetic analysis for multi-stage coilgun.
-    Reference: configurations.yaml
+    Quasi-transient Electro-Magneto-Mechanical analysis
+    for multi-stage coilgun.
+
+    Parameter file: configuration.yaml
 """
 
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
@@ -35,8 +37,10 @@ material = coilgun.boundary_material
 renderer.define_environment_region(coilgun.BOUNDARY, tag, material)
 
 # Performs a series of static frames to get resistance, inductance
+print("1. Beginning static characterization of the coilgun...")
 resistance, inductance = get_circuit_values(coilgun, FEMMagneticSolver)
 
 # # Performs a dynamic launch of the coilgun
+print("2. Beginning quasi-transient launch of the coilgun...")
 result = launch_dynamic(coilgun, FEMMagneticSolver, resistance, inductance)
-print(f"\n{result}")
+print(f"3. Launch results: \n{result}")

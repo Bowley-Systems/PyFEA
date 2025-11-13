@@ -179,7 +179,7 @@ class MagneticPhysics:
             self.load.slot_wire_diameter,
             self.load.fill_factor
         )
-        print(turns)
+
         for index, origin in enumerate(origins):
             # Sets phase of slot in pattern [a, b, c]
             phases = self.motor.PHASES
@@ -266,6 +266,7 @@ class MagneticPhysics:
 
 
 class ThermalPhysics:
+    """ Template for thermal physics """
     """ Thermal implementation of the tubular linear motor """
     def __init__(self, motor):
         self.motor = motor

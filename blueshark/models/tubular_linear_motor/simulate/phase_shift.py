@@ -11,6 +11,7 @@ Description:
 """
 
 import logging
+from math import sqrt
 from bayes_opt import BayesianOptimization
 from functools import partial
 
@@ -19,7 +20,7 @@ from blueshark.renderer.renderer_interface import MagneticRenderer
 from blueshark.solver.solver_interface import BaseSolver
 from blueshark.domain.conversion.manager import conversion
 from blueshark.simulate.static import static_simulation
-from blueshark.domain.units import Unit, NEWTON, DIMENSIONLESS
+from blueshark.domain.units import Unit, NEWTON, NEWTON_AMPERE, DIMENSIONLESS
 
 from blueshark.models.tubular_linear_motor.modelling.physics import (
     Currents, inverse_clarke_transform, inverse_park_transform,
@@ -65,13 +66,13 @@ def _get_force(
         raise RuntimeError(msg)
 
 
-def find_optimal_phase_shift(
+def get_force(
     motor: TubularLinearMotor,
     renderer: MagneticRenderer,
     solver: BaseSolver,
     iterations: int = 25,
     verbose: bool = True,
-) -> tuple[float, Unit]:
+) -> tuple[tuple[float, Unit], tuple[float, Unit]]:
     """ Finds the optimal initial phase shift for sync """
 
     # Defines a partial function with the phase shift argument missing
@@ -110,6 +111,11 @@ def find_optimal_phase_shift(
     if verbose:
         print(msg)
 
-    # Returns the shift for the maximum force
+    # Returns the shift for the maximum force (RADIANS)
     optimal_shift = float(optimizer.max['params']['phase_shift'])
-    return optimal_shift, DIMENSIONLESS
+
+    # Returns the force constant as force / rms_current
+    current_rms = motor.load.current_limit / sqrt(2)
+    force_constant = float(optimizer.max['target']) / current_rms
+
+    return (optimal_shift, DIMENSIONLESS), (force_constant, NEWTON_AMPERE)

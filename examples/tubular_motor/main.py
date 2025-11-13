@@ -5,12 +5,10 @@ Version: 0.3
 Date: 2025-10-19
 
 Description:
-    Closed-loop quasi-transient magnetic analysis for V1.0 TLSM.
-    Reference: configuration.yaml
+    PD-PI controlled Quasi-transient Electro-Magneto-Mechanical
+    analysis for the tubular synchronous linear motor.
 
-    NOTE:
-    - This is a prototype example it will not function correctly.
-      It is not finished.
+    Parameter file: configuration.yaml
 """
 
 from blueshark.renderer.femm.magnetic.renderer import FEMMagneticRenderer
@@ -19,7 +17,7 @@ from blueshark.solver.femm.magnetic.solver import FEMMagneticSolver
 from blueshark.models.tubular_linear_motor.unpack import MotorUnpacker
 from blueshark.models.tubular_linear_motor.main import TubularLinearMotor
 from blueshark.models.tubular_linear_motor.simulate import (
-    get_magnet_flux, get_phase_values, find_optimal_phase_shift
+    get_magnet_flux, get_phase_values, get_force
 )
 
 # Defines the unpacker & renderer dependency
@@ -42,9 +40,8 @@ renderer.define_environment_region(motor.BOUNDARY, tag, material)
 print("1. Beginning static characterization of the motor...")
 magnet_flux = get_magnet_flux(motor, renderer, FEMMagneticSolver)
 resistance, inductance = get_phase_values(motor, renderer, FEMMagneticSolver)
-phase_shift = find_optimal_phase_shift(motor, renderer, FEMMagneticSolver)
-
-# print(magnet_flux, resistance, inductance, phase_shift)
+phase_shift, force_constant = get_force(motor, renderer, FEMMagneticSolver)
+print(phase_shift, force_constant)
 
 # Performs a close loop quasi transient analysis of the between two points
 print("2. Beginning point to point launch of the motor...")

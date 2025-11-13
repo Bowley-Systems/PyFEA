@@ -70,7 +70,7 @@ class Unit:
         parts = []
 
         if len(self.dims) == 0:
-            return "DIMLESS"
+            return "UNIT-LESS"
 
         for dim in self.dims:
             prefix = "" if dim.prefix is PrefixScale.BASE else dim.prefix.name
@@ -198,4 +198,12 @@ HENRY = Unit(
     Dimension(SIBase.METER, exponent=2),
     Dimension(SIBase.SECOND, exponent=-2),
     Dimension(SIBase.AMPERE, exponent=-2)
+)
+
+# Newton / Ampere: N/A (kg·m²/s²·A⁻¹)
+NEWTON_AMPERE = Unit(
+    Dimension(SIBase.GRAM, PrefixScale.KILO),
+    Dimension(SIBase.METER),
+    Dimension(SIBase.SECOND, exponent=-2),
+    Dimension(SIBase.AMPERE, exponent=-1)
 )
