@@ -51,8 +51,9 @@ class TubularLinearMotor:
         """ Initializes the class & defines dependencies """
         self.renderer = renderer
         self.manager = MaterialManager()
+        self.unit = MILLIMETER
         self.problem = Problem(
-            unit=MILLIMETER,
+            unit=self.unit,
             type=CoordinateSystem.AXI_SYMMETRIC
         )
 

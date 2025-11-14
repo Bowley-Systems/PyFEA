@@ -37,11 +37,11 @@ material = motor.boundary_material
 renderer.define_environment_region(motor.BOUNDARY, tag, material)
 
 # Performs a series of static frames to get key parameters
-print("1. Beginning static characterization of the motor...")
+print("1. Beginning static characterization of the motor")
 magnet_flux = get_magnet_flux(motor, renderer, FEMMagneticSolver)
 resistance, inductance = get_phase_values(motor, renderer, FEMMagneticSolver)
 phase_shift, force_constant = get_force(motor, renderer, FEMMagneticSolver)
 print(phase_shift, force_constant)
 
 # Performs a close loop quasi transient analysis of the between two points
-print("2. Beginning point to point launch of the motor...")
+print("2. Beginning point to point launch of the motor")

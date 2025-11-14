@@ -15,7 +15,7 @@ operation:
   supply_voltage: 24 # Supply voltage (volts)
   current_limit: 2 # Maximum current from the supply (amps)
   test_current: 1.0e-4    # Test current | REQUIRED for inductance calculations
-  de_solver_maximum_steps: 1000 # Maximum number of time steps before failing
+  de_solver_maximum_steps: 1000 # Maximum number of time steps before failing (REMOVE THIS)
 
 model:
   number_pairs: 2 # Number of N-S pairs in stator

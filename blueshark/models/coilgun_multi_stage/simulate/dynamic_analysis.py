@@ -23,7 +23,8 @@ from blueshark.simulate.static import static_simulation
 from blueshark.domain.conversion.manager import conversion
 from blueshark.domain.units import (
     Unit, SIBase, PrefixScale, AMPERE, KILOGRAM,
-    NEWTON, SECOND, JOULE, METER_SECOND, METER
+    NEWTON, SECOND, JOULE, METER_SECOND, METER,
+    DIMENSIONLESS, WATT
 )
 
 from blueshark.models.coilgun_multi_stage.modelling.coil import Coil
@@ -47,10 +48,10 @@ NANO_JOULE = JOULE.with_prefix(SIBase.GRAM, PrefixScale.BASE)\
 @dataclass
 class DynamicResults:
     """ Holds the dynamic launch results """
-    final_velocity: float       # final velocity of the projectile (m/s)
-    input_output: float         # Output / Input Ratio
-    average_power_loss: float   # Average Power loss (W)
-    average_input_power: float  # Average Electrical input power (W)
+    final_velocity: tuple[float, Unit]
+    efficiency: tuple[float, Unit]      # % Input / Output
+    average_power_loss: tuple[float, Unit]
+    average_input_power: tuple[float, Unit]
 
 
 def _debug_plotting(
@@ -279,19 +280,16 @@ def launch_dynamic(
     ratio = ke / electrical_energy if electrical_energy else 0
     ratio = 0 if ratio < 0 or ratio > 1 else ratio
 
-    losses = (
-        (electrical_energy - ke) / loop_time
-        if loop_time > 0 else 0
-    )
+    losses = (electrical_energy - ke) / loop_time if loop_time > 0 else 0
 
     # New calculation for average total power (Power = Energy / Time)
     average_input_power = electrical_energy / loop_time if loop_time > 0 else 0
 
     results = DynamicResults(
-        velocity,
-        ratio,
-        losses,                 # Average Power Loss (W)
-        average_input_power     # Average Electrical Input Power (W)
+        [velocity, METER_SECOND],
+        [ratio, DIMENSIONLESS],
+        [losses, WATT],
+        [average_input_power, WATT]
     )
 
     return results

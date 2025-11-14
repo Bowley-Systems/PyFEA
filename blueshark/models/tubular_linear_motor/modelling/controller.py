@@ -38,9 +38,9 @@ class CascadedController:
         )
 
         """ NOTE: Cannot check units for these currently. Future Fix """
-        self.current_limit = self.load.current_limit
-        self.voltage_limit = self.load.supply_voltage
-        motor_load = self.load.mass
+        self.current_limit = float(self.load.current_limit)  # Assume Amperes
+        self.voltage_limit = float(self.load.supply_voltage)  # Assume Volts
+        motor_load = float(self.load.mass)  # Assume kg
 
         # Defines controller constants
         freq = self.phase_resistance / self.phase_inductance

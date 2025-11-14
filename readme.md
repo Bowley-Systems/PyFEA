@@ -18,7 +18,9 @@ Part of the `blue` series projects, with the goal of making linear motors viable
 - Laser cutters
 - Other electromechanical systems
 
-Currently, FEMM (Finite Element Method Magnetics) is the primary solver and renderer. Future releases will support additional solvers.
+> [!NOTE]
+> [FEMM](https://www.femm.info/wiki/HomePage) is the primary solver and renderer. Future releases will support additional solvers.
+
 
 
 ## Example Simulation
@@ -35,7 +37,7 @@ The figure below shows **Current, Force, and Velocity vs. Time**:
 ## Installation
 
 ### 1. Install FEMM
-FEMM is a free, open-source tool for low-frequency electromagnetic simulations, ideal for motor design.  
+FEMM is a free, open-source tool for static electromagnetic and thermal simulations.  
 > [!CAUTION]
 > FEMM is a Windows-only application. Linux/macOS support requires setting up a compatibility layer (like Wine) or waiting for support for a cross-platform solver.
 

@@ -9,7 +9,7 @@ notes: |
     the LR decade is faster.
 
 output:
-  folder_path: outputs/
+  folder_path: examples/multi_stage_coilgun/outputs/
   file_name: coilgun
 
 model:
