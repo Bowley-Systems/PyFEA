@@ -37,7 +37,7 @@ setup(
     include_package_data=True,
     package_data={
         "blueshark.library": [
-            "material.toml"
+            "materials.toml"
         ],
         "blueshark.models": [
             "**/*.yaml"

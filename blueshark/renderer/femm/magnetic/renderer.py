@@ -329,7 +329,6 @@ class FEMMagneticRenderer(MagneticRenderer):
 
         dx = magnitude * cos(theta)
         dy = magnitude * sin(theta)
-
         # Select each block individually and move
         for element in elements_to_move:
             femm.mi_selectgroup(element)

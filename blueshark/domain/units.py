@@ -106,7 +106,13 @@ SECOND = Unit(Dimension(SIBase.SECOND))
 # Velocity (ms⁻¹):
 METER_SECOND = Unit(
     Dimension(SIBase.METER),
-    Dimension(SIBase.SECOND, exponent=2)
+    Dimension(SIBase.SECOND, exponent=-1)
+)
+
+# Acceleration (ms⁻²)
+METER_SECOND_SECOND = Unit(
+    Dimension(SIBase.METER),
+    Dimension(SIBase.SECOND, exponent=-2)
 )
 
 # Volume: cubic-meter (m³)
@@ -129,6 +135,9 @@ MICROMETER = METER.with_prefix(SIBase.METER, PrefixScale.MICRO)
 
 # Mass: (kg)
 KILOGRAM = Unit(Dimension(SIBase.GRAM, PrefixScale.KILO))
+
+# Mass: (g)
+GRAM = KILOGRAM.with_prefix(SIBase.GRAM, PrefixScale.BASE)
 
 # Force: Newton (kg·m/s²)
 NEWTON = Unit(

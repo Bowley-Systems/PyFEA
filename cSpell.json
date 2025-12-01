@@ -74,6 +74,7 @@
     "CENTI",
     "MILLI",
     "pbounds",
-    "DIMLESS"
+    "DIMLESS",
+    "Dunder"
   ]
 }

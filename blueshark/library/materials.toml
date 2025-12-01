@@ -82,7 +82,7 @@ name = "copper wire"
 tag = "wire"
 
 [material.physical]
-lamination = "solid"
+lamination = "magnet_wire"
 lamination_fill = 1.0
 lamination_thickness = 1
 wire_diameter = 0

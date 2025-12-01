@@ -24,7 +24,7 @@ Part of the `blue` series projects, with the goal of making linear motors viable
 
 
 ## Example Simulation
-This example demonstrates a quasi-transient simulation of a **Tubular Linear Synchronous Motor (TLSM)**.  
+This example demonstrates a PD-PI controlled Quasi-transient Electro-Magneto-Mechanical simulation of a **Tubular Linear Synchronous Motor (TLSM)**.  
 The figure below shows **Current, Force, and Velocity vs. Time**:
 
 <div align="center">
