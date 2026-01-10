@@ -1,29 +1,29 @@
 """
 Filename: setup.py
 Author: William Bowley
-Version: 1.4.1
+Version: 1.5.0
 Date: 2025-10-13
 
 Description:
-    Install script for blueshark v1.4.1 framework
+    Install script for fea v1.5.0 framework
 """
 
 from setuptools import setup, find_packages
 
 setup(
-    name='blueshark',
-    version='1.4.1',
+    name='pyfea',
+    version='1.5.0',
     description=(
-        'Modular FEMM-based linear and tubular motor simulation framework'
+        'Solver-Adaptor Engine for Multi-Physics Problems'
     ),
     author='William Bowley',
     author_email='wgrantbowley@gmail.com',
-    packages=find_packages(include=["blueshark", "blueshark.*"]),
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     install_requires=[
         'PyYAML',
         'pyfemm',
         'matplotlib',
-        'numpy',
         'bayesian-optimization'
     ],
     classifiers=[
@@ -35,12 +35,4 @@ setup(
     ],
     python_requires='>=3.8',
     include_package_data=True,
-    package_data={
-        "blueshark.library": [
-            "materials.toml"
-        ],
-        "blueshark.models": [
-            "**/*.yaml"
-        ]
-    },
 )

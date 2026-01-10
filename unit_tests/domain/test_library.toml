@@ -1,9 +1,0 @@
-[[material]]
-name = "UNIT_TEST_MATERIAL"
-tag = ""
-
-[material.physical]
-lamination = "solid"
-lamination_fill = 1.0
-number_of_strands = 1
-wire_diameter = 0

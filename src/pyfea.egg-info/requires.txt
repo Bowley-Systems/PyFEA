@@ -1,0 +1,4 @@
+PyYAML
+pyfemm
+matplotlib
+bayesian-optimization

@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: pyfea
+Version: 1.5.0
+Summary: Solver-Adaptor Engine for Multi-Physics Problems
+Author: William Bowley
+Author-email: wgrantbowley@gmail.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: PyYAML
+Requires-Dist: pyfemm
+Requires-Dist: matplotlib
+Requires-Dist: bayesian-optimization
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

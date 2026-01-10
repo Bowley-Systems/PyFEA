@@ -1,0 +1,12 @@
+LICENSE
+setup.py
+src/pyfea/__init__.py
+src/pyfea.egg-info/PKG-INFO
+src/pyfea.egg-info/SOURCES.txt
+src/pyfea.egg-info/dependency_links.txt
+src/pyfea.egg-info/requires.txt
+src/pyfea.egg-info/top_level.txt
+src/pyfea/domain/__init__.py
+src/pyfea/domain/dimensions/__init__.py
+src/pyfea/domain/dimensions/qualities.py
+src/pyfea/domain/dimensions/units.py

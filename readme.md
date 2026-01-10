@@ -1,60 +1,44 @@
 <p align="center">
-  <img src="media/readme_banner.png" alt="BlueShark Logo" style="max-width:600px;">
+  <img src="media/banner.png" alt="pyFea" style="max-width:600px;">
   <br>
-  <em>Electromechanical Design Explorer for Linear Motors – built with love by <a href="https://github.com/wgbowley">William Bowley</a> & Co.</em>
+  <em>A Solver-Adaptor Engine for Multi-Physics Simulation & Optimization</em>
 </p>
 
----
+
+## Overview
+
+Sick of glue code and brittle pipelines? Annoyed by having to learn 10 different APIs? What if we could have a single high-level API handle all translation, leaving us to focus on what we're good at? PyFea is a solver-adaptor engine that functions as a single high-level API for finite element and lumped parameter multi-physics problems. PyFea levarges PicoUnits DSL and runtime checking for configuration files and material libraries. Currently, PyFea supports these physics domains: thermal, magnetic, electric, and electric circuits.
+
+## Details
+
 ![Work in Progress](https://img.shields.io/badge/status-wip-orange)
 ![Python Version](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Part of the `blue` series projects, with the goal of making linear motors viable for 3D printing and other applications at the hobbyist level.
 
-## Overview
-**BlueShark** is a idealized exploration tool for linear motor designs. It is designed for integration with optimizers and its targeted applications include:
-- 3D printers
-- Pick-and-place machines
-- Laser cutters
-- Other electromechanical systems
+PyFea is designed to use a high-level API for multi-solver physics problems. It is built around abstract base functions, essentially contracts that all solvers have to meet. Implementing a solver consists of two parts: a renderer and the solver interface. The renderer understands how to translate PyFea's native vector geometry to a non-native geometry type. It can be thought of as a preloader for the solver. The solver interface simply communicates with the external solver while doing boundary unit checks to ensure dimensional consistency. 
 
 > [!NOTE]
-> [FEMM](https://www.femm.info/wiki/HomePage) is the primary solver and renderer. Future releases will support additional solvers.
+> [FEMM](https://www.femm.info/wiki/HomePage) and [PySpice](https://pyspicepyspice.fabrice-salvaire.f) are the only supported solvers currently; future releases will support additional solvers.
 
+PyFea includes solver-generic model implementations and a unit-informed universal material library. The current model library includes:
 
-
-## Example Simulation
-This example demonstrates a PD-PI controlled Quasi-transient Electro-Magneto-Mechanical simulation of a **Tubular Linear Synchronous Motor (TLSM)**.  
-The figure below shows **Current, Force, and Velocity vs. Time**:
-
-<div align="center">
-  <img src="media/dynamic_analysis.png" alt="Dynamic analysis example" style="max-width: 900px; width: 100%; height: auto;">
-</div>
-
-*Full configuration and simulation code for this analysis is available here:*  [`examples/tubular_motor`](./examples/tubular_motor/)
+- A PD-PI controlled tubular linear motor running under quasi-transient + static conditions
+- A multi-stage coil-gun running under quasi-transient conditions
+- A magnetic latching system for a 3D printer's toolhead running under quasi-transient conditions
+- A lumped-parameter model for a multi-stage coil-gun (reference model for FEM)
 
 
 ## Installation
 
-### 1. Install FEMM
-FEMM is a free, open-source tool for static electromagnetic and thermal simulations.  
-> [!CAUTION]
-> FEMM is a Windows-only application. Linux/macOS support requires setting up a compatibility layer (like Wine) or waiting for support for a cross-platform solver.
-
-- Download and install FEMM from the official website:  
-  [https://www.femm.info/wiki/HomePage](https://www.femm.info/wiki/HomePage)  
-- Ensure FEMM is added to your system PATH or installed in the default location (usually `C:\femm42`) so BlueShark can call it automatically.
-
-### 2. Install BlueShark
+### 1. Install PyFea
 Clone the repository and install the package locally in editable mode:
 
 ```bash
-git clone https://github.com/wgbowley/BlueShark-FEA.git
-cd BlueShark-FEA
+git clone https://github.com/wgbowley/pyfea.git
+cd pyfea
 pip install -e .
 ```
 
 ## Usage
 This section is under development. A detailed usage example will be provided here soon.
-- *Example of what the universal 2D ```PyFEA``` framework may look like: [`electromagnet`](./examples/electromagnet/electromagnet.py)*
-

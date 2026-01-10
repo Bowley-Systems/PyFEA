@@ -1,4 +1,2 @@
 [MESSAGES CONTROL]
-disable = C0411 # wrong Import order
-disable = W1203 # Use lazy % formatting in logging function
-disable = W0718 # Catching too general exception Exception
+disable = W0105 # String statement has no effect
