@@ -14,6 +14,7 @@
     "pico",
     "pyfemm",
     "Dunder",
-    "levarges"
+    "levarges",
+    "picounits"
   ]
 }

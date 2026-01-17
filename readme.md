@@ -1,7 +1,8 @@
 <p align="center">
   <img src="media/banner.png" alt="pyFea" style="max-width:600px;">
   <br>
-  <em>A Solver-Adaptor Engine for Multi-Physics Simulation & Optimization</em>
+  <em>A Solver-Adaptor Engine for Multi-Physics Simulation & Optimization
+   – Built with Correctness by <a href="https://github.com/wgbowley">William Bowley</a></em>
 </p>
 
 
@@ -11,12 +12,12 @@ Sick of glue code and brittle pipelines? Annoyed by having to learn 10 different
 
 ## Details
 
-![Work in Progress](https://img.shields.io/badge/status-wip-orange)
+![Work in Progress](https://img.shields.io/badge/status-wip-blue)
+![License](https://img.shields.io/badge/license-MIT-white)
 ![Python Version](https://img.shields.io/badge/python-3.10+-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
 
 
-PyFea is designed to use a high-level API for multi-solver physics problems. It is built around abstract base functions, essentially contracts that all solvers have to meet. Implementing a solver consists of two parts: a renderer and the solver interface. The renderer understands how to translate PyFea's native vector geometry to a non-native geometry type. It can be thought of as a preloader for the solver. The solver interface simply communicates with the external solver while doing boundary unit checks to ensure dimensional consistency. 
+PyFea is designed to be used as a high-level API for multi-solver physics problems. It is built around abstract base functions, essentially contracts that all solvers have to meet. Implementing a solver consists of two parts: a renderer and the solver interface. The renderer understands how to translate PyFea's native vector geometry to a non-native geometry type. It can be thought of as a preloader for the solver. The solver interface simply communicates with the external solver while doing boundary unit checks to ensure dimensional consistency. 
 
 > [!NOTE]
 > [FEMM](https://www.femm.info/wiki/HomePage) and [PySpice](https://pyspicepyspice.fabrice-salvaire.f) are the only supported solvers currently; future releases will support additional solvers.
