@@ -21,7 +21,7 @@ from pyfea.domain.geometry.elements.primitives import (
 from pyfea.domain.geometry.elements.parts import Metadata, Part
 
 
-class GeometryBuilder:
+class Builder:
     """ Builds geometry with vector objects and CSG system """
 
     @staticmethod

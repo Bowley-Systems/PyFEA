@@ -1,0 +1,157 @@
+[version]
+format: 0.1.0
+unit_frame: SI_METRIC_NON_DERIVED
+
+
+[stc_air.meta]
+tag: "environmental"
+note: "Dry air at STC: Standard Test Conditions (25 °C / 298.15 K, 101.325 kPa, 1 atm)"
+humidity_assumption: "Dry (Percentage Unknown)"
+last_updated: "2026-01-19"
+
+[stc_air.physical]
+pressure: 101.325 k(kg*m^-1*s^-2)
+density: 1.225 (kg*m^-3)
+
+[stc_air.magnetic]
+relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+current_density: 0.0 (A*m^-2)
+
+[stc_air.electrical]
+relative_permittivity: [1.0006, 1.0006] (A^2*s^4*kg^-1*m^-3)
+conductivity: 5e-15 (kg^-1*m^-3*s^3*A^2)
+volume_charge_density: 0.0 (A*s*m^-3)
+
+[stc_air.thermal]
+conductivity: [0.0261, 0.0261] (kg*m*s^-3*K^-1)
+volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
+temp_dependence: [
+  [200.0, 0.0181],
+  [250.0, 0.0223],
+  [300.0, 0.0261],
+  [350.0, 0.0297],
+  [400.0, 0.0331],
+  [450.0, 0.0363],
+  [500.0, 0.0395],
+  [550.0, 0.0426],
+  [600.0, 0.0456],
+  [700.0, 0.0513],
+  [800.0, 0.0569],
+  [900.0, 0.0625],
+  [1000.0, 0.0672],
+  [1200.0, 0.0759],
+  [1400.0, 0.0835],
+  [1600.0, 0.0904],
+  [1800.0, 0.097],
+  [2000.0, 0.1032]
+] (K), (kg*m*s^-3*K^-1)
+
+
+[pure_iron.meta]
+tag: "material"
+note: "It is assumed to be 99%+ Pure Iron without an oxide layer"
+last_updated: "2026-01-20"
+
+[pure_iron.physical]
+density: 7872 (kg*m^-3)
+
+[pure_iron.magnetic]
+relative_permeability: [14872, 14872] (kg*m*s^-2*A^-2)
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+current_density: 0.0 (A*m^-2)
+
+[pure_iron.electrical]
+relative_permittivity: [1, 1] (A^2*s^4*kg^-1*m^-3)
+conductivity: 1.044e6 (kg^-1*m^-3*s^3*A^2)
+volume_charge_density: 0.0 (A*s*m^-3)
+
+[pure_iron.thermal]
+conductivity: [83, 83] (kg*m*s^-3*K^-1)
+volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
+temp_dependence: [
+  [273.0, 83.0],
+  [473.0, 66.0],
+  [673.0, 53.0],
+  [873.0, 41.0],
+  [1073.0, 32.0],
+  [1273.0, 30.0]
+] (K), (kg*m*s^-3*K^-1)
+
+
+[pure_copper.meta]
+tag: "material"
+note: "It is assumed to be 99%+ Pure copper"
+last_updated: "2026-01-20"
+
+[pure_copper.physical]
+density: 8960 (kg*m^-3)
+
+[pure_copper.magnetic]
+relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+current_density: 0.0 (A*m^-2)
+
+[pure_copper.electrical]
+relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
+conductivity: 5.8e7 (kg^-1*m^-3*s^3*A^2)
+volume_charge_density: 0.0 (A*s*m^-3)
+
+[pure_copper.thermal]
+conductivity: [401, 401] (kg*m*s^-3*K^-1)
+volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
+temp_dependence: [
+  [273.0, 401.0],
+  [473.0, 389.0],
+  [673.0, 378.0],
+  [873.0, 366.0],
+  [1073.0, 352.0],
+  [1273.0, 336.0]
+] (K), (kg*m*s^-3*K^-1)
+
+
+[NdFeB.meta]
+tag: "magnet material"
+note: ""
+last_updated: "2026-01-20"
+
+[NdFeB.physical]
+density: 7600 (kg*m^-3)
+
+[NdFeB.magnetic]
+relative_permeability: [1.05, 1.05] (kg*m*s^-2*A^-2)
+coercivity: 0.0 k(A*m^-1)
+remanence: 1.104 (kg*s^-2*A^-1)
+current_density: 0.0 (A*m^-2)
+
+[NdFeB.electrical]
+relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
+conductivity: 0.667e6 (kg^-1*m^-3*s^3*A^2)
+volume_charge_density: 0.0 (A*s*m^-3)
+
+[NdFeB.thermal]
+conductivity: [16.5, 16.5] (kg*m*s^-3*K^-1)
+volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
+temp_dependence: [
+  [273.0, 3.36],
+  [323.0, 3.64],
+  [373.0, 3.91],
+  [423.0, 4.17],
+  [473.0, 4.42]
+] (K), (kg*m*s^-3*K^-1)
+
+[NdFeB.coercivity]
+N30: 836420 k(A*m^-1)
+N33: 878619 k(A*m^-1)
+N35: 905659 k(A*m^-1)
+N38: 944771 k(A*m^-1)
+N40: 969969 k(A*m^-1)
+N42: 994529 k(A*m^-1)
+N45: 1030272 k(A*m^-1)
+N48: 1014538 k(A*m^-1)
+N50: 987837 k(A*m^-1)
+N52: 956180 k(A*m^-1)
+N55: 922850 k(A*m^-1)
