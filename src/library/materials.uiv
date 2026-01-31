@@ -17,16 +17,13 @@ density: 1.225 (kg*m^-3)
 relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
 coercivity: 0.0 k(A*m^-1)
 remanence: 0.0 (kg*s^-2*A^-1)
-current_density: 0.0 (A*m^-2)
 
 [stc_air.electrical]
 relative_permittivity: [1.0006, 1.0006] (A^2*s^4*kg^-1*m^-3)
 conductivity: 5e-15 (kg^-1*m^-3*s^3*A^2)
-volume_charge_density: 0.0 (A*s*m^-3)
 
 [stc_air.thermal]
 conductivity: [0.0261, 0.0261] (kg*m*s^-3*K^-1)
-volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
 temp_dependence: [
   [200.0, 0.0181],
   [250.0, 0.0223],
@@ -61,16 +58,13 @@ density: 7872 (kg*m^-3)
 relative_permeability: [14872, 14872] (kg*m*s^-2*A^-2)
 coercivity: 0.0 k(A*m^-1)
 remanence: 0.0 (kg*s^-2*A^-1)
-current_density: 0.0 (A*m^-2)
 
 [pure_iron.electrical]
 relative_permittivity: [1, 1] (A^2*s^4*kg^-1*m^-3)
 conductivity: 1.044e6 (kg^-1*m^-3*s^3*A^2)
-volume_charge_density: 0.0 (A*s*m^-3)
 
 [pure_iron.thermal]
 conductivity: [83, 83] (kg*m*s^-3*K^-1)
-volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
 temp_dependence: [
   [273.0, 83.0],
   [473.0, 66.0],
@@ -93,16 +87,13 @@ density: 8960 (kg*m^-3)
 relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
 coercivity: 0.0 k(A*m^-1)
 remanence: 0.0 (kg*s^-2*A^-1)
-current_density: 0.0 (A*m^-2)
 
 [pure_copper.electrical]
 relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
 conductivity: 5.8e7 (kg^-1*m^-3*s^3*A^2)
-volume_charge_density: 0.0 (A*s*m^-3)
 
 [pure_copper.thermal]
 conductivity: [401, 401] (kg*m*s^-3*K^-1)
-volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
 temp_dependence: [
   [273.0, 401.0],
   [473.0, 389.0],
@@ -123,27 +114,9 @@ density: 7600 (kg*m^-3)
 
 [NdFeB.magnetic]
 relative_permeability: [1.05, 1.05] (kg*m*s^-2*A^-2)
-coercivity: 0.0 k(A*m^-1)
 remanence: 1.104 (kg*s^-2*A^-1)
-current_density: 0.0 (A*m^-2)
 
-[NdFeB.electrical]
-relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
-conductivity: 0.667e6 (kg^-1*m^-3*s^3*A^2)
-volume_charge_density: 0.0 (A*s*m^-3)
-
-[NdFeB.thermal]
-conductivity: [16.5, 16.5] (kg*m*s^-3*K^-1)
-volumetric_heat_source: 0.0 (kg*m^-1*s^-3)
-temp_dependence: [
-  [273.0, 3.36],
-  [323.0, 3.64],
-  [373.0, 3.91],
-  [423.0, 4.17],
-  [473.0, 4.42]
-] (K), (kg*m*s^-3*K^-1)
-
-[NdFeB.coercivity]
+[NdFeB.magnetic.coercivity]
 N30: 836420 k(A*m^-1)
 N33: 878619 k(A*m^-1)
 N35: 905659 k(A*m^-1)
@@ -155,3 +128,17 @@ N48: 1014538 k(A*m^-1)
 N50: 987837 k(A*m^-1)
 N52: 956180 k(A*m^-1)
 N55: 922850 k(A*m^-1)
+
+[NdFeB.electrical]
+relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
+conductivity: 0.667e6 (kg^-1*m^-3*s^3*A^2)
+
+[NdFeB.thermal]
+conductivity: [16.5, 16.5] (kg*m*s^-3*K^-1)
+temp_dependence: [
+  [273.0, 3.36],
+  [323.0, 3.64],
+  [373.0, 3.91],
+  [423.0, 4.17],
+  [473.0, 4.42]
+] (K), (kg*m*s^-3*K^-1)
