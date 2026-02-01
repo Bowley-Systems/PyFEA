@@ -10,16 +10,16 @@ Description:
 
 
 from picounits.core import Quantity
-from picounits.constants import DIMENSIONLESS
 
+from pyfea import dimensionless
 from pyfea.domain.geometry.elements.vectors import (
     VectorGeometry, PrimitivesShapes, GeometryElement
 )
 from pyfea.domain.geometry.elements.primitives import (
     Point, LineSegment, Ellipsoid
 )
-from pyfea.domain.geometry.elements.parts import Metadata, Part
-
+from pyfea.domain.geometry.elements.parts import Part
+from pyfea.domain.geometry.elements.metadata import MagneticData
 
 class Builder:
     """ Builds geometry with vector objects and CSG system """
@@ -55,14 +55,14 @@ class Builder:
         center = Point(center[0], center[1])
 
         circle = Ellipsoid(
-            center, radius, 1 * DIMENSIONLESS, 1 * DIMENSIONLESS
+            center, radius, 1 * dimensionless, 1 * dimensionless
         )
         return VectorGeometry(PrimitivesShapes.ELLIPSOID, circle)
 
     @staticmethod
     def promote_to_part(
         element: GeometryElement,
-        metadata: Metadata
+        metadata: MagneticData
     ) -> Part:
         """ Promotes a CSNode or VectorGeometry class to a part """
         return Part(element, metadata)

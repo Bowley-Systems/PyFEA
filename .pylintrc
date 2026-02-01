@@ -1,2 +1,6 @@
 [MESSAGES CONTROL]
 disable = W0105 # String statement has no effect
+disable = W0401 # Wildcard import
+
+[FORMAT]
+max-line-length=90 # Maximum number of characters on a single line.

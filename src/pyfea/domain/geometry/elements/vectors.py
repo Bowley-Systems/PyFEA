@@ -14,7 +14,10 @@ from typing import Union, Any
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from pyfea.domain.geometry.definitions import GeometricPrimitives
+from picounits.core import Quantity
+
+from pyfea import meter
+from pyfea.domain.geometry.definitions import GeometricPrimitives, GeometryDimensionError
 
 """ A geometric element can be either a leaf (geometry) or a branch (node)"""
 GeometryElement = Union["VectorGeometry", "CSGNode"]
@@ -48,6 +51,7 @@ class CSOperation(Enum):
     UNION = auto()
     SUBTRACT = auto()
     INTERSECT = auto()
+    EXTRUSION = auto()
 
     @property
     def _name(self) -> str:
@@ -62,20 +66,18 @@ class CSOperation(Enum):
         """ Returns the points name from CSOperation.type """
         return self._name
 
-
 @dataclass(slots=True)
 class CSGNode(GeometricPrimitives):
-    """ Construct solid geometry node between two objects """
+    """Construct solid geometry node with optional parameters"""
     operation: CSOperation
-    object_a: GeometryElement
-    object_b: GeometryElement
+    operands: tuple[GeometryElement, ...]
+    params: dict[str, Any] | None = None
 
     @property
     def _name(self) -> str:
-        return (
-            f"<CSGNode: {self.operation.name}({self.object_a}, "
-            f"{self.object_b})>"
-        )
+        param_str = f", params={self.params}" if self.params else ""
+        operand_str = ", ".join(str(o) for o in self.operands)
+        return f"<CSGNode: {self.operation.name}({operand_str}{param_str})>"
 
 
 @dataclass(slots=True)
@@ -87,19 +89,48 @@ class VectorGeometry(GeometricPrimitives):
     @property
     def _name(self) -> str:
         """ Returns a clean, scannable string representation """
+
         return (
-            f"<VectorGeometry: shape={self.shape.name}, "
-            f"items={len(self.data)}>"
+            f"<VectorGeometry: shape={self.shape.name}>"
         )
 
     def union(self, geometry_object: VectorGeometry) -> CSGNode:
-        """ Performs a union between this instance and another """
-        return CSGNode(CSOperation.UNION, self, geometry_object)
+        return CSGNode(CSOperation.UNION, operands=(self, geometry_object))
 
     def subtract(self, geometry_object: VectorGeometry) -> CSGNode:
-        """ Performs a subtract between this instance and another """
-        return CSGNode(CSOperation.SUBTRACT, self, geometry_object)
+        return CSGNode(CSOperation.SUBTRACT, operands=(self, geometry_object))
 
     def intersect(self, geometry_object: VectorGeometry) -> CSGNode:
-        """ Perform a intersect between this instance and another """
-        return CSGNode(CSOperation.INTERSECT, self, geometry_object)
+        return CSGNode(CSOperation.INTERSECT, operands=(self, geometry_object))
+
+    def extrude(
+        self, 
+        height: Quantity,
+        direction: Quantity = (0, 0, 1) * meter,
+        manifold: bool = True
+    ) -> CSGNode:
+        """Extrudes the 2D VectorGeometry into 3D geometry"""
+        if not isinstance(height, Quantity) or not isinstance(direction, Quantity):
+            msg = "3D geometry requires both height and direction to be quantities"
+            raise GeometryDimensionError(self.__class__.__name__, msg)
+        
+        if height.value == 0 or height.unit != meter:
+            msg = f"3D geometry height cannot be zero and has to be type {meter}"
+            raise GeometryDimensionError(self.__class__.__name__, msg)
+        
+        if direction.magnitude == 0 or direction.unit != meter:
+            msg = (
+                f"3D geometry direction cannot have zero magnitude "
+                f"and has to be type {meter}"
+            )
+            raise GeometryDimensionError(self.__class__.__name__, msg)
+        
+        return CSGNode(
+            operation=CSOperation.EXTRUSION,
+            operands=(self,),
+            params={
+                "height": height,
+                "direction": direction,
+                "manifold": manifold
+            }
+        )

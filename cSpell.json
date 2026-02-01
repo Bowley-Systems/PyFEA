@@ -16,6 +16,9 @@
     "Dunder",
     "levarges",
     "picounits",
-    "coercivity"
+    "coercivity",
+    "picometer",
+    "weber",
+    "neumann",
   ]
 }

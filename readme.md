@@ -2,7 +2,7 @@
   <img src="media/banner.png" alt="pyFea" style="max-width:600px;">
   <br>
   <em>A Solver-Adaptor Engine for Multi-Physics Simulation & Optimization
-   – Built with Correctness by <a href="https://github.com/wgbowley">William Bowley</a></em>
+   – Built with headaches by <a href="https://github.com/wgbowley">William Bowley</a></em>
 </p>
 
 

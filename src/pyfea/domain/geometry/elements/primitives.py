@@ -11,8 +11,8 @@ Description:
 from dataclasses import dataclass
 
 from picounits.core import Quantity
-from picounits.constants import LENGTH, DIMENSIONLESS
 
+from pyfea import meter, dimensionless
 from pyfea.domain.geometry.definitions import (
     GeometryDimensionError, GeometricPrimitives
 )
@@ -33,7 +33,7 @@ class Point(GeometricPrimitives):
             )
             raise GeometryDimensionError(self.__class__.__name__, error)
 
-        if self.x.unit != LENGTH or self.y.unit != LENGTH:
+        if self.x.unit != meter or self.y.unit != meter:
             error = (
                 "Coordinates must have LENGTH dimensions, "
                 f"not {self.x.unit} and {self.y.unit}"
@@ -94,7 +94,7 @@ class ArcSegment(GeometricPrimitives):
             error = f"Angle must be type Quantity, not {type(self.angle)}"
             raise GeometryDimensionError(self.__class__.__name__, error)
 
-        if self.angle.unit != DIMENSIONLESS:
+        if self.angle.unit != dimensionless:
             error = f"Angle must be dimensionless, not {self.angle.unit}"
             raise GeometryDimensionError(self.__class__.__name__, error)
 
@@ -129,14 +129,14 @@ class Ellipsoid(GeometricPrimitives):
                 )
                 raise GeometryDimensionError(self.__class__.__name__, error)
 
-        if self.radius.unit != LENGTH:
+        if self.radius.unit != meter:
             error = (
                 f"Radius must have LENGTH dimension, not {self.radius.unit}"
             )
             raise GeometryDimensionError(self.__class__.__name__, error)
 
         for value in (self.x_dilation, self.y_dilation):
-            if value.unit != DIMENSIONLESS:
+            if value.unit != dimensionless:
                 error = (
                     "x_dilation and y_dilation must all be "
                     "defined dimensionless"
