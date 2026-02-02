@@ -21,6 +21,8 @@ from pyfea.domain.geometry.domain import Domain, BoundaryType
 from pyfea.domain.circuits import circuit
 from pyfea.solver import FEMMagneticSolver, Outputs
 
+# FEA file output
+folder_location = "examples/electromagnet/outputs/"
 
 # Pulls materials into the script from package library
 manager = MaterialManager()
@@ -64,9 +66,11 @@ simulation_domain = Domain(
 )
 
 # Solve the magnetic problem and returns; all problems from selector
-result = FEMMagneticSolver(
-    simulation_domain, [Outputs.circuit_inductance, Outputs.circuit_resistance], phase_a
+solver = FEMMagneticSolver(
+    folder_location, simulation_domain 
+    [Outputs.circuit_inductance, Outputs.circuit_resistance], phase_a
 )
+result = solver.solve()
 
 # Assumed dynamic frequency of 50 HZ
 x_inductive = 2 * pi * result.circuit_inductance * 50 * Hz

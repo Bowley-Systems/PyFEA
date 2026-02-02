@@ -9,7 +9,7 @@ Description:
 """
 
 from abc import ABC, abstractmethod
-
+from enum import Enum, auto
 
 class GeometryDimensionError(TypeError):
     """ Exception for geometry dimension error """
@@ -43,3 +43,11 @@ class GeometricPrimitives(ABC):
     def __repr__(self) -> str:
         """ Returns the points name from Point.name """
         return self._name
+
+
+class CoordinateSystem(Enum):
+    """
+    Types of coordinate systems.
+    """
+    AXI_SYMMETRIC = auto()
+    PLANAR = auto()

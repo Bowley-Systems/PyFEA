@@ -10,9 +10,7 @@ Description:
 
 from dataclasses import dataclass
 
-from picounits.core import Quantity
-
-from pyfea import meter, dimensionless
+from pyfea import meter, dimensionless, Quantity
 from pyfea.domain.geometry.definitions import (
     GeometryDimensionError, GeometricPrimitives
 )

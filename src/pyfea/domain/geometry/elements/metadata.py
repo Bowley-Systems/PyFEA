@@ -9,10 +9,8 @@ Description:
 """
 
 from dataclasses import dataclass
-from picounits.core import Quantity
-from picounits.extensions.loader import DynamicLoader as Material
 
-from pyfea import dimensionless, meter
+from pyfea import dimensionless, meter, Quantity, Material
 from pyfea.domain.geometry.definitions import GeometryDimensionError
 
 

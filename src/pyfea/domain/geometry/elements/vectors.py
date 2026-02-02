@@ -11,12 +11,11 @@ Description:
 from __future__ import annotations
 from typing import Union, Any
 
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from picounits.core import Quantity
-
-from pyfea import meter
+from pyfea import meter, Quantity
 from pyfea.domain.geometry.definitions import GeometricPrimitives, GeometryDimensionError
 
 """ A geometric element can be either a leaf (geometry) or a branch (node)"""
@@ -66,41 +65,16 @@ class CSOperation(Enum):
         """ Returns the points name from CSOperation.type """
         return self._name
 
-@dataclass(slots=True)
-class CSGNode(GeometricPrimitives):
-    """Construct solid geometry node with optional parameters"""
-    operation: CSOperation
-    operands: tuple[GeometryElement, ...]
-    params: dict[str, Any] | None = None
 
-    @property
-    def _name(self) -> str:
-        param_str = f", params={self.params}" if self.params else ""
-        operand_str = ", ".join(str(o) for o in self.operands)
-        return f"<CSGNode: {self.operation.name}({operand_str}{param_str})>"
-
-
-@dataclass(slots=True)
-class VectorGeometry(GeometricPrimitives):
-    """ Representation of a vector geometry element """
-    shape: PrimitivesShapes
-    data: Any
-
-    @property
-    def _name(self) -> str:
-        """ Returns a clean, scannable string representation """
-
-        return (
-            f"<VectorGeometry: shape={self.shape.name}>"
-        )
-
-    def union(self, geometry_object: VectorGeometry) -> CSGNode:
+class GeometryElement(ABC):
+    """ Defines the construct solid geometry operations """
+    def union(self, geometry_object: GeometryElement) -> CSGNode:
         return CSGNode(CSOperation.UNION, operands=(self, geometry_object))
 
-    def subtract(self, geometry_object: VectorGeometry) -> CSGNode:
+    def subtract(self, geometry_object: GeometryElement) -> CSGNode:
         return CSGNode(CSOperation.SUBTRACT, operands=(self, geometry_object))
 
-    def intersect(self, geometry_object: VectorGeometry) -> CSGNode:
+    def intersect(self, geometry_object: GeometryElement) -> CSGNode:
         return CSGNode(CSOperation.INTERSECT, operands=(self, geometry_object))
 
     def extrude(
@@ -108,7 +82,7 @@ class VectorGeometry(GeometricPrimitives):
         height: Quantity,
         direction: Quantity = (0, 0, 1) * meter,
         manifold: bool = True
-    ) -> CSGNode:
+    ) -> GeometryElement:
         """Extrudes the 2D VectorGeometry into 3D geometry"""
         if not isinstance(height, Quantity) or not isinstance(direction, Quantity):
             msg = "3D geometry requires both height and direction to be quantities"
@@ -133,4 +107,33 @@ class VectorGeometry(GeometricPrimitives):
                 "direction": direction,
                 "manifold": manifold
             }
+        )
+
+
+@dataclass(slots=True)
+class CSGNode(GeometricPrimitives, GeometryElement):
+    """Construct solid geometry node with optional parameters"""
+    operation: CSOperation
+    operands: tuple[GeometryElement, ...]
+    params: dict[str, Any] | None = None
+
+    @property
+    def _name(self) -> str:
+        param_str = f", params={self.params}" if self.params else ""
+        operand_str = ", ".join(str(o) for o in self.operands)
+        return f"<CSGNode: {self.operation.name}({operand_str}{param_str})>"
+
+
+@dataclass(slots=True)
+class VectorGeometry(GeometricPrimitives, GeometryElement):
+    """ Representation of a vector geometry element """
+    shape: PrimitivesShapes
+    data: Any
+
+    @property
+    def _name(self) -> str:
+        """ Returns a clean, scannable string representation """
+
+        return (
+            f"<VectorGeometry: shape={self.shape.name}>"
         )

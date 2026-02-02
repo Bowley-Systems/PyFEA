@@ -1,7 +1,6 @@
 """
 Filename: units.py
 Author: William Bowley
-Version: 0.2
 Date: 2025-02-01
 
 Description:
@@ -10,6 +9,9 @@ Description:
 """
 
 from picounits.constants import *
+from picounits.core import Quantity
+from picounits.extensions.parser import Parser
+from picounits.extensions.loader import DynamicLoader as Material
 
 
 """ =============== Base units (SI names) =============== """

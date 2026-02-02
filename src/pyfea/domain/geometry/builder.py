@@ -9,17 +9,16 @@ Description:
 """
 
 
-from picounits.core import Quantity
 
-from pyfea import dimensionless
+from pyfea import dimensionless, Quantity
+from pyfea.domain.geometry.elements.parts import Part
+from pyfea.domain.geometry.elements.metadata import MagneticData
 from pyfea.domain.geometry.elements.vectors import (
     VectorGeometry, PrimitivesShapes, GeometryElement
 )
 from pyfea.domain.geometry.elements.primitives import (
     Point, LineSegment, Ellipsoid
 )
-from pyfea.domain.geometry.elements.parts import Part
-from pyfea.domain.geometry.elements.metadata import MagneticData
 
 class Builder:
     """ Builds geometry with vector objects and CSG system """

@@ -1,7 +1,7 @@
 """
 File: manager.py
 Author: William Bowley
-Version: 1.6
+Date: 02-02-2026
 
 Description:
     Manages material request from the renderers
@@ -13,9 +13,7 @@ from typing import Optional, Any
 from pathlib import Path
 from importlib import resources
 
-from picounits.extensions.parser import Parser
-from picounits.extensions.loader import DynamicLoader as Material
-
+from pyfea.domain.units import Material, Parser
 
 class MaterialManagerError(TypeError):
     """ Exception for Material Loader Error """

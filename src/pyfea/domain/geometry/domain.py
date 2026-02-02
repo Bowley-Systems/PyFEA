@@ -12,9 +12,7 @@ Description:
 from enum import Enum, auto
 from dataclasses import dataclass
 
-from picounits.extensions.loader import DynamicLoader as Material
-
-from picounits.core import Quantity
+from pyfea.domain.units import Quantity, Material
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 
