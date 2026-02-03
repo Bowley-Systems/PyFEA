@@ -20,5 +20,10 @@
     "picometer",
     "weber",
     "neumann",
+    "magnetostatic",
+    "openfemm",
+    "newdocument",
+    "mi_probdef",
+    "opendocument",
   ]
 }

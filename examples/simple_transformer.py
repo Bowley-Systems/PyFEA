@@ -1,7 +1,5 @@
 """
 File: simple_transformer.py
-Author: William Bowley
-Version: 0.1
 
 Description:
     Script for testing features as their built out

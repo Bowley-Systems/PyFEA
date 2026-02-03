@@ -1,9 +1,5 @@
 """
 Filename: setup.py
-Author: William Bowley
-Version: 1.5.0
-Date: 2025-10-13
-
 Description:
     Install script for fea v1.5.0 framework
 """

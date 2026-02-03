@@ -1,8 +1,5 @@
 """
 Filename: primitives.py
-Author: William Bowley
-Date: 2026-01-18
-
 Description:
     Defines dataclasses and enum's for geometric
     primitives within the protocol

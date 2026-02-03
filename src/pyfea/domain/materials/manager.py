@@ -1,8 +1,5 @@
 """
-File: manager.py
-Author: William Bowley
-Date: 02-02-2026
-
+Filename: manager.py
 Description:
     Manages material request from the renderers
     and enforces specific parameters for material types.
@@ -64,7 +61,7 @@ class MaterialManager:
         """ Loads the default material library """
         try:
             with resources.open_text("library", "materials.uiv") as f:
-                self.materials = Parser.open(f)
+                self.materials = Parser.open(f, loader_class=Material)
 
         except Exception as err:
             msg = f"""Failed to load library from package resources: {err}"""
@@ -73,7 +70,7 @@ class MaterialManager:
     def _load_from_path(self, file_path: Path) -> None:
         """ Loads the user material library from path """
         try:
-            self.materials = Parser.open(file_path)
+            self.materials = Parser.open(file_path, loader_class=Material)
 
         except Exception as err:
             msg = f"""Failed to load library from {file_path!r}: {err}"""

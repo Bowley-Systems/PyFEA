@@ -1,8 +1,5 @@
 """
 Filename: vectors.py
-Author: William Bowley
-Date: 2026-01-18
-
 Description:
     Defines the dataclasses and enums for vector object
     and CSG system within the protocol

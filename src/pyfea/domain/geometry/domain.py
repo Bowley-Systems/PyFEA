@@ -1,8 +1,5 @@
 """
 Filename: domain.py
-Author: William Bowley
-Date: 2026-02-01
-
 Description:
     Defines the dataclasses for the domain. 
     Which holds the boundary type, material
@@ -13,13 +10,13 @@ from enum import Enum, auto
 from dataclasses import dataclass
 
 from pyfea.domain.units import Quantity, Material
+from pyfea.domain.geometry.definitions import CoordinateSystem
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 
+
 class BoundaryType(Enum):
-    """
-    Different boundary types available
-    """
+    """ Different boundary types available """
     DIRICHLET = auto()
     NEUMANN = auto()
     
@@ -30,6 +27,7 @@ class Domain:
     group: Quantity
     boundary_type: BoundaryType
     material: Material
+    coordinate_system: CoordinateSystem  
     shape: VectorGeometry | CSGNode
     
     @property
@@ -38,7 +36,7 @@ class Domain:
         return (
             f"<Part=(parts={self.parts}, group={self.group}, "
             f"boundary={self.boundary_type}, material={self.material}, "
-            f"shape={self.shape})>"
+            f"shape={self.shape}, Coordinate System={self.coordinate_system})>"
         )
         
     def __str__(self) -> str:

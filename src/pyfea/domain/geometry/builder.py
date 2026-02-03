@@ -1,8 +1,5 @@
 """
 Filename: builder.py
-Author: William Bowley
-Date: 2026-01-18
-
 Description:
     Defines the GeometryBuilder class
     for constructing and defining solid geometry

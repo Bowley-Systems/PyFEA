@@ -1,7 +1,5 @@
 """
 Filename: solver_interface.py
-Author: William Bowley
-
 Description:
     Abstract base class which defines the interface for solvers.
 
@@ -14,10 +12,11 @@ from abc import ABC, abstractmethod
 from typing import Any
 from pathlib import Path
 from enum import Enum, auto
+from dataclasses import dataclass
 
 from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.geometry.definitions import CoordinateSystem
+from pyfea.domain.circuits.builder import Circuits
 
 from pyfea.solver.renderer_interface import BaseRenderer
 
@@ -27,8 +26,9 @@ class Outputs(Enum):
     circuit_resistance = auto()
 
 
-class Solutions:
-    """ 'ABC' Expandable mixin for outputs as enums """
+@dataclass(slots=True)
+class Solutions(ABC):
+    """ Expandable for outputs as enums """
     
     @property
     def _name(self):
@@ -44,24 +44,56 @@ class Solutions:
         return self._name
 
 
-class BaseSolver(BaseRenderer, ABC):
+class BaseSolver(ABC):
     """ Core interface for all solver renderers """
     @abstractmethod
     def __init__(
         self,
         folder_path: Path,
-        coordinate_system: CoordinateSystem,
         simulation_domain: Domain,
         outputs: Outputs,
-        elements: Quantity
+        target_elements: Quantity = None,
+        target_circuits: Circuits = None
     ) -> Any:
         """ Initializes the solver and renderers the geometry """
+        self.renderer: BaseRenderer = self._create_renderer()
 
     @abstractmethod
     def solve(self) -> Solutions:
         """ Solves the problem defined by user during initialization """
     
     @abstractmethod
+    def _create_renderer(self) -> BaseRenderer:
+        """ Subclasses instantiate their specific renderer """
+        pass
+    
+    @abstractmethod
     def _clean_up(self) -> None:
         """ Cleans up any temporary files and closes the solver. """
     
+    def move_element(
+        self, element_id: Quantity, magnitude: Quantity, angles: Quantity
+    ) -> None:
+        """ Moves an element within the simulation domain """
+        self.renderer.move_element(element_id, magnitude, angles)
+    
+    def move_elements(
+        self, element_ids: tuple[Quantity], magnitude: Quantity, angles: Quantity
+    ) -> None:
+        """ Moves a series of element within the simulation domain """
+        for element in element_ids:
+            self.move_element(element, magnitude, angles)
+    
+    def rotate_element(
+        self, element_id: Quantity, axis: Quantity, angles: Quantity
+    ) -> None:
+        """ Rotates a element around an axis in the simulation domain """
+        self.renderer.rotate_element(element_id, axis, angles)
+    
+    def rotate_elements(
+        self, element_ids: tuple[Quantity], axis: Quantity, angles: Quantity
+    ) -> None:
+        """ Rotates a series of element around an axis in the simulation domain """
+        for element in element_ids:
+            self.rotate_element(element, axis, angles)
+            

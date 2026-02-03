@@ -1,8 +1,5 @@
 """
 Filename: units.py
-Author: William Bowley
-Date: 2025-02-01
-
 Description:
     Defines unit notation for pyFEA 
     based on its 'SI Metric' unit frame
@@ -11,9 +8,23 @@ Description:
 from picounits.constants import *
 from picounits.core import Quantity
 from picounits.extensions.parser import Parser
-from picounits.extensions.loader import DynamicLoader as Material
+from picounits.extensions.loader import DynamicLoader
 
 
+class Material(DynamicLoader):
+    """ Class for materials using the dynamic loader from picounits """
+    
+    @property
+    def _name(self) -> str:
+        """ Returns the material direct members """
+        items = ', '.join(self.keys())
+        return f'Material({items})'
+
+    def __repr__(self):
+        """ Returns the material name """
+        return self._name
+
+    
 """ =============== Base units (SI names) =============== """
 
 second          =   TIME

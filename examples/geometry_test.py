@@ -1,7 +1,5 @@
 """
-File: geometry_test.py
-Author: William Bowley
-Version: 0.1
+Filename: geometry_test.py
 Description:
     Script for testing features as their built out
     in pyfea
@@ -11,6 +9,7 @@ from pyfea.domain.materials.manager import MaterialManager
 from pyfea.domain.geometry.builder import Builder
 from pyfea.domain.geometry.elements.metadata import MagneticData
 from pyfea.domain.geometry.domain import Domain, BoundaryType
+from pyfea.domain.geometry.definitions import CoordinateSystem
 
 # Pulls materials into the script from package library
 manager = MaterialManager()
@@ -43,8 +42,16 @@ negative_slot = Builder.promote_to_part(
 domain_shape = Builder.create_circle((115 / 2 * mm, 101 / 2 *mm), 200 * mm)
 
 simulation_domain = Domain(
-     (positive_slot, negative_slot, core), 
-    3 * dimensionless, BoundaryType.NEUMANN, stc_air, domain_shape
+    (positive_slot, negative_slot, core), 
+    3 * dimensionless, 
+    BoundaryType.NEUMANN, 
+    stc_air, 
+    CoordinateSystem.PLANAR, 
+    domain_shape
 )
 
-print(simulation_domain)
+# print(simulation_domain)
+
+from pyfea.solver.femm.renderer.shapely_csg import FEMMConstructSolidGeometry
+
+FEMMConstructSolidGeometry.evaluate_part(core)

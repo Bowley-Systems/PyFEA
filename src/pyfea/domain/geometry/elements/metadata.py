@@ -1,8 +1,5 @@
 """
 Filename: metadata.py
-Author: William Bowley
-Date: 2026-02-01
-
 Description:
     Defines the dataclasses for 
     different types of metadata
@@ -26,7 +23,7 @@ class MagneticData:
     def __post_init__(self) -> None:
         """ Validates that metadata dimensions """
         if not isinstance(self.material, Material):
-            msg = f"Material must be Material, not {type(self.material)}"
+            msg = f"Material must be a Material, not {type(self.material)}"
             raise ValueError(msg)
 
         if not isinstance(self.group, Quantity):

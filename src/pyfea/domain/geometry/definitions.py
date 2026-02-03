@@ -1,8 +1,5 @@
 """
 Filename: definitions.py
-Author: William Bowley
-Date: 2026-01-18
-
 Description:
     Defines the global geometry errors,
     dataclasses and enums.
