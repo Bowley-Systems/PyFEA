@@ -7,27 +7,43 @@ Description:
 """
 
 
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 
 from typing import Any
 from pathlib import Path
-from enum import Enum, auto
+from enum import Enum, EnumMeta
 from dataclasses import dataclass
 
 from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.circuits.builder import Circuits
 
 from pyfea.solver.renderer_interface import BaseRenderer
 
-class Outputs(Enum):
-    """ Temporary enum to hold known outputs to be selected """
-    circuit_inductance = auto()
-    circuit_resistance = auto()
+
+class SolverError(Exception):
+    """ Exception for solver error """
+    def __init__(self, error: str):
+        """ Returns a custom error message """
+        msg = f"raised error: {error}. "
+        super().__init__(msg)
+
+
+class ABCEnumMeta(ABCMeta, EnumMeta):
+    """ Abstract Enum Class"""
+    pass
+
+
+class BaseOutputs(Enum, metaclass=ABCEnumMeta):
+    """ Abstract output class for solver implementation """
+    def __str__(self) -> str:
+        return f"<{self.__class__.__name__}: {self.name}>"
+    
+    def __repr__(self) -> str:
+        return str(self)
 
 
 @dataclass(slots=True)
-class Solutions(ABC):
+class BaseSolutions(ABC):
     """ Expandable for outputs as enums """
     
     @property
@@ -47,19 +63,20 @@ class Solutions(ABC):
 class BaseSolver(ABC):
     """ Core interface for all solver renderers """
     @abstractmethod
-    def __init__(
-        self,
-        folder_path: Path,
-        simulation_domain: Domain,
-        outputs: Outputs,
-        target_elements: Quantity = None,
-        target_circuits: Circuits = None
-    ) -> Any:
+    def __init__(self, folder_path: Path) -> Any:
         """ Initializes the solver and renderers the geometry """
+        self.folder_path = Path(folder_path)
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+
+        # Renderer 
         self.renderer: BaseRenderer = self._create_renderer()
 
     @abstractmethod
-    def solve(self) -> Solutions:
+    def solve(
+        self, 
+        simulation_domain: Domain, 
+        outputs: BaseOutputs,
+    ) -> BaseSolutions:
         """ Solves the problem defined by user during initialization """
     
     @abstractmethod
@@ -96,4 +113,3 @@ class BaseSolver(ABC):
         """ Rotates a series of element around an axis in the simulation domain """
         for element in element_ids:
             self.rotate_element(element, axis, angles)
-            

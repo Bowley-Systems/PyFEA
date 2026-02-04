@@ -1,5 +1,5 @@
 """
-Filename: renderer.py
+Filename: base_renderer.py
 Description:
     Renderer adaptor for FEMM (finite element magnetic methods)
     uses shapely to translate CSG (Construct Solid Geometry) to
@@ -10,19 +10,14 @@ import femm
 import logging
 
 from enum import Enum
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
 
-from pyfea.domain.units import Material, Quantity, LENGTH
-from pyfea.domain.circuits.builder import Circuits
-
-from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.units import Quantity, LENGTH
 from pyfea.domain.geometry.definitions import CoordinateSystem
 
-from pyfea.solver.renderer_interface import (
-    RendererError, BaseRenderer, MagneticRenderer, 
-    ElectricRenderer, HeatRenderer
-)
+from pyfea.solver.renderer_interface import RendererError, BaseRenderer
+
 
 class FEMMPhysicsTypes(Enum):
     """ Enum of Physics types within FEMM (finite element magnetic methods) """
@@ -32,10 +27,12 @@ class FEMMPhysicsTypes(Enum):
     current_flow = 3
 
 
-class FEMMRenderer(BaseRenderer, MagneticRenderer, ElectricRenderer, HeatRenderer):
+class FEMMRenderer(BaseRenderer, ABC):
     """ Base Renderer for FEMM (finite element magnetic methods) """
 
-    def __init__(self, file_path: Path, physics_type: FEMMPhysicsTypes) -> None:
+    def __init__(
+        self, file_path: Path, physics_type: FEMMPhysicsTypes, tolerance: float
+    ) -> None:
         """ Initializes the renderer under the file_path and physics_type"""
         self.file_path = Path(file_path)
         self.physics_type = physics_type
@@ -43,16 +40,8 @@ class FEMMRenderer(BaseRenderer, MagneticRenderer, ElectricRenderer, HeatRendere
         # Solver variables
         self.femm_unit = "meters"
         self.suite_is_active = False
-        self.tolerance = 1e-008
+        self.tolerance = tolerance
 
-        # Simulation variables
-        self.materials: set[Material] = set()
-        self.circuits: set[Circuits] = set()
-        
-        # NOTE: 'Any' as these primitives are not used currently
-        self.boundaries: set[Any] = set()
-        self.conductor: set[Any] = set()
-        
     def setup(self, system: CoordinateSystem, depth: Quantity) -> None:
         """ Setup the rendering environment and simulation space """
         # Strips depth of quantity at boundary between femm
@@ -67,9 +56,17 @@ class FEMMRenderer(BaseRenderer, MagneticRenderer, ElectricRenderer, HeatRendere
                     "Axial symmetric simulation cannot have depth, "
                     f"got {depth}; defaulting to depth = 0"
                 )
+                depth = 0
+                
         elif system == CoordinateSystem.PLANAR:
             problem_type = "planar"
-
+            
+            if depth <= 0:
+                logging.warning(
+                    "Planar simulation cannot have negative or zero depth, "
+                    f"got {depth}; defaulting to depth = 1"
+                )
+                depth = 1
         else:
             msg = f"{system!r} isn't supported by {self.__class__.__name__}"
             raise RendererError(msg)
@@ -78,34 +75,14 @@ class FEMMRenderer(BaseRenderer, MagneticRenderer, ElectricRenderer, HeatRendere
             # Ensures the users file path exist
             self._file_path_exist()
             
-            # Opens FEMM in a new window (1) and defines physics type
-            femm.openfemm()
+            # Opens FEMM in a hidden window (1) and defines physics type
+            femm.openfemm(1)
             femm.newdocument(int(self.physics_type))
             
             # Defines the problem within the FEMM suite
-            if (
-                self.physics_type == FEMMPhysicsTypes.magnetostatic or
-                self.physics_type == FEMMPhysicsTypes.current_flow
-            ):
-                femm.mi_probdef(
-                    0,                          # Frequency (Not Used)
-                    self.femm_unit,             # Default length unit in suite
-                    problem_type,               # Planar or Axial Symmetric
-                    self.tolerance,             # Meshing tolerance
-                    depth                       # Planar depth extrusion 
-                )
+            self._suite_define(problem_type, depth)
             
-            if (
-                self.physics_type == FEMMPhysicsTypes.electrostatic or
-                self.physics_type == FEMMPhysicsTypes.heat_flow
-            ):
-                femm.mi_probdef(
-                    self.femm_unit,             # Default length unit in suite
-                    problem_type,               # Planar or Axial Symmetric
-                    self.tolerance,             # Meshing tolerance
-                    depth                       # Planar depth extrusion 
-                )
-                
+            # Change the activation state and save changes
             self.suite_is_active = True
             self._save_changes()
                 
@@ -113,27 +90,36 @@ class FEMMRenderer(BaseRenderer, MagneticRenderer, ElectricRenderer, HeatRendere
             msg = f"{self.__class__.__name__} failed to initialize the FEMM suite: {err}"
             raise RendererError(msg)
 
-    def draw_domain(self, domain: Domain) -> None:
-        """ Draws the simulation domain to the FEMM suite """
-        self._check_active()        # Check suite state
-        
+    @abstractmethod
+    def _suite_define(problem_type: str, depth: float | int) -> None:
+        """ Defines the suite problem definition """
+    
+    @abstractmethod
+    def _save_changes() -> None:
+        """ Saves changes to the femm suite to file """
 
-
-    def _save_changes(self) -> None:
-        """ Saves the changes to the femm file """
-        self._check_active()
-        femm.mi_saveas(str(self.file_path.resolve()))
-
-    def _check_active(self) -> None:
+    def check_active(self) -> None:
         """ Checks if the FEMM suite is active """
         if self.suite_is_active:
             return
 
         try:
-            femm.openfemm(int(self.physics_type))
+            femm.openfemm(1)       # Opens FEMM in a hidden window (1)
             femm.opendocument(str(self.file_path.resolve()))
             self.suite_is_active = True
 
         except Exception as err:
             msg = f"{self.__class__.__name__} failed to reactivate: {err}"
             raise RendererError(msg)
+    
+    def _clean_up(self) -> None:
+        """ Manages the FEMM suite environment cleanup """
+        try:
+            if self.suite_is_active:
+                femm.closefemm()
+                self.suite_is_active == False
+
+        except Exception as err:
+            msg = f'{self.__class__.__name__} failed to perform cleanup due to {err}'
+            logging.warning(msg)
+            

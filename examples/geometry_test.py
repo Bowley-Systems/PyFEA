@@ -11,6 +11,11 @@ from pyfea.domain.geometry.elements.metadata import MagneticData
 from pyfea.domain.geometry.domain import Domain, BoundaryType
 from pyfea.domain.geometry.definitions import CoordinateSystem
 
+from pyfea.solver.femm.domains.magnetostatic.solver import FEMMMagnetostaticSolver
+
+# FEA file output
+folder_location = "examples/electromagnet/outputs/"
+
 # Pulls materials into the script from package library
 manager = MaterialManager()
 iron = manager.use_material("pure_iron")
@@ -19,7 +24,7 @@ stc_air = manager.use_material("stc_air")
 
 # Builds the transformer core
 iron_square = Builder.create_rectangle((0 * mm, 0 * mm), 115 * mm, 110 * mm)
-iron_cutout = Builder.create_rectangle((15 * mm, 20 * mm), 85 * mm, 60 * mm)
+iron_cutout = Builder.create_rectangle((15 * mm, 25 * mm), 85 * mm, 60 * mm)
 
 core = iron_square.subtract(iron_cutout)
 core = Builder.promote_to_part(core, MagneticData(1 * dimensionless, iron))
@@ -49,36 +54,4 @@ simulation_domain = Domain(
     CoordinateSystem.PLANAR, 
     domain_shape
 )
-
-# print(simulation_domain)
-
-from pyfea.solver.femm.renderer.shapely_csg import FEMMConstructSolidGeometry
-
-import matplotlib.pyplot as plt
-from shapely.geometry import Polygon, MultiPolygon
-
-def plot_shapely(geom):
-    fig, ax = plt.subplots()
-
-    def plot_polygon(poly, color="lightblue"):
-        x, y = poly.exterior.xy
-        ax.fill(x, y, alpha=0.5, fc=color, ec="black")
-
-        for hole in poly.interiors:
-            hx, hy = hole.xy
-            ax.fill(hx, hy, alpha=1.0, fc="white", ec="red")
-
-    if geom.geom_type == "Polygon":
-        plot_polygon(geom)
-
-    elif geom.geom_type == "MultiPolygon":
-        for p in geom.geoms:
-            plot_polygon(p)
-
-    ax.set_aspect("equal")
-    ax.set_title("Shapely CSG Preview")
-    ax.grid(True)
-    plt.show()
-
-
-plot_shapely(FEMMConstructSolidGeometry.evaluate_part(core))
+print(simulation_domain)

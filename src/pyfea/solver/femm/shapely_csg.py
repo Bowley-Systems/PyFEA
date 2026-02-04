@@ -72,14 +72,9 @@ class FEMMConstructSolidGeometry:
             case _:
                 msg = f"{geometry.shape!r} is not supported by FEMMConstructSolidGeometry"
                 raise RendererError(msg)
-    
+
     @classmethod
-    def evaluate_part(cls, part: Part):
-        """ Evaluate part within the simulation domain """
-        return cls.evaluate_csg_tree(part.geometry)
-    
-    @classmethod
-    def evaluate_csg_tree(cls, geometry: GeometryElement) -> None:
+    def evaluate_csg_tree(cls, geometry: GeometryElement) -> ShapelyPolygon:
         if isinstance(geometry, VectorGeometry):
             return cls.vector_to_shapely(geometry)
 

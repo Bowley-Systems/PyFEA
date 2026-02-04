@@ -31,7 +31,7 @@ class BaseRenderer(ABC):
     """ Core interface for all solver renderers """
         
     @abstractmethod
-    def __init__(self, file_path: Path,) -> Any:
+    def __init__(self, file_path: Path) -> Any:
         """ Setups the rendering environment in file_path """
         self.file_path = file_path
     
@@ -58,11 +58,11 @@ class BaseRenderer(ABC):
     def _file_path_exist(self) -> None:
         """ Checks to ensure the file path given by the solver exists """
         try:
-            file = self.file_path
-            file.parent.mkdir(parents=True, exist_ok=True)
-            file.touch(exist_ok=True)
-        except Exception as err:
-            msg = f"File path given to {self.__class__.__name__} does not exist"
+            self.file_path.parent.mkdir(parents=True, exist_ok=True)
+            self.file_path.touch(exist_ok=True)
+    
+        except Exception:
+            msg = f"File path given to {self.__class__.__name__} invalid or inaccessible"
             raise RendererError(msg)
 
     def _strip_quantity(self, quantity: Quantity, ref: Quantity) -> Any:
