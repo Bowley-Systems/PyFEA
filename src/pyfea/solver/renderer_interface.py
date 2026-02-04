@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from pathlib import Path
 
-from pyfea.domain.units import Quantity
+from pyfea.domain.units import Quantity, strip_quantity
 from pyfea.domain.geometry.domain import Domain
 from pyfea.domain.circuits.builder import Circuits
 
@@ -67,15 +67,7 @@ class BaseRenderer(ABC):
 
     def _strip_quantity(self, quantity: Quantity, ref: Quantity) -> Any:
         """ Strips quantity from value returns raw value """
-        if not isinstance(quantity, Quantity):
-            msg = f"{quantity!r} is not a physical quantity"
-            raise RendererError(msg)
-        
-        if quantity.unit != ref.unit:
-            msg = f"Expected {ref.unit!r}, got {quantity.unit!r}"
-            raise RendererError(msg)
-        
-        return quantity.value        
+        return strip_quantity(quantity, ref)
             
 
 class MagneticRenderer(BaseRenderer, ABC):

@@ -54,4 +54,31 @@ simulation_domain = Domain(
 
 from pyfea.solver.femm.renderer.shapely_csg import FEMMConstructSolidGeometry
 
-FEMMConstructSolidGeometry.evaluate_part(core)
+import matplotlib.pyplot as plt
+from shapely.geometry import Polygon, MultiPolygon
+
+def plot_shapely(geom):
+    fig, ax = plt.subplots()
+
+    def plot_polygon(poly, color="lightblue"):
+        x, y = poly.exterior.xy
+        ax.fill(x, y, alpha=0.5, fc=color, ec="black")
+
+        for hole in poly.interiors:
+            hx, hy = hole.xy
+            ax.fill(hx, hy, alpha=1.0, fc="white", ec="red")
+
+    if geom.geom_type == "Polygon":
+        plot_polygon(geom)
+
+    elif geom.geom_type == "MultiPolygon":
+        for p in geom.geoms:
+            plot_polygon(p)
+
+    ax.set_aspect("equal")
+    ax.set_title("Shapely CSG Preview")
+    ax.grid(True)
+    plt.show()
+
+
+plot_shapely(FEMMConstructSolidGeometry.evaluate_part(core))

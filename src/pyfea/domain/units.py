@@ -5,6 +5,8 @@ Description:
     based on its 'SI Metric' unit frame
 """
 
+from typing import Any
+
 from picounits.constants import *
 from picounits.core import Quantity
 from picounits.extensions.parser import Parser
@@ -13,7 +15,6 @@ from picounits.extensions.loader import DynamicLoader
 
 class Material(DynamicLoader):
     """ Class for materials using the dynamic loader from picounits """
-    
     @property
     def _name(self) -> str:
         """ Returns the material direct members """
@@ -23,6 +24,27 @@ class Material(DynamicLoader):
     def __repr__(self):
         """ Returns the material name """
         return self._name
+
+
+class UnitError(TypeError):
+    """ Exception for Unit Error """
+    def __init__(self, error: str):
+        """ Returns a custom error message """
+        msg = f"raised error: {error}. "
+        super().__init__(msg)
+
+
+def strip_quantity(quantity: Quantity, ref: Quantity) -> Any:
+    """ Strips quantity from value returns raw value """
+    if not isinstance(quantity, Quantity):
+        msg = f"{quantity!r} is not a physical quantity"
+        raise UnitError(msg)
+    
+    if quantity.unit != ref.unit:
+        msg = f"Expected {ref.unit!r}, got {quantity.unit!r}"
+        raise UnitError(msg)
+    
+    return quantity.value
 
     
 """ =============== Base units (SI names) =============== """
