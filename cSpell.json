@@ -27,6 +27,10 @@
     "opendocument",
     "xfact",
     "yfact",
-    "closefemm"
+    "closefemm",
+    "FEMMCSG",
+    "drawline",
+    "addblocklabel",
+    "polylabel",
   ]
 }

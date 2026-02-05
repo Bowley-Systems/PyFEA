@@ -10,6 +10,7 @@ Description:
 import femm
 import logging
 
+from pathlib import Path
 from abc import ABC, abstractmethod
 
 from pyfea.domain.units import Quantity, LENGTH
@@ -26,12 +27,16 @@ class FEMMSolver(BaseSolver, ABC):
     """" Base solver for FEMM (finite element magnetic methods) """
     
     def __init__(
-        self, 
+        self,
+        folder_path: Path,
         tolerance: float = 1e-012,
         max_tolerance: float = 1e-04,
         max_attempts: int = 8
     ) -> None:
         """ Initializes the FEMM solver and FEMM renderer """  
+        self.folder_path = Path(folder_path)
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+
         self.max_attempts = max_attempts
         self.max_tolerance = max_tolerance
         

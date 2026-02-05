@@ -11,6 +11,7 @@ from typing import Any
 from shapely.affinity import scale
 from shapely.ops import unary_union
 from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
+from shapely.algorithms.polylabel import polylabel
 
 from pyfea.domain.units import Quantity, strip_quantity, LENGTH
 
@@ -108,6 +109,14 @@ class FEMMConstructSolidGeometry:
         
         msg = f"{type(geometry)!r} is not supported by FEMMConstructSolidGeometry"
         raise RendererError(msg)
+    
+    @classmethod
+    def get_polygon_solid_centroid(
+        cls, polygon: ShapelyPolygon, tolerance: float
+    ) -> tuple[float, float]:
+        """ Returns a point guaranteed to be inside of the solid material of a polygon """
+        point = polylabel(polygon, tolerance)
+        return point.x, point.y
     
     @classmethod
     def _strip_quantity(cls, quantity: Quantity, ref: Quantity) -> Any:

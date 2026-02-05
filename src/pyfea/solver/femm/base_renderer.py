@@ -9,12 +9,14 @@ Description:
 import femm
 import logging
 
+from typing import Any
 from enum import Enum
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from pyfea.domain.units import Quantity, LENGTH
+from pyfea.domain.units import Quantity, LENGTH, Material
 from pyfea.domain.geometry.definitions import CoordinateSystem
+from pyfea.domain.circuits.builder import Circuits
 
 from pyfea.solver.renderer_interface import RendererError, BaseRenderer
 
@@ -41,6 +43,15 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.femm_unit = "meters"
         self.suite_is_active = False
         self.tolerance = tolerance
+        
+        # Simulation variables
+        self.materials: dict[str, Material] = {}
+        self.circuits: dict[str, Circuits] = {}
+        
+        # NOTE: 'Any' as these primitives are not used currently
+        self.boundaries: dict[str, Any] = {}
+        self.conductor: dict[str, Any] = {}
+        
 
     def setup(self, system: CoordinateSystem, depth: Quantity) -> None:
         """ Setup the rendering environment and simulation space """
@@ -77,7 +88,7 @@ class FEMMRenderer(BaseRenderer, ABC):
             
             # Opens FEMM in a hidden window (1) and defines physics type
             femm.openfemm(1)
-            femm.newdocument(int(self.physics_type))
+            femm.newdocument(int(self.physics_type.value))
             
             # Defines the problem within the FEMM suite
             self._suite_define(problem_type, depth)

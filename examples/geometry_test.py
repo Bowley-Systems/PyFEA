@@ -54,4 +54,6 @@ simulation_domain = Domain(
     CoordinateSystem.PLANAR, 
     domain_shape
 )
-print(simulation_domain)
+
+solver = FEMMMagnetostaticSolver(folder_location)
+solver.solve(simulation_domain, None, 1 * mm)

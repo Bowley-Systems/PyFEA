@@ -65,9 +65,6 @@ class BaseSolver(ABC):
     @abstractmethod
     def __init__(self, folder_path: Path) -> Any:
         """ Initializes the solver and renderers the geometry """
-        self.folder_path = Path(folder_path)
-        self.folder_path.mkdir(parents=True, exist_ok=True)
-
         # Renderer 
         self.renderer: BaseRenderer = self._create_renderer()
 
