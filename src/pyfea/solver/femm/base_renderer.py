@@ -39,11 +39,13 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.physics_type = physics_type
         
         # Solver variables
+        self.coordinate_system = None
         self.femm_unit = "meters"
         self.suite_is_active = False
         self.tolerance = tolerance
         
         # Simulation variables
+        self.boundary_name: str = ""
         self.environmental_data: Any = ""
         self.materials: list[str] = []
         self.circuits: list[str] = []
@@ -81,6 +83,9 @@ class FEMMRenderer(BaseRenderer, ABC):
         else:
             msg = f"{system!r} isn't supported by {self.__class__.__name__}"
             raise RendererError(msg)
+        
+        # Saves coordinate system for later (rotations and motions)
+        self.coordinate_system = system
         
         try:
             # Ensures the users file path exist
@@ -132,7 +137,7 @@ class FEMMRenderer(BaseRenderer, ABC):
         try:
             if self.suite_is_active:
                 femm.closefemm()
-                self.suite_is_active == False
+                self.suite_is_active = False
 
         except Exception as err:
             msg = f'{self.__class__.__name__} failed to perform cleanup due to {err}'

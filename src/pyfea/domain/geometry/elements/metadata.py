@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 from pyfea import dimensionless, meter, Quantity, Material
 from pyfea.domain.geometry.definitions import GeometryDimensionError
+from pyfea.domain.circuits.builder import Circuit
 
 
 @dataclass(slots=True)
@@ -16,7 +17,7 @@ class MagneticData:
     """ Construct solid geometry node between two objects """
     group: Quantity
     material: Material
-    circuit: str = None
+    circuit: Circuit = None
     turns: Quantity = None
     diameter: Quantity = None
     magnetization: Quantity = None
@@ -31,7 +32,7 @@ class MagneticData:
             msg = f"Group must be a Quantity not, {type(self.group)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
-        if not isinstance(self.circuit, str) and self.circuit is not None:
+        if not isinstance(self.circuit, Circuit) and self.circuit is not None:
             msg = f"Circuit must be str, not {type(self.circuit)}"
             raise ValueError(msg)
     

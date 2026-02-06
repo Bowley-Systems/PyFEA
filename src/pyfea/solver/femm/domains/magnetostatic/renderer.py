@@ -10,19 +10,22 @@ Description:
 
 import femm
 
+from math import cos, sin, radians
 from shapely.geometry import (
     Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon
 )
 from pyfea.domain.units import (
-    LENGTH, PERMEABILITY, COERCIVITY, CONDUCTIVITY, DIMENSIONLESS
+    LENGTH, PERMEABILITY, COERCIVITY, CONDUCTIVITY, DIMENSIONLESS, CURRENT,
+    Quantity
 )
 
-from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.geometry.domain import Domain, CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.metadata import MagneticData
 
 from pyfea.solver.renderer_interface import MagneticRenderer, RendererError
 from pyfea.solver.femm.shapely_csg import FEMMConstructSolidGeometry as FEMMCSG
 from pyfea.solver.femm.base_renderer import FEMMRenderer, FEMMPhysicsTypes 
+from pyfea.domain.circuits.builder import Circuit, Configuration
 
 
 class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
@@ -43,6 +46,11 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         """ Defines the domain and than draws the elements within """
         # Builds the environmental magnetic metadata
         self.environmental_data = MagneticData(domain.group, domain.material)
+        self._create_boundary_property(domain.boundary_type)
+        
+        # Draws the domain boundary and add boundary condition
+        CSG_domain = FEMMCSG.evaluate_csg_tree(domain.shape)
+        self._draw_polygon_boundaries(CSG_domain, True)
         
         # Draws part boundaries and labels solids for all parts
         domain_parts = domain.parts
@@ -56,11 +64,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             self._draw_polygon_boundaries(CSG_polygon)
             element_coord = FEMMCSG.polygon_solid_centroid(CSG_polygon, self.tolerance)
             self._add_properties(element_coord, part.metadata)
-        
-        # Draws the domain boundary
-        CSG_domain = FEMMCSG.evaluate_csg_tree(domain.shape)
-        self._draw_polygon_boundaries(CSG_domain)
-        
+
         # Computes part region complement
         parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain)
         
@@ -79,17 +83,72 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         
         self._save_changes()
     
-    def move_element(self, element_id, magnitude, angles):
-        return super().move_element(element_id, magnitude, angles)
+    def move_element(
+        self, element_id: Quantity, magnitude: Quantity, angle: Quantity
+    ) -> None:
+        """ Moves a element by a vector; expects degrees """
+        self.check_active()
+        
+        try:
+            element_id = self._strip_quantity(element_id, DIMENSIONLESS) 
+            magnitude = self._strip_quantity(magnitude, LENGTH)
+            angle = self._strip_quantity(angle, DIMENSIONLESS)
+            
+            rad_angle = radians(angle)
+            dx = magnitude * cos(rad_angle)
+            dy = magnitude * sin(rad_angle)
+            
+            femm.mi_selectgroup(element_id)
+            femm.mi_movetranslate(dx, dy)
+            femm.mi_clearselected()
+
+        except Exception as err:
+            msg = f"Failed to move element {element_id!r} due to {err}"
+            raise RendererError(msg)
     
-    def rotate_element(self, element_id, axis, angles):
-        return super().rotate_element(element_id, axis, angles)
+    def rotate_element(
+        self, element_id: Quantity, axis: Quantity, angle: Quantity
+    ) -> None:
+        """ Rotates a element by angle around a center axis; expects degrees"""
+        self.check_active()
+        if self.coordinate_system == CoordinateSystem.AXI_SYMMETRIC:
+            msg = f"Element cannot be rotated in axially symmetrical models"
+            raise RendererError(msg)
+
+        try:
+            element_id = self._strip_quantity(element_id, DIMENSIONLESS)
+            axis = self._strip_quantity(axis, LENGTH)
+            angles = self._strip_quantity(angle, DIMENSIONLESS)
+            
+            x, y = axis
+            
+            femm.mi_selectgroup(element_id)
+            femm.mi_moverotate(x, y, angle)
+            
+            femm.mi_clearselected()
+            self._save_changes()
+        
+        except Exception as err:
+            msg = f"Failed to rotate element {element_id!r} due to {err}"
+            raise RendererError(msg)
     
-    def create_circuit(self, circuit):
-        return super().create_circuit(circuit)
-    
-    def update_current(self, circuit, current):
-        return super().update_current(circuit, current)
+    def update_current(
+        self, circuit: Circuit, current: Quantity
+    ):
+        """ Changes the magnitude of the current flowing through a circuit """
+        self.check_active()
+        
+        if circuit.name not in self.circuits:
+            msg = f"{circuit!r} is not defined within the FEMM suite"
+            raise RendererError(msg)
+        
+        try:
+            current = self._strip_quantity(current, CURRENT)
+            femm.mi_setcurrent(str(circuit.name), float(current))
+            
+        except Exception as err:
+            msg = f"Failed to update current within circuit {circuit.name!r}: {err}"
+            raise RendererError(msg)
 
     def _add_material(self, metadata: MagneticData) -> None:
         """ Adds a material to the FEMM suite using .UIV material """
@@ -110,6 +169,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         lamination_thickness = 0 * LENGTH           # 0 = Solid lamination
 
         if metadata.diameter is not None:
+            wire_diameter = metadata.diameter
             material_lamination = 3     # FEMM: 3 = Magnet Wire
             number_of_strands = 1
 
@@ -133,7 +193,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             conductivity = self._strip_quantity(conductivity, CONDUCTIVITY)
             wire_diameter = self._strip_quantity(wire_diameter, LENGTH)
             lamination_thickness = self._strip_quantity(lamination_thickness, LENGTH)
-            
+
             femm.mi_addmaterial(
                 material_name,
                 float(relative_perm[0]),
@@ -148,7 +208,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                 0,                                      # Phi_hx (not supported yet)
                 0,                                      # Phi_hy (not supported yet)
                 int(number_of_strands),
-                float(wire_diameter)
+                float(wire_diameter) * 1000             # FEMM requires mm not m for diameter
             )
 
             self.materials.append(material_name)
@@ -157,24 +217,82 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         except Exception as err:
             msg = f"Failed to add {material_name!r} as a material within femm: {err}"
             raise RendererError(msg)
-        
-    def _draw_polygon_boundaries(self, polygon: ShapelyPolygon) -> None:
+
+    def _draw_polygon_boundaries(
+        self, polygon: ShapelyPolygon, boundary: bool = False
+    ) -> None:
         """ Draws polygon boundaries (exterior and interiors) """
         exterior = list(polygon.exterior.coords)
+
         # Draws exterior boundary
         for (x1, y1), (x2, y2) in zip(exterior, exterior[1:]):
             femm.mi_drawline(x1, y1, x2, y2)
+            if boundary:
+                femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
+                femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, 0)
+                femm.mi_clearselected()
 
         # Draw interior rings (holes)
         for interior in polygon.interiors:
             hole_coords = list(interior.coords)
             for (x1, y1), (x2, y2) in zip(hole_coords, hole_coords[1:]):
                 femm.mi_drawline(x1, y1, x2, y2)
+                if boundary:
+                    femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
+                    femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, 0)
+                    femm.mi_clearselected()
     
-    def _label_environmental_region(self, poly: ShapelyPolygon) -> None:
+    def _label_environmental_region(self, polygon: ShapelyPolygon) -> None:
         """ Adds environmental label to a single polygon region """
-        coordinates = FEMMCSG.polygon_solid_centroid(poly, self.tolerance)
+        coordinates = FEMMCSG.polygon_solid_centroid(polygon, self.tolerance)
         self._add_properties(coordinates, self.environmental_data)
+
+    def _create_boundary_property(self, property: BoundaryType) -> None:
+        """ Adds boundary property to the outer domain boundary """
+        self.check_active()
+        match property:
+            case BoundaryType.DIRICHLET:
+                try:
+                    femm.mi_addboundprop("A=0", 0, 0, 0, 0)
+                    self.boundary_name = "A=0"
+
+                except Exception as err:
+                    msg = f"Failed to add dirichlet boundary to outer domain boundary"
+                    raise RendererError(msg)
+            case _:
+                msg = f"{property!r} not supported by {self.__class__.__name__}"
+                raise RendererError(msg)
+        
+    def _create_circuit(self, circuit: Circuit):
+        """ Adds a new circuit to the FEMM suite via circuit dataclass """
+        femm_circuit_type = None
+        if circuit.configuration == Configuration.PARALLEL:
+            femm_circuit_type = 0 
+        elif circuit.configuration == Configuration.SERIES:
+            femm_circuit_type = 1
+        else:
+            msg = f"Circuit type {circuit.configuration!r} is not supported by FEMM"
+            raise RendererError(msg)
+        
+        try:
+            # Bypasses already loaded materials from being reloaded
+            for loaded_circuit in self.circuits:
+                if loaded_circuit == circuit.name:
+                    return loaded_circuit
+            
+            current = self._strip_quantity(circuit.current, CURRENT)
+            femm.mi_addcircprop(
+                str(circuit.name),
+                float(current),
+                int(femm_circuit_type)
+            )
+
+            self.circuits.append(circuit.name)
+            return circuit.name
+        
+        except Exception as err:
+            msg = f"Failed to add circuit {circuit.name!r} to FEMM: {err}"
+            raise RendererError(msg)
 
     def _add_properties(
         self,
@@ -186,22 +304,26 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             femm.mi_addblocklabel(float(coordinates[0]), float(coordinates[1]))
             femm.mi_selectlabel(float(coordinates[0]), float(coordinates[1]))
             
-            # Adds material & circuit
+            # Adds or retrieve the material name and converts element id
             material_name = self._add_material(metadata)
-            circuit = None      # Placeholder for now
-            
-            # Converts from quantities to raw
             element_id = self._strip_quantity(metadata.group, DIMENSIONLESS)
             
-            # Converts from quantity to raw if not none
-            turns = 1
-            if metadata.turns: 
-                turns = self._strip_quantity(metadata.turns, DIMENSIONLESS)
+            # Converts quantity if value is defined (not none)
+            circuit = (
+                self._create_circuit(metadata.circuit)
+                if metadata.circuit else None
+            )
+            
+            turns = (
+                self._strip_quantity(metadata.turns, DIMENSIONLESS) 
+                if metadata.turns else 1
+            ) 
 
-            magnetization = 0.0
-            if metadata.magnetization: 
-                magnetization = self._strip_quantity(metadata.magnetization, DIMENSIONLESS)
-
+            magnetization = (
+                self._strip_quantity(metadata.magnetization, DIMENSIONLESS)
+                if metadata.magnetization else 0.0
+            )
+            
             femm.mi_setblockprop(
                 material_name,
                 1,                  # Mesher automatically chooses mesh density

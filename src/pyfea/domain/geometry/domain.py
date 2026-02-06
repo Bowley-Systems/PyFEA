@@ -18,7 +18,6 @@ from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 class BoundaryType(Enum):
     """ Different boundary types available """
     DIRICHLET = auto()
-    NEUMANN = auto()
     
 
 @dataclass(slots=True)

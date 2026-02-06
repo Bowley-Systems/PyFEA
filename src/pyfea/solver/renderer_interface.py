@@ -16,7 +16,7 @@ from pathlib import Path
 
 from pyfea.domain.units import Quantity, strip_quantity
 from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.circuits.builder import Circuits
+from pyfea.domain.circuits.builder import Circuit
 
 
 class RendererError(Exception):
@@ -73,18 +73,18 @@ class BaseRenderer(ABC):
 class MagneticRenderer(BaseRenderer, ABC):
     """ Renderer interface for magnetic problems """
     @abstractmethod
-    def create_circuit(self, circuit: Circuits) -> Any:
+    def _create_circuit(self, circuit: Circuit) -> Any:
         """ Creates a circuit within the simulation domain """
 
     @abstractmethod
-    def update_current(self, circuit: Circuits, current: Quantity) -> Any:
+    def update_current(self, circuit: Circuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
 
 
 class HeatRenderer(BaseRenderer, ABC):
     """ Renderer interface for heat problems """
     @abstractmethod
-    def add_volumetric_heat_source(
+    def _add_volumetric_heat_source(
         self, element: Quantity, magnitude: Quantity
     ) -> Any:
         """ Adds a volumetric heat source to a element within the simulation domain """

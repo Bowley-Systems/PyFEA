@@ -14,7 +14,7 @@ from pyfea.solver.solver_interface import BaseOutputs
 
 from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.circuits.builder import Circuits
+from pyfea.domain.circuits.builder import Circuit
 
 from pyfea.solver.femm.base_solver import FEMMSolver
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes

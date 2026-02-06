@@ -71,5 +71,5 @@ result = solver.solve(simulation_domain, None, 1 * mm)
 x_inductive = 2 * pi * result.circuit_inductance * 50 * Hz
 impedance = (result.circuit_resistance ** 2 + x_inductive ** 2) ** 0.5
 
-print(f"FEMM outputs: {result!result}")
+print(f"FEMM outputs: {result!r}")
 print(f"Approximate AC impedance at 50 Hz: {impedance}")

@@ -37,5 +37,13 @@
     "setblockprop",
     "mesher",
     "clearselected",
+    "addcircprop",
+    "setcurrent",
+    "selectgroup",
+    "moverotate",
+    "movetranslate",
+    "addboundprop",
+    "selectsegment",
+    "setsegmentprop",
   ]
 }
