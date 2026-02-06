@@ -32,5 +32,10 @@
     "drawline",
     "addblocklabel",
     "polylabel",
+    "addmaterial",
+    "selectlabel",
+    "setblockprop",
+    "mesher",
+    "clearselected",
   ]
 }

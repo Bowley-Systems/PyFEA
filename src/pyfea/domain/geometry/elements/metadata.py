@@ -19,6 +19,7 @@ class MagneticData:
     circuit: str = None
     turns: Quantity = None
     diameter: Quantity = None
+    magnetization: Quantity = None
 
     def __post_init__(self) -> None:
         """ Validates that metadata dimensions """
@@ -41,13 +42,19 @@ class MagneticData:
         if not isinstance(self.turns, Quantity) and self.turns is not None:
             msg = f"Turns must be a Quantity not, {type(self.group)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
+        
+        if (
+            not isinstance(self.magnetization, Quantity) 
+            and self.magnetization is not None
+        ):
+            msg = f"Magnetization must be a Quantity, not {type(self.magnetization)}"
+            raise GeometryDimensionError(self.__class__.__name__, msg)
 
         if self.group.unit != dimensionless:
             msg = f"Group must be a dimensionless not, {self.group.unit}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
         if self.diameter is not None:
-
             if self.diameter.unit != meter:
                 msg = f"Diameter must have unit {meter} not, {self.group.unit}"
                 raise GeometryDimensionError(self.__class__.__name__, msg)
@@ -56,13 +63,20 @@ class MagneticData:
             if self.turns.unit != dimensionless:
                 msg = f"Turns must be a dimensionless not, {self.group.unit}"
                 raise GeometryDimensionError(self.__class__.__name__, msg)
+            
+        if self.magnetization is not None:
+            if self.magnetization.unit != dimensionless:
+                unit = self.magnetization.unit
+                msg = f"Magnetization (angle) must be dimensionless, not {unit}"
+                raise GeometryDimensionError(self.__class__.__name__, msg)
+            
 
     @property
     def _name(self) -> str:
         """ Returns its name as the auto definition """
         return (
             f"<Metadata=(group={self.group}, material={self.material}, "
-            f"circuit={self.circuit}, turns={self.turns})>"
+            f"circuit={self.circuit}, turns={self.turns} diameter={self.diameter})>"
         )
 
     def __str__(self) -> str:

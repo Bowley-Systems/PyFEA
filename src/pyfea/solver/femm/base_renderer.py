@@ -14,9 +14,8 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from pyfea.domain.units import Quantity, LENGTH, Material
+from pyfea.domain.units import Quantity, LENGTH
 from pyfea.domain.geometry.definitions import CoordinateSystem
-from pyfea.domain.circuits.builder import Circuits
 
 from pyfea.solver.renderer_interface import RendererError, BaseRenderer
 
@@ -45,8 +44,9 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.tolerance = tolerance
         
         # Simulation variables
-        self.materials: dict[str, Material] = {}
-        self.circuits: dict[str, Circuits] = {}
+        self.environmental_data: Any = ""
+        self.materials: list[str] = []
+        self.circuits: list[str] = []
         
         # NOTE: 'Any' as these primitives are not used currently
         self.boundaries: dict[str, Any] = {}
@@ -109,6 +109,10 @@ class FEMMRenderer(BaseRenderer, ABC):
     def _save_changes() -> None:
         """ Saves changes to the femm suite to file """
 
+    @abstractmethod
+    def _add_material(metadata) -> None:
+        """ Adds a material to the FEMM suite using .UIV material """
+    
     def check_active(self) -> None:
         """ Checks if the FEMM suite is active """
         if self.suite_is_active:

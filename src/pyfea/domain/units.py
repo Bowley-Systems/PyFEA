@@ -37,12 +37,22 @@ class UnitError(TypeError):
 def strip_quantity(quantity: Quantity, ref: Quantity) -> Any:
     """ Strips quantity from value returns raw value """
     if not isinstance(quantity, Quantity):
-        msg = f"{quantity!r} is not a physical quantity"
+        msg = f"{type(quantity)!r} is not a physical quantity object"
         raise UnitError(msg)
     
-    if quantity.unit != ref.unit:
-        msg = f"Expected {ref.unit!r}, got {quantity.unit!r}"
+    if not isinstance(ref, (Unit, Quantity)):
+        msg = f"Reference unit must be either a quantity or unit, not {type(ref)}"
         raise UnitError(msg)
+    
+    if isinstance(ref, Quantity):
+        if quantity.unit != ref.unit:
+            msg = f"Expected {ref.unit!r}, got {quantity.unit!r}"
+            raise UnitError(msg)
+        
+    if isinstance(ref, Unit):
+        if quantity.unit != ref:
+            msg = f"Expected {ref!r}, got {quantity.unit!r}"
+            raise UnitError(msg)
     
     return quantity.value
 
@@ -57,6 +67,18 @@ kelvin          =   TEMPERATURE
 mole            =   AMOUNT
 candela         =   LUMINOSITY
 dimensionless   =   DIMENSIONLESS
+
+
+""" =============== Predefined scales for quantities =============== """
+    
+GIGA                    = PrefixScale.GIGA
+MEGA                    = PrefixScale.MEGA
+KILO                    = PrefixScale.KILO
+CENTI                   = PrefixScale.CENTI
+MILLI                   = PrefixScale.MILLI
+MICRO                   = PrefixScale.MICRO
+NANO                    = PrefixScale.NANO
+PICO                    = PrefixScale.PICO
 
 
 """ =============== Scaled length units =============== """

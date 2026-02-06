@@ -11,13 +11,13 @@ from typing import Any
 from shapely.affinity import scale
 from shapely.ops import unary_union
 from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
+from shapely.geometry.base import BaseGeometry as ShapelyGeometry
 from shapely.algorithms.polylabel import polylabel
 
-from pyfea.domain.units import Quantity, strip_quantity, LENGTH
+from pyfea.domain.units import Quantity, strip_quantity, DIMENSIONLESS, LENGTH
 
 from pyfea.solver.renderer_interface import RendererError
-from pyfea.domain.geometry.elements.parts import Part
-from pyfea.domain.geometry.elements.primitives import Point, LineSegment, Ellipsoid
+from pyfea.domain.geometry.elements.primitives import LineSegment, Ellipsoid
 from pyfea.domain.geometry.elements.vectors import (
     GeometryElement, CSGNode, VectorGeometry, CSOperation, PrimitivesShapes
 )
@@ -46,8 +46,8 @@ class FEMMConstructSolidGeometry:
                 return ShapelyPolygon(coords)
                     
             case PrimitivesShapes.ELLIPSOID:
-                ellipse: Ellipsoid = geometry
-                
+                ellipse: Ellipsoid = geometry.data
+
                 # Extracts the central point and radius
                 shapely_point = ShapelyPoint(
                     cls._strip_quantity(ellipse.center.x, 1 * LENGTH),
@@ -56,8 +56,8 @@ class FEMMConstructSolidGeometry:
                 radius = cls._strip_quantity(ellipse.radius, 1 * LENGTH)
                 
                 # Extracts x and y dilation
-                x_dilation = cls._strip_quantity(ellipse.x_dilation, 1 * LENGTH)
-                y_dilation = cls._strip_quantity(ellipse.y_dilation, 1 * LENGTH)
+                x_dilation = cls._strip_quantity(ellipse.x_dilation, 1 * DIMENSIONLESS)
+                y_dilation = cls._strip_quantity(ellipse.y_dilation, 1 * DIMENSIONLESS)
                 
                 # Creates a circle and than scales relative to p
                 circle = shapely_point.buffer(radius)
@@ -111,12 +111,20 @@ class FEMMConstructSolidGeometry:
         raise RendererError(msg)
     
     @classmethod
-    def get_polygon_solid_centroid(
+    def polygon_solid_centroid(
         cls, polygon: ShapelyPolygon, tolerance: float
     ) -> tuple[float, float]:
         """ Returns a point guaranteed to be inside of the solid material of a polygon """
         point = polylabel(polygon, tolerance)
         return point.x, point.y
+    
+    @classmethod
+    def part_complement(
+        self, parts: list[ShapelyPolygon], domain: ShapelyPolygon
+    ) -> ShapelyGeometry:
+        """ Computes the complement of the part regions within domain set"""
+        domain_union = unary_union(parts)
+        return domain.difference(domain_union)
     
     @classmethod
     def _strip_quantity(cls, quantity: Quantity, ref: Quantity) -> Any:
