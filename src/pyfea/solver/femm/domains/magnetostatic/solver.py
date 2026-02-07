@@ -8,15 +8,13 @@ Description:
     physics problems and than solves them with tolerance marching. 
 """
 
+import femm
+
 from pathlib import Path
 
-from pyfea.solver.solver_interface import BaseOutputs
+from pyfea.solver.solver_outputs import SolverOutputs
 
-from pyfea.domain.units import Quantity
-from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.circuits.builder import Circuit
-
-from pyfea.solver.femm.base_solver import FEMMSolver
+from pyfea.solver.femm.base_solver import FEMMSolver, SolverError
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.magnetostatic.renderer import FEMMMagnetostaticRenderer
 
@@ -30,11 +28,10 @@ class FEMMMagnetostaticSolver(FEMMSolver):
             femm_file, FEMMPhysicsTypes.magnetostatic, tolerance
         )
     
-    def _domain_analyse(self, outputs):
-        return super()._domain_analyse(outputs)
-    
-    def _change_tolerance(self, tolerance):
-        return super()._change_tolerance(tolerance)
+    def _domain_analyse(self, outputs: SolverOutputs):
+       """ Solves the problem defined within the FEMM suite """
+       femm.mi_analyse(1)   # Hidden FEMM window
+       femm.mi_loadsolution()       
     
     def move_element(self, element_id, magnitude, angles):
         return super().move_element(element_id, magnitude, angles)

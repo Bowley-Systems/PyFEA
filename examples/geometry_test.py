@@ -47,13 +47,13 @@ negative_slot = Builder.promote_to_part(negative_slot, slot)
 domain_shape = Builder.create_circle((115 / 2 * mm, 101 / 2 *mm), 200 * mm)
 
 simulation_domain = Domain(
-    (positive_slot, negative_slot, core), 
-    3 * dimensionless, 
-    BoundaryType.DIRICHLET, 
-    stc_air, 
-    CoordinateSystem.PLANAR, 
-    domain_shape
+    parts               =   (positive_slot, negative_slot, core), 
+    group               =   3 * dimensionless, 
+    boundary_type       =   BoundaryType.DIRICHLET, 
+    material            =   stc_air, 
+    coordinate_system   =   CoordinateSystem.PLANAR,
+    shape               =   domain_shape
 )
 
 solver = FEMMMagnetostaticSolver(folder_location)
-solver.solve(simulation_domain, None, 1 * mm)
+result = solver.solve(simulation_domain, None, 1 * mm)

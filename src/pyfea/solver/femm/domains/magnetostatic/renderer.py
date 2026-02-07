@@ -16,7 +16,7 @@ from shapely.geometry import (
 )
 from pyfea.domain.units import (
     LENGTH, PERMEABILITY, COERCIVITY, CONDUCTIVITY, DIMENSIONLESS, CURRENT,
-    Quantity
+    FLUX_DENSITY, Quantity
 )
 
 from pyfea.domain.geometry.domain import Domain, CoordinateSystem, BoundaryType
@@ -41,6 +41,22 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             self.tolerance,             # Meshing tolerance
             depth                       # Planar depth extrusion 
         )
+        
+        # Saves problem definitions for marching
+        self.problem_type = problem_type
+        self.depth = depth
+    
+    def tolerance_march(self, new_tolerance: float) -> None:
+        """ Defines the suite problem with new tolerance """
+        femm.mi_probdef(
+            0,                          # Frequency (Not Used)
+            self.femm_unit,             # Default length unit in suite
+            self.problem_type,          # Problem type defined during setup
+            float(new_tolerance),       # New meshing tolerance
+            self.depth                  # Depth of problem defined during setup
+        )
+        
+        self.tolerance = new_tolerance
     
     def draw_domain(self, domain: Domain):
         """ Defines the domain and than draws the elements within """
@@ -103,6 +119,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             femm.mi_clearselected()
 
         except Exception as err:
+            # NOTE: Add a fallback that rebuilds the geometry from scratch
             msg = f"Failed to move element {element_id!r} due to {err}"
             raise RendererError(msg)
     
@@ -118,7 +135,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         try:
             element_id = self._strip_quantity(element_id, DIMENSIONLESS)
             axis = self._strip_quantity(axis, LENGTH)
-            angles = self._strip_quantity(angle, DIMENSIONLESS)
+            angle = self._strip_quantity(angle, DIMENSIONLESS)
             
             x, y = axis
             
@@ -129,6 +146,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             self._save_changes()
         
         except Exception as err:
+            # NOTE: Add a fallback that rebuilds the geometry from scratch
             msg = f"Failed to rotate element {element_id!r} due to {err}"
             raise RendererError(msg)
     
@@ -211,6 +229,16 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                 float(wire_diameter) * 1000             # FEMM requires mm not m for diameter
             )
 
+            # Add b-h curve if values exist
+            bh_data = getattr(material_qualities.magnetic, 'bh_curve', None)
+            
+            if bh_data:
+                for row in bh_data:
+                    b_val = self._strip_quantity(row[0], FLUX_DENSITY)
+                    h_val = self._strip_quantity(row[1], COERCIVITY)
+                    
+                    femm.mi_addbhpoint(material_name, float(b_val), float(h_val))
+            
             self.materials.append(material_name)
             return material_name
             

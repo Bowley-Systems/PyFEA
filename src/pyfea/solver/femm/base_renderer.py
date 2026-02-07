@@ -40,9 +40,11 @@ class FEMMRenderer(BaseRenderer, ABC):
         
         # Solver variables
         self.coordinate_system = None
+        self.problem_type = None
         self.femm_unit = "meters"
         self.suite_is_active = False
         self.tolerance = tolerance
+        self.depth = 1 * LENGTH
         
         # Simulation variables
         self.boundary_name: str = ""
@@ -107,15 +109,19 @@ class FEMMRenderer(BaseRenderer, ABC):
             raise RendererError(msg)
 
     @abstractmethod
-    def _suite_define(problem_type: str, depth: float | int) -> None:
+    def _suite_define(self, problem_type: str, depth: float | int) -> None:
         """ Defines the suite problem definition """
     
     @abstractmethod
-    def _save_changes() -> None:
+    def tolerance_march(self, tolerance: float) -> None:
+        """ Defines the suite problem with new tolerance """
+
+    @abstractmethod
+    def _save_changes(self) -> None:
         """ Saves changes to the femm suite to file """
 
     @abstractmethod
-    def _add_material(metadata) -> None:
+    def _add_material(self, metadata) -> None:
         """ Adds a material to the FEMM suite using .UIV material """
     
     def check_active(self) -> None:

@@ -45,5 +45,7 @@
     "addboundprop",
     "selectsegment",
     "setsegmentprop",
+    "loadsolution",
+    "addbhpoint"
   ]
 }

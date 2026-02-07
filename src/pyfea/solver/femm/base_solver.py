@@ -16,9 +16,8 @@ from abc import ABC, abstractmethod
 from pyfea.domain.units import Quantity, LENGTH
 from pyfea.domain.geometry.domain import Domain
 
-from pyfea.solver.solver_interface import (
-    BaseSolver, BaseOutputs, BaseSolutions, SolverError
-)
+from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
+from pyfea.solver.solver_interface import BaseSolver, SolverError
 
 from pyfea.solver.femm.base_renderer import FEMMRenderer
 
@@ -46,9 +45,9 @@ class FEMMSolver(BaseSolver, ABC):
     def solve(
         self, 
         simulation_domain: Domain, 
-        outputs: BaseOutputs, 
+        outputs: SolverOutputs, 
         depth: Quantity = 1 * LENGTH
-    ) -> BaseSolutions:
+    ) -> SolverSolutions:
         """ Solves the problem constructed by the FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
         coordinate_system = simulation_domain.coordinate_system
@@ -106,15 +105,21 @@ class FEMMSolver(BaseSolver, ABC):
             except Exception as err:
                 msg = f"{self.__class__.__name__} could not delete .ans file: {err}"
                 logging.warning(msg)
-                
+   
+    def _change_tolerance(self, tolerance: float) -> None:
+        """ Changes the required tolerance within FEMM problem """
+        self.renderer.check_active()
+        
+        try:
+            self.renderer.tolerance_march(tolerance)
+        except Exception as err:
+            msg = f"Failed change the tolerance of the FEMM problem due to {err}"
+            raise SolverError(msg)   
+   
     @abstractmethod
     def _create_renderer(self, tolerance: float) -> FEMMRenderer:
         """ Overrides the BaseSolver abstractmethod to include tolerance """
         
     @abstractmethod
-    def _domain_analyse(self, outputs: BaseOutputs) -> BaseSolutions:
+    def _domain_analyse(self, outputs: SolverOutputs) -> SolverSolutions:
         """ Solves the problem defined within the FEMM suite """
-        
-    @abstractmethod
-    def _change_tolerance(self, tolerance: float) -> None:
-        """ Changes the tolerance of the FEMM suite """

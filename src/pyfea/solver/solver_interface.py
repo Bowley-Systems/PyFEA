@@ -7,16 +7,15 @@ Description:
 """
 
 
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 from typing import Any
 from pathlib import Path
-from enum import Enum, EnumMeta
-from dataclasses import dataclass
 
 from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.domain import Domain
 
+from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
 from pyfea.solver.renderer_interface import BaseRenderer
 
 
@@ -26,38 +25,6 @@ class SolverError(Exception):
         """ Returns a custom error message """
         msg = f"raised error: {error}. "
         super().__init__(msg)
-
-
-class ABCEnumMeta(ABCMeta, EnumMeta):
-    """ Abstract Enum Class"""
-    pass
-
-
-class BaseOutputs(Enum, metaclass=ABCEnumMeta):
-    """ Abstract output class for solver implementation """
-    def __str__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.name}>"
-    
-    def __repr__(self) -> str:
-        return str(self)
-
-
-@dataclass(slots=True)
-class BaseSolutions(ABC):
-    """ Expandable for outputs as enums """
-    
-    @property
-    def _name(self):
-        """ Enum output name based on its properties """
-        return f"<Solutions outputs: {self.value}>"  
-
-    def __str__(self) -> str:
-        """ Returns the points name from Point.name """
-        return self._name
-
-    def __repr__(self) -> str:
-        """ Returns the points name from Point.name """
-        return self._name
 
 
 class BaseSolver(ABC):
@@ -72,8 +39,8 @@ class BaseSolver(ABC):
     def solve(
         self, 
         simulation_domain: Domain, 
-        outputs: BaseOutputs,
-    ) -> BaseSolutions:
+        outputs: SolverOutputs,
+    ) -> SolverSolutions:
         """ Solves the problem defined by user during initialization """
     
     @abstractmethod
