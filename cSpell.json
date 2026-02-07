@@ -46,6 +46,7 @@
     "selectsegment",
     "setsegmentprop",
     "loadsolution",
-    "addbhpoint"
+    "addbhpoint",
+    "getcircuitproperties",
   ]
 }

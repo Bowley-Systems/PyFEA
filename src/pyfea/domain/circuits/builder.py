@@ -24,3 +24,9 @@ class Circuit:
     name: str
     current: Quantity
     configuration: Configuration
+    
+    def __hash__(self):
+        """ Hash based class attributes """
+        return hash(
+            (self.name, self.current, self.configuration)
+        )

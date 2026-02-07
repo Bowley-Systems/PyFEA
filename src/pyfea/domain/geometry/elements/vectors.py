@@ -48,6 +48,7 @@ class CSOperation(Enum):
     SUBTRACT = auto()
     INTERSECT = auto()
     EXTRUSION = auto()
+    FILLET = auto()
 
     @property
     def _name(self) -> str:
@@ -105,7 +106,23 @@ class GeometryElement(ABC):
                 "manifold": manifold
             }
         )
+        
+    def smoothing_fillets(self, radius: Quantity) -> GeometryElement:
+        """ Full Smoothing of part for both convex and concave """
+        if not isinstance(radius, Quantity):
+            msg = f"Smoothing fillet requires a radius to be a quantity"
+            raise GeometryDimensionError(msg)
 
+        if radius.unit != meter:
+            msg = f"Radius must be a LENGTH quantity not {type(radius)}"
+            raise GeometryDimensionError(msg)
+        
+        return CSGNode(
+            operation=CSOperation.FILLET,
+            operands=(self,),
+            params={"radius": radius}
+        )
+        
 
 @dataclass(slots=True)
 class CSGNode(GeometricPrimitives, GeometryElement):

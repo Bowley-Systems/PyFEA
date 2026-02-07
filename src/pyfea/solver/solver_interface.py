@@ -14,6 +14,7 @@ from pathlib import Path
 
 from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.circuits.builder import Circuit
 
 from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
 from pyfea.solver.renderer_interface import BaseRenderer
@@ -32,7 +33,8 @@ class BaseSolver(ABC):
     @abstractmethod
     def __init__(self, folder_path: Path) -> Any:
         """ Initializes the solver and renderers the geometry """
-        # Renderer 
+        # Renderer & folder path
+        self._folder_path_exist(folder_path)
         self.renderer: BaseRenderer = self._create_renderer()
 
     @abstractmethod
@@ -77,3 +79,14 @@ class BaseSolver(ABC):
         """ Rotates a series of element around an axis in the simulation domain """
         for element in element_ids:
             self.rotate_element(element, axis, angles)
+
+    def _folder_path_exist(self, path: Path) -> None:
+        """ Check if the folder path exist if not creates the path """
+        self.folder_path = Path(path)
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+
+
+class MagneticSolver(BaseSolver):
+    @abstractmethod
+    def update_current(self, circuit: Circuit, current: Quantity) -> Any:
+        """ Changes the current within a circuit element """

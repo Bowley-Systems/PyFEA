@@ -103,6 +103,19 @@ class FEMMConstructSolidGeometry:
                     
                 return base_shape
                 
+            elif geometry.operation == CSOperation.FILLET:       
+                radius = cls._strip_quantity(geometry.params["radius"], LENGTH)
+
+                # Combines all the shapes into a union
+                shape = unary_union(shapes)
+
+                # Rounds both the outside corners and the inside elbows.
+                buffer_dilation = shape.buffer(radius, join_style=1)
+                buffer_erosion = buffer_dilation.buffer(-2 * radius, join_style=1)
+                buffer_restoration = buffer_erosion.buffer(radius, join_style=1)
+                
+                return buffer_restoration
+
             else:
                 msg = f"{geometry.operation!r} not supported by FEMMConstructSolidGeometry"   
                 raise RendererError(msg)

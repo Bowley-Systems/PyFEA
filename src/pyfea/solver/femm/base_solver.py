@@ -33,8 +33,7 @@ class FEMMSolver(BaseSolver, ABC):
         max_attempts: int = 8
     ) -> None:
         """ Initializes the FEMM solver and FEMM renderer """  
-        self.folder_path = Path(folder_path)
-        self.folder_path.mkdir(parents=True, exist_ok=True)
+        self._folder_path_exist(folder_path)
 
         self.max_attempts = max_attempts
         self.max_tolerance = max_tolerance

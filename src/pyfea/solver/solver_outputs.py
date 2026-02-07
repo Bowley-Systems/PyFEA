@@ -9,12 +9,10 @@ Description:
 
 from typing import Any
 from enum import Enum, auto
-from abc import ABC
-from dataclasses import dataclass
 
 from pyfea.domain.circuits.builder import Circuit
 
-class circuit_outputs(Enum):
+class CircuitOptions(Enum):
     """ Defines the different possible circuit output variables """
     POWER           =   auto()
     VOLTAGE         =   auto()
@@ -23,7 +21,7 @@ class circuit_outputs(Enum):
     FLUX_LINKAGE    =   auto()
 
 
-class magnetic_outputs(Enum):
+class MagneticOptions(Enum):
     """ Defines the different possible magnetic output variables """
     FORCE_LORENTZ           = auto()
     TORQUE_LORENTZ          = auto()
@@ -34,37 +32,49 @@ class magnetic_outputs(Enum):
 
 
 class SolverOutputs:
-    """ Output selector for solvers """
     def __init__(self):
         """ Initializes the internal map for reference """
-        self._registry: dict[Any, Any] = {}
+        
+        # Tuple storage as key ensures that each combination is unique
+        self.registry: dict[tuple[Any, Any], Any] = {}
     
-    def add_circuit(
-        self, circuit: Circuit, outputs: circuit_outputs
-    ) -> None:
+    def add_circuit(self, circuit: Circuit, output: CircuitOptions) -> None:
         """ Requests a circuit output and the circuit to probe """
-        self._registry[outputs] = circuit
-        
-    def add_magnetic(
-        self, element_id: float | int, outputs: magnetic_outputs
-    ) -> None:
-        """ Requests a magnetic output and the element to probe """
-        self._registry[outputs] = element_id
-        
+        self.registry[(circuit, output)] = circuit
 
-@dataclass(slots=True)
-class SolverSolutions(ABC):
-    """ Expandable for outputs """
+    def add_magnetic(self, element_id: Any, output: MagneticOptions) -> None:
+        """ Requests a magnetic output and the element to probe """
+        self.registry[(element_id, output)] = element_id
+
+
+class SolverSolutions:
+    def __init__(self, data_dict: dict = None, **kwargs):
+        """ Dynamically adds solutions as attribute """
+        data = data_dict or {}
+        data.update(kwargs)
+
+        for key, val in data.items():
+            clean_key = key.lower().replace(" ", "_")
+            if isinstance(val, dict):
+                setattr(self, clean_key, SolverSolutions(val))
+
+            else:
+                setattr(self, clean_key, val)
     
     @property
     def _name(self):
-        """ Enum output name based on its properties """
-        return f"<Solutions outputs: {self.value}>"  
-
+        """ Returns """
+        items = ", ".join([k for k in self.__dict__ if not k.startswith('_')])
+        return f"<Solutions outputs: {items}>"
+    
     def __str__(self) -> str:
-        """ Returns the points name from Point.name """
+        """ Returns the points name from self._name"""
         return self._name
 
     def __repr__(self) -> str:
-        """ Returns the points name from Point.name """
+        """ Returns the points name from self._name """
         return self._name
+
+
+# Default class initialized for user to required from
+RequestedOutputs = SolverOutputs()
