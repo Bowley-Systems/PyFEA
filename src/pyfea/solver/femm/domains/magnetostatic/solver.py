@@ -67,20 +67,17 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         return SolverSolutions(results)
         
     def move_element(self, element_id, magnitude, angles):
-        return super().move_element(element_id, magnitude, angles)
-    
-    def move_elements(self, element_ids, magnitude, angles):
-        return super().move_elements(element_ids, magnitude, angles)
-    
+        self._setup_check("moving an element")
+        self.renderer.move_element(element_id, magnitude, angles)
+
     def rotate_element(self, element_id, axis, angles):
-        return super().rotate_element(element_id, axis, angles)
+        self._setup_check("rotating an element")
+        self.renderer.rotate_element(element_id, axis, angles)
     
-    def rotate_elements(self, element_ids, axis, angles):
-        return super().rotate_elements(element_ids, axis, angles)
-    
-    def update_current(self, circuit, current) -> None:
+    def update_current(self, circuit: Circuit) -> None:
         """ Updates the the current in a specific circuit """
-        self.renderer.update_current(circuit, current)
+        self._setup_check("updating currents")
+        self.renderer.update_current(circuit)
     
     def _circuit_outputs(
         self, option: CircuitOptions, circuit: Circuit

@@ -40,21 +40,23 @@ class FEMMSolver(BaseSolver, ABC):
         
         # Overrides the FEMMRenderer on BaseRenderer
         self.renderer: FEMMRenderer = self._create_renderer(tolerance)
+        self.problem_setup = False
 
-    def solve(
-        self, 
-        simulation_domain: Domain, 
-        outputs: SolverOutputs, 
-        depth: Quantity = 1 * LENGTH
+    def setup(
+        self, simulation_domain: Domain, depth: Quantity = 1 * LENGTH
     ) -> SolverSolutions:
-        """ Solves the problem constructed by the FEMMRenderer """
+        """ Setups the problem in FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
         coordinate_system = simulation_domain.coordinate_system
         self.renderer.setup(coordinate_system, depth)
 
         # Draws the domain to the FEMM suite 
         self.renderer.draw_domain(simulation_domain)
-        
+        self.problem_setup = True
+
+    def solve(self, outputs: SolverOutputs):
+        """ Solves the problem constructed by the FEMMRenderer """
+        self._setup_check("solving")
         for attempt in range(0, self.max_attempts):
             try:
                 # Opens FEMM suite as a hidden window
@@ -67,6 +69,7 @@ class FEMMSolver(BaseSolver, ABC):
                 )
                 logging.info(msg)
 
+                self._clean_up()
                 return solution
             
             except Exception as err:
@@ -92,7 +95,7 @@ class FEMMSolver(BaseSolver, ABC):
                 logging.info(msg)
                 
                 self._change_tolerance(new_tolerance)
-           
+
     def _clean_up(self) -> None:
         """ Closes FEMM and removes the .ans file """
         self.renderer._clean_up()
@@ -105,6 +108,15 @@ class FEMMSolver(BaseSolver, ABC):
                 msg = f"{self.__class__.__name__} could not delete .ans file: {err}"
                 logging.warning(msg)
    
+    def _setup_check(self, method: str) -> None:
+        """ Checks if the problem has be setup """
+        if self.problem_setup:
+            return
+
+        path = f"{self.__class__.__name__}.setup"
+        msg = f"Problem has to be setup before {method}, run {path}"
+        raise SolverError(msg)
+
     def _change_tolerance(self, tolerance: float) -> None:
         """ Changes the required tolerance within FEMM problem """
         self.renderer.check_active()

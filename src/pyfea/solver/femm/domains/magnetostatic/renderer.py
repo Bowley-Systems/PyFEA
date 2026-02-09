@@ -151,8 +151,8 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             raise RendererError(msg)
     
     def update_current(
-        self, circuit: Circuit, current: Quantity
-    ):
+        self, circuit: Circuit
+    ) -> None:
         """ Changes the magnitude of the current flowing through a circuit """
         self.check_active()
         
@@ -161,7 +161,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             raise RendererError(msg)
         
         try:
-            current = self._strip_quantity(current, CURRENT)
+            current = self._strip_quantity(circuit.current, CURRENT)
             femm.mi_setcurrent(str(circuit.name), float(current))
             
         except Exception as err:

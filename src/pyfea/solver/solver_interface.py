@@ -38,11 +38,14 @@ class BaseSolver(ABC):
         self.renderer: BaseRenderer = self._create_renderer()
 
     @abstractmethod
-    def solve(
-        self, 
-        simulation_domain: Domain, 
-        outputs: SolverOutputs,
-    ) -> SolverSolutions:
+    def setup(
+        self,
+        simulation_domain: Domain
+    ) -> None:
+        """ Setups the solver problem via the renderer """
+    
+    @abstractmethod
+    def solve(self,  outputs: SolverOutputs) -> SolverSolutions:
         """ Solves the problem defined by user during initialization """
     
     @abstractmethod
