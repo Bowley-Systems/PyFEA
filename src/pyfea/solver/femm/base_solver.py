@@ -11,6 +11,7 @@ import femm
 import logging
 
 from pathlib import Path
+from typing import Any
 from abc import ABC, abstractmethod
 
 from pyfea.domain.units import Quantity, LENGTH
@@ -43,7 +44,7 @@ class FEMMSolver(BaseSolver, ABC):
         self.problem_setup = False
 
     def setup(
-        self, simulation_domain: Domain, depth: Quantity = 1 * LENGTH
+        self, simulation_domain: Domain, depth: Quantity = 0 * LENGTH
     ) -> SolverSolutions:
         """ Setups the problem in FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
@@ -127,6 +128,17 @@ class FEMMSolver(BaseSolver, ABC):
             msg = f"Failed change the tolerance of the FEMM problem due to {err}"
             raise SolverError(msg)   
    
+    @classmethod
+    def _add_result(
+        cls, result: dict, name: Any, key: Any, data: Any
+    ) -> dict:
+        """ Adds a new result to the result dictionary """
+        if name not in result:
+            result[name] = {}
+
+        result[name][key.name] = data 
+        return result
+
     @abstractmethod
     def _create_renderer(self, tolerance: float) -> FEMMRenderer:
         """ Overrides the BaseSolver abstractmethod to include tolerance """

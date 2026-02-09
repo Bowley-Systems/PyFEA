@@ -73,22 +73,12 @@ class BaseRenderer(ABC):
 class MagneticRenderer(BaseRenderer, ABC):
     """ Renderer interface for magnetic problems """
     @abstractmethod
-    def _create_circuit(self, circuit: Circuit) -> Any:
-        """ Creates a circuit within the simulation domain """
-
-    @abstractmethod
     def update_current(self, circuit: Circuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
 
 
-class HeatRenderer(BaseRenderer, ABC):
-    """ Renderer interface for heat problems """
-    @abstractmethod
-    def _add_volumetric_heat_source(
-        self, element: Quantity, magnitude: Quantity
-    ) -> Any:
-        """ Adds a volumetric heat source to a element within the simulation domain """
-    
+class ThermalRenderer(BaseRenderer, ABC):
+    """ Renderer interface for thermal problems """
     @abstractmethod
     def update_heat_source(self, element: Quantity, magnitude: Quantity) -> Any:
         """ Updates a volumetric heat source within the simulation domain """

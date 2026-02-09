@@ -8,7 +8,7 @@ Description:
 from dataclasses import dataclass
 
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
-from pyfea.domain.geometry.elements.metadata import MagneticData
+from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 from pyfea.domain.geometry.definitions import PartError
 
 
@@ -16,7 +16,7 @@ from pyfea.domain.geometry.definitions import PartError
 class Part:
     """ Defines a physical part with physical metadata"""
     geometry: VectorGeometry | CSGNode
-    metadata: MagneticData
+    metadata: MagneticData | ThermalData
 
     def __post_init__(self) -> None:
         """ Validates that metadata and geometry is correct type """
@@ -27,7 +27,7 @@ class Part:
             )
             raise PartError(self.__class__.__name__, msg)
 
-        if not isinstance(self.metadata, (MagneticData)):
+        if not isinstance(self.metadata, (MagneticData | ThermalData)):
             msg = (
                 "self.metadata must be type Metadata, not "
                 f"{type(self.metadata)}"

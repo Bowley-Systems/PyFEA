@@ -23,7 +23,7 @@
     "magnetostatic",
     "openfemm",
     "newdocument",
-    "mi_probdef",
+    "probdef",
     "opendocument",
     "xfact",
     "yfact",
@@ -47,6 +47,10 @@
     "setsegmentprop",
     "loadsolution",
     "addbhpoint",
+    "addtkpoint",
     "getcircuitproperties",
+    "groupselectblock",
+    "blockintegral",
+    "clearblock"
   ]
 }

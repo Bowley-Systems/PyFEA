@@ -61,16 +61,20 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
     def draw_domain(self, domain: Domain):
         """ Defines the domain and than draws the elements within """
         # Builds the environmental magnetic metadata
-        self.environmental_data = MagneticData(domain.group, domain.material)
+        self.environmental_data = domain.meta_data
         self._create_boundary_property(domain.boundary_type)
         
         # Draws the domain boundary and add boundary condition
         CSG_domain = FEMMCSG.evaluate_csg_tree(domain.shape)
-        self._draw_polygon_boundaries(CSG_domain, True)
+        self._draw_polygon_boundaries(CSG_domain, True, self.environmental_data)
         
         # Draws part boundaries and labels solids for all parts
         domain_parts = domain.parts
         parts_geometries = []
+
+        if not isinstance(domain_parts, (list, tuple)):
+            domain_parts = [domain_parts]
+
         for part in domain_parts:
             # Constructs shapely geometry via csg tree evaluation
             CSG_polygon = FEMMCSG.evaluate_csg_tree(part.geometry)
@@ -168,86 +172,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             msg = f"Failed to update current within circuit {circuit.name!r}: {err}"
             raise RendererError(msg)
 
-    def _add_material(self, metadata: MagneticData) -> None:
-        """ Adds a material to the FEMM suite using .UIV material """
-        if not isinstance(metadata, MagneticData):
-            name = self.__class__.__name__
-            msg = f"{name} can only load MagneticData, not {metadata}"
-            raise RendererError(msg)
-        
-        # Extracts the material data and name
-        material = metadata.material
-        material_name = material.keys()[0]
-        material_qualities = material.values()[0]
-        
-        # Variables for lamination properties within FEMM Suite
-        wire_diameter = 0 * LENGTH                  # 0 = Non-stranded material
-        material_lamination = 0                     # 0 = Solid material
-        number_of_strands = 0                       # 0 = Solid material
-        lamination_thickness = 0 * LENGTH           # 0 = Solid lamination
-
-        if metadata.diameter is not None:
-            wire_diameter = metadata.diameter
-            material_lamination = 3     # FEMM: 3 = Magnet Wire
-            number_of_strands = 1
-
-            material_name = f"{material_name}_{metadata.diameter.value}"
-
-        # Bypasses already loaded materials from being reloaded
-        for loaded_material in self.materials:
-            if loaded_material == material_name:
-                return loaded_material
-
-        try:
-            # Takes values from material loader
-            relative_permeability = material_qualities.magnetic.relative_permeability
-            coercivity = material_qualities.magnetic.coercivity
-            conductivity = material_qualities.electrical.conductivity
-            
-            # Checks unit and removes quantity
-            relative_perm = self._strip_quantity(relative_permeability, PERMEABILITY)
-            
-            coercivity = self._strip_quantity(coercivity, COERCIVITY)
-            conductivity = self._strip_quantity(conductivity, CONDUCTIVITY)
-            wire_diameter = self._strip_quantity(wire_diameter, LENGTH)
-            lamination_thickness = self._strip_quantity(lamination_thickness, LENGTH)
-
-            femm.mi_addmaterial(
-                material_name,
-                float(relative_perm[0]),
-                float(relative_perm[1]),
-                float(coercivity),
-                0,                                      # current density (not supported yet)
-                float(conductivity) / 1e6,              # FEMM requires MS/m not S/m
-                float(lamination_thickness),
-                0.0,                                    # Phi_h_max (not supported yet)
-                1.0,                                    # Lamination fill (not supported yet)
-                int(material_lamination),
-                0,                                      # Phi_hx (not supported yet)
-                0,                                      # Phi_hy (not supported yet)
-                int(number_of_strands),
-                float(wire_diameter) * 1000             # FEMM requires mm not m for diameter
-            )
-
-            # Add b-h curve if values exist
-            bh_data = getattr(material_qualities.magnetic, 'bh_curve', None)
-            
-            if bh_data:
-                for row in bh_data:
-                    b_val = self._strip_quantity(row[0], FLUX_DENSITY)
-                    h_val = self._strip_quantity(row[1], COERCIVITY)
-                    
-                    femm.mi_addbhpoint(material_name, float(b_val), float(h_val))
-            
-            self.materials.append(material_name)
-            return material_name
-            
-        except Exception as err:
-            msg = f"Failed to add {material_name!r} as a material within femm: {err}"
-            raise RendererError(msg)
-
     def _draw_polygon_boundaries(
-        self, polygon: ShapelyPolygon, boundary: bool = False
+        self, polygon: ShapelyPolygon, boundary: bool = False, 
+        metadata: MagneticData = None
     ) -> None:
         """ Draws polygon boundaries (exterior and interiors) """
         exterior = list(polygon.exterior.coords)
@@ -255,9 +182,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         # Draws exterior boundary
         for (x1, y1), (x2, y2) in zip(exterior, exterior[1:]):
             femm.mi_drawline(x1, y1, x2, y2)
-            if boundary:
+            if boundary and metadata:
                 femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
-                femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, 0)
+                femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, metadata.group.value)
                 femm.mi_clearselected()
 
         # Draw interior rings (holes)
@@ -265,9 +192,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             hole_coords = list(interior.coords)
             for (x1, y1), (x2, y2) in zip(hole_coords, hole_coords[1:]):
                 femm.mi_drawline(x1, y1, x2, y2)
-                if boundary:
+                if boundary and metadata:
                     femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
-                    femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, 0)
+                    femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, metadata.group.value)
                     femm.mi_clearselected()
     
     def _label_environmental_region(self, polygon: ShapelyPolygon) -> None:
@@ -285,7 +212,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                     self.boundary_name = "A=0"
 
                 except Exception as err:
-                    msg = f"Failed to add dirichlet boundary to outer domain boundary"
+                    msg = f"Failed to create dirichlet boundary condition: {err}"
                     raise RendererError(msg)
             case _:
                 msg = f"{property!r} not supported by {self.__class__.__name__}"
@@ -368,7 +295,85 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             name = self.__class__.__name__
             msg = f"Failed to set properties for {element_id!r} in {name}: {err}"
             raise RendererError(msg)
-    
+        
+    def _add_material(self, metadata: MagneticData) -> str:
+        """ Adds a material to the FEMM suite using .UIV material """
+        if not isinstance(metadata, MagneticData):
+            name = self.__class__.__name__
+            msg = f"{name} can only load MagneticData, not {metadata}"
+            raise RendererError(msg)
+        
+        # Extracts the material data and name
+        material = metadata.material
+        material_name = material.keys()[0]
+        material_qualities = material.values()[0]
+        
+        # Variables for lamination properties within FEMM Suite
+        wire_diameter = 0 * LENGTH                  # 0 = Non-stranded material
+        material_lamination = 0                     # 0 = Solid material
+        number_of_strands = 0                       # 0 = Solid material
+        lamination_thickness = 0 * LENGTH           # 0 = Solid lamination
+
+        if metadata.diameter is not None:
+            wire_diameter = metadata.diameter
+            material_lamination = 3     # FEMM: 3 = Magnet Wire
+            number_of_strands = 1
+
+            material_name = f"{material_name}_{metadata.diameter.value}"
+
+        # Bypasses already loaded materials from being reloaded
+        for loaded_material in self.materials:
+            if loaded_material == material_name:
+                return loaded_material
+
+        try:
+            # Takes values from material loader
+            relative_permeability = material_qualities.magnetic.relative_permeability
+            coercivity = material_qualities.magnetic.coercivity
+            conductivity = material_qualities.electrical.conductivity
+            
+            # Checks unit and removes quantity
+            relative_perm = self._strip_quantity(relative_permeability, PERMEABILITY)
+            
+            coercivity = self._strip_quantity(coercivity, COERCIVITY)
+            conductivity = self._strip_quantity(conductivity, CONDUCTIVITY)
+            wire_diameter = self._strip_quantity(wire_diameter, LENGTH)
+            lamination_thickness = self._strip_quantity(lamination_thickness, LENGTH)
+
+            femm.mi_addmaterial(
+                material_name,
+                float(relative_perm[0]),
+                float(relative_perm[1]),
+                float(coercivity),
+                0,                                      # current density (not supported yet)
+                float(conductivity) / 1e6,              # FEMM requires MS/m not S/m
+                float(lamination_thickness),
+                0.0,                                    # Phi_h_max (not supported yet)
+                1.0,                                    # Lamination fill (not supported yet)
+                int(material_lamination),
+                0,                                      # Phi_hx (not supported yet)
+                0,                                      # Phi_hy (not supported yet)
+                int(number_of_strands),
+                float(wire_diameter) * 1000             # FEMM requires mm not m for diameter
+            )
+
+            # Add b-h curve if values exist
+            bh_data = getattr(material_qualities.magnetic, 'bh_curve', None)
+            
+            if bh_data:
+                for row in bh_data:
+                    b_val = self._strip_quantity(row[0], FLUX_DENSITY)
+                    h_val = self._strip_quantity(row[1], COERCIVITY)
+                    
+                    femm.mi_addbhpoint(material_name, float(b_val), float(h_val))
+            
+            self.materials.append(material_name)
+            return material_name
+            
+        except Exception as err:
+            msg = f"Failed to add {material_name!r} as a material within femm: {err}"
+            raise RendererError(msg)
+
     def _save_changes(self):
         """ Manages the changes to the femm file """
         self.check_active()

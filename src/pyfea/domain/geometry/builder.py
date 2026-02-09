@@ -9,7 +9,7 @@ Description:
 
 from pyfea import dimensionless, Quantity
 from pyfea.domain.geometry.elements.parts import Part
-from pyfea.domain.geometry.elements.metadata import MagneticData
+from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 from pyfea.domain.geometry.elements.vectors import (
     VectorGeometry, PrimitivesShapes, GeometryElement
 )
@@ -58,7 +58,7 @@ class Builder:
     @staticmethod
     def promote_to_part(
         element: GeometryElement,
-        metadata: MagneticData
+        metadata: MagneticData | ThermalData
     ) -> Part:
         """ Promotes a CSNode or VectorGeometry class to a part """
         return Part(element, metadata)

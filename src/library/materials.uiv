@@ -11,7 +11,7 @@ last_updated: "2026-01-19"
 
 [stc_air.physical]
 pressure: 101.325 k(kg*m^-1*s^-2)
-density: 1.225 (kg*m^-3)
+density: 1.184   (kg*m^-3)
 
 [stc_air.magnetic]
 relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
@@ -23,6 +23,7 @@ relative_permittivity: [1.0006, 1.0006] (A^2*s^4*kg^-1*m^-3)
 conductivity: 5e-15 (kg^-1*m^-3*s^3*A^2)
 
 [stc_air.thermal]
+volumetric_heat_capacity: 1.30e6 (kg*m^-1*s^-2*K^-1)
 conductivity: [0.0261, 0.0261] (kg*m*s^-3*K^-1)
 temp_dependence: [
   [200.0, 0.0181],
@@ -84,9 +85,10 @@ bh_curve: [
 
 [pure_iron.electrical]
 relative_permittivity: [1, 1] (A^2*s^4*kg^-1*m^-3)
-conductivity: 1.044e6 (kg^-1*m^-3*s^3*A^2)
+conductivity: 1.044e7 (kg^-1*m^-3*s^3*A^2)
 
-[pure_iron.thermal]
+[pure_iron.thermal] 
+volumetric_heat_capacity: 3.54e6 (kg*m^-1*s^-2*K^-1)
 conductivity: [83, 83] (kg*m*s^-3*K^-1)
 temp_dependence: [
   [273.0, 83.0],
@@ -100,7 +102,7 @@ temp_dependence: [
 
 [pure_copper.meta]
 tag: "material"
-note: "It is assumed to be 99%+ Pure copper"
+note: "It is assumed to be 99%+ Pure copper; Also suitable for magnet/electrical wire"
 last_updated: "2026-01-20"
 
 [pure_copper.physical]
@@ -116,6 +118,7 @@ relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
 conductivity: 5.8e7 (kg^-1*m^-3*s^3*A^2)
 
 [pure_copper.thermal]
+volumetric_heat_capacity: 3.45e6 (kg*m^-1*s^-2*K^-1)
 conductivity: [401, 401] (kg*m*s^-3*K^-1)
 temp_dependence: [
   [273.0, 401.0],
@@ -137,7 +140,6 @@ density: 7600 (kg*m^-3)
 
 [NdFeB.magnetic]
 relative_permeability: [1.05, 1.05] (kg*m*s^-2*A^-2)
-remanence: 1.104 (kg*s^-2*A^-1)
 bh_curve: [
   [0.000000, 0.000000],
   [0.073200, 7484.000000],
@@ -149,29 +151,87 @@ bh_curve: [
   [1.463600, 956180.000000]
 ] (kg*s^-2*A^-1), (A*m^-1)
 
-[NdFeB.magnetic.coercivity]
-N30: 836420 k(A*m^-1)
-N33: 878619 k(A*m^-1)
-N35: 905659 k(A*m^-1)
-N38: 944771 k(A*m^-1)
-N40: 969969 k(A*m^-1)
-N42: 994529 k(A*m^-1)
-N45: 1030272 k(A*m^-1)
-N48: 1014538 k(A*m^-1)
-N50: 987837 k(A*m^-1)
-N52: 956180 k(A*m^-1)
-N55: 922850 k(A*m^-1)
+[NdFeB.grades]
+N30: [[836420, 1.10]] k(A*m^-1), (kg*s^-2*A^-1)
+N33: [[878619, 1.14]] k(A*m^-1), (kg*s^-2*A^-1)
+N35: [[905659,1.17]] k(A*m^-1), (kg*s^-2*A^-1)
+N38: [[944771, 1.22]] k(A*m^-1), (kg*s^-2*A^-1)
+N40: [[969969, 1.25]] k(A*m^-1), (kg*s^-2*A^-1)
+N42: [[994529, 1.28]] k(A*m^-1), (kg*s^-2*A^-1)
+N45: [[1030272, 1.32]] k(A*m^-1), (kg*s^-2*A^-1)
+N48: [[1014538, 1.37]] k(A*m^-1), (kg*s^-2*A^-1)
+N50: [[987837, 1.40]] k(A*m^-1), (kg*s^-2*A^-1)
+N52: [[956180, 1.43]] k(A*m^-1), (kg*s^-2*A^-1)
+N55: [[922850, 1.47]] k(A*m^-1), (kg*s^-2*A^-1)
 
 [NdFeB.electrical]
 relative_permittivity: [0, 0] (A^2*s^4*kg^-1*m^-3)
 conductivity: 0.667e6 (kg^-1*m^-3*s^3*A^2)
 
 [NdFeB.thermal]
-conductivity: [16.5, 16.5] (kg*m*s^-3*K^-1)
+volumetric_heat_capacity: 3.42e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [8.0, 8.0] (kg*m*s^-3*K^-1)
 temp_dependence: [
-  [273.0, 3.36],
-  [323.0, 3.64],
-  [373.0, 3.91],
-  [423.0, 4.17],
-  [473.0, 4.42]
+  [273.0, 8.2],
+  [323.0, 8.0],
+  [373.0, 7.8],
+  [423.0, 7.6],
+  [473.0, 7.4]
+] (K), (kg*m*s^-3*K^-1)
+
+
+[isotropic_carbon_fibre.meta]
+tag: "composite"
+note: "Isotropic approximation for carbon fibre composite"
+last_updated: "2026-02-09"
+
+[isotropic_carbon_fibre.physical]
+density: 1600 (kg*m^-3)
+
+[isotropic_carbon_fibre.magnetic]
+relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[isotropic_carbon_fibre.electrical]
+conductivity: 0 (kg^-1*m^-3*s^3*A^2)
+
+[isotropic_carbon_fibre.thermal]
+volumetric_heat_capacity: 1.30e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [7.0, 7.0] (kg*m*s^-3*K^-1)
+temp_dependence: [
+  [200.0, 7.0],
+  [300.0, 7.0],
+  [400.0, 7.0],
+  [500.0, 7.0],
+  [600.0, 7.0],
+  [700.0, 7.0]
+] (K), (kg*m*s^-3*K^-1)
+
+[isotropic_pa6cf.meta]
+tag: "composite"
+note: "Polyamide 6 + carbon fibre (e.g. 3D printing filament); isotropic assumption"
+last_updated: "2026-02-09"
+
+[isotropic_pa6cf.physical]
+density: 1150 (kg*m^-3)
+
+[isotropic_pa6cf.magnetic]
+relative_permeability: [1.0, 1.0] (kg*m*s^-2*A^-2)
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[isotropic_pa6cf.electrical]
+conductivity: 0 (kg^-1*m^-3*s^3*A^2)
+
+[isotropic_pa6cf.thermal]
+volumetric_heat_capacity: 1.60e6 (kg*m^-1*s^-2*K^-1)  # approximate average
+conductivity: [1.0, 1.0] (kg*m*s^-3*K^-1)
+temp_dependence: [
+  [200.0, 1.0],
+  [300.0, 1.0],
+  [400.0, 1.0],
+  [500.0, 1.0],
+  [600.0, 1.0],
+  [700.0, 1.0]
 ] (K), (kg*m*s^-3*K^-1)

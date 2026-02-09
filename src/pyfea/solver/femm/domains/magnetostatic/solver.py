@@ -33,17 +33,6 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
             femm_file, FEMMPhysicsTypes.magnetostatic, tolerance
         )
     
-    @classmethod
-    def _add_result(
-        cls, result: dict, name: Any, key: Any, data: Any
-    ) -> dict:
-        """ Adds a new result to the result dictionary """
-        if name not in result:
-            result[name] = {}
-
-        result[name][key.name] = data 
-        return result
-    
     def _domain_analyse(self, outputs: SolverOutputs):
         """ Solves the problem defined within the FEMM suite """
         femm.mi_analyse(1)   # Hidden FEMM window

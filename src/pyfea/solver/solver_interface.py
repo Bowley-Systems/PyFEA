@@ -90,6 +90,14 @@ class BaseSolver(ABC):
 
 
 class MagneticSolver(BaseSolver):
+    """ Solver interface for magnetic problems """
     @abstractmethod
     def update_current(self, circuit: Circuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
+
+class ThermalSolver(BaseSolver):
+    """ Solver interface for thermal problems """
+    @abstractmethod
+    def update_heat_source(self, id: Quantity, magnitude: Quantity) -> Any:
+        """ Updates a volumetric heat source within the simulation domain """
+    

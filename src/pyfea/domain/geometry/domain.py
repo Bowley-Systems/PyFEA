@@ -9,23 +9,24 @@ Description:
 from enum import Enum, auto
 from dataclasses import dataclass
 
-from pyfea.domain.units import Quantity, Material
+from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.definitions import CoordinateSystem
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
+from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 
 
 class BoundaryType(Enum):
     """ Different boundary types available """
     DIRICHLET = auto()
+    CONVECTION = auto()
     
 
 @dataclass(slots=True)
 class Domain:
     parts: tuple[Part, ...]
-    group: Quantity
     boundary_type: BoundaryType
-    material: Material
+    meta_data: MagneticData | ThermalData
     coordinate_system: CoordinateSystem  
     shape: VectorGeometry | CSGNode
     

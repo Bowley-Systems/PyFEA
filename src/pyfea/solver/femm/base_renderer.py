@@ -24,7 +24,7 @@ class FEMMPhysicsTypes(Enum):
     """ Enum of Physics types within FEMM (finite element magnetic methods) """
     magnetostatic = 0
     electrostatic = 1
-    heat_flow = 2
+    thermostatic = 2
     current_flow = 3
 
 
@@ -51,10 +51,8 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.environmental_data: Any = ""
         self.materials: list[str] = []
         self.circuits: list[str] = []
-        
-        # NOTE: 'Any' as these primitives are not used currently
-        self.boundaries: dict[str, Any] = {}
-        self.conductor: dict[str, Any] = {}
+        self.boundaries: list[str] = {}
+        self.conductor: list[str]= {}
         
 
     def setup(self, system: CoordinateSystem, depth: Quantity) -> None:

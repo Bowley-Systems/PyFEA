@@ -29,7 +29,7 @@ from pyfea.solver.solver_outputs import RequestedOutputs, CircuitOptions
 from pyfea.solver.femm.domains.magnetostatic.solver import FEMMMagnetostaticSolver
 
 # FEA file output
-folder_location = "examples/u-transformer/outputs/"
+folder_location = "examples/u-transformer/"
 
 # Pulls materials into the script from package library
 manager = MaterialManager()
@@ -41,7 +41,7 @@ stc_air = manager.use_material("stc_air")
 iron_square = Builder.create_rectangle((0 * mm, 0 * mm), 115 * mm, 110 * mm)
 iron_cutout = Builder.create_rectangle((15 * mm, 25 * mm), 85 * mm, 60 * mm)
 
-core = iron_square.subtract(iron_cutout).smoothing_fillets(7 * mm)
+core = iron_square.subtract(iron_cutout)
 core = Builder.promote_to_part(core, MagneticData(1 * dimensionless, iron))
 
 # Positive coil slot
@@ -61,9 +61,8 @@ domain_shape = Builder.create_circle((115 / 2 * mm, 101 / 2 *mm), 200 * mm)
 
 simulation_domain = Domain(
     parts               =   (positive_slot, negative_slot, core), 
-    group               =   3 * dimensionless, 
     boundary_type       =   BoundaryType.DIRICHLET, 
-    material            =   stc_air, 
+    meta_data           =   MagneticData(3 * dimensionless, stc_air), 
     coordinate_system   =   CoordinateSystem.PLANAR,
     shape               =   domain_shape
 )
@@ -85,12 +84,13 @@ for index in range(1, 10):
     phase_a.current = 1 / 10 * A * index
     solver.update_current(phase_a)
 
-    print(f"Solving model at {phase_a.current:.3f}")
     results = solver.solve(RequestedOutputs)
+    secant_inductance = results.phase_a.flux_linkage / phase_a.current
+    print(f"Solved model at {phase_a.current:.3f}, secant inductance {secant_inductance:.3f}")
     
+    current.append(phase_a.current)
     flux_linkage.append(results.phase_a.flux_linkage)
     voltage.append(results.phase_a.voltage)
-    current.append(results.phase_a.current)
 
 
 def gradient_via_regression(output_1: list, output_2: list):
@@ -118,5 +118,5 @@ impedance = (resistance ** 2 + x_inductive ** 2) ** 0.5
 
 print(f"==== U-transformer Performance =====")
 print(f"Resistance: {resistance:.3f}")
-print(f"inductance: {inductance:.3f}")
-print(f"impedance at {frequency:.3f} : {impedance:.3f}")
+print(f"Inductance: {inductance:.3f}")
+print(f"Impedance at {frequency:.3f} : {impedance:.3f}")

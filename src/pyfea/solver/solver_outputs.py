@@ -30,6 +30,13 @@ class MagneticOptions(Enum):
     FORCE_STRESS_TENSOR     = auto()
     TORQUE_STRESS_TENSOR    = auto()
 
+class ThermalOptions(Enum):
+    """ Defines the different possible thermal output variables """
+    VOLUME                  = auto()
+    CROSS_SECTION           = auto()
+    AVERAGE_TEMPERATURE     = auto()
+    FLUX_OVER_ELEMENT       = auto()
+    GRADIENT_OVER_ELEMENT   = auto()
 
 class SolverOutputs:
     def __init__(self):
@@ -46,6 +53,9 @@ class SolverOutputs:
         """ Requests a magnetic output and the element to probe """
         self.registry[(element_id, output)] = element_id
 
+    def add_thermal(self, element_id: Any, output: ThermalOptions) -> None:
+        """ Requests a thermal output and the element to probe """
+        self.registry[(element_id, output)] = element_id
 
 class SolverSolutions:
     def __init__(self, data_dict: dict = None, **kwargs):
