@@ -17,7 +17,7 @@ from pyfea.solver.solver_outputs import (
     SolverOutputs, ThermalOptions, SolverSolutions
 )
 
-from pyfea.domain.units import Quantity, meter, kelvin, watt
+from pyfea.domain.units import Quantity, Material, meter, kelvin, watt
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.thermostatic.renderer import FEMMThermostaticRenderer
 
@@ -41,7 +41,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
             if isinstance(option, ThermalOptions):
                 data = self._operations(option, target)
                 results = self._add_result(
-                    results, f"element{target.value}", option, data
+                    results, f"element_{target.value}", option, data
                 )
 
             else:
@@ -51,7 +51,6 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
 
         return SolverSolutions(results)
     
-    
     def move_element(self, element_id, magnitude, angles):
         self._setup_check("moving an element")
         self.renderer.move_element(element_id, magnitude, angles)
@@ -60,9 +59,15 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         self._setup_check("rotating an element")
         self.renderer.rotate_element(element_id, axis, angles)
     
-    def update_heat_source(self, id, magnitude):
-        return super().update_heat_source(id, magnitude)
-    
+    def update_heat_source(self, id: Quantity | Material, magnitude):
+        """ Updates a heat source within the femm suite """
+        self._setup_check("updating a heat source")
+ 
+        if isinstance(id, Quantity):
+            self.renderer.update_conductor_heat_source(id, magnitude)
+        elif isinstance(id, Material):
+            self.renderer.update_volumetric_heat_source(id, magnitude)
+
     def _operations(
         self, option: ThermalOptions, element: ThermalOptions
     ) -> Quantity:
@@ -86,12 +91,8 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
                 raise SolverError(msg)
     
     
-    def _get_block_integral(self, group: int, integral_type: int) -> Any:
+    def _get_block_integral(self, group: Quantity, integral_type: int) -> Any:
         """ Safely calculates a block integral on a specific group """
-        if not isinstance(group.value, int) or group.value <= 0:
-            msg = f"Group must be a positive integer, got {group}."
-            raise SolverError(msg)
-        
         try:
             femm.ho_groupselectblock(group.value)
             result = femm.ho_blockintegral(integral_type)

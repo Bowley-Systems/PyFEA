@@ -34,8 +34,8 @@ class Domain:
     def _name(self) -> str:
         """ Returns its name as the auto definition """
         return (
-            f"<Part=(parts={self.parts}, group={self.group}, "
-            f"boundary={self.boundary_type}, material={self.material}, "
+            f"<Part=(parts={self.parts}, "
+            f"boundary={self.boundary_type}, meta_data={self.meta_data}, "
             f"shape={self.shape}, Coordinate System={self.coordinate_system})>"
         )
         

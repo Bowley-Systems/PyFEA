@@ -86,7 +86,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             self._add_properties(element_coord, part.metadata)
 
         # Computes part region complement
-        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain)
+        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain, self.tolerance)
         
         if parts_complement.is_empty:
             RendererError("Environmental regions are empty; Check geometry overlaps")
@@ -120,7 +120,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             
             femm.mi_selectgroup(element_id)
             femm.mi_movetranslate(dx, dy)
+    
             femm.mi_clearselected()
+            self._save_changes()
 
         except Exception as err:
             # NOTE: Add a fallback that rebuilds the geometry from scratch
@@ -305,8 +307,8 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         
         # Extracts the material data and name
         material = metadata.material
-        material_name = material.keys()[0]
-        material_qualities = material.values()[0]
+        material_name = material.keys()
+        material_qualities = material.values()
         
         # Variables for lamination properties within FEMM Suite
         wire_diameter = 0 * LENGTH                  # 0 = Non-stranded material

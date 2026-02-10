@@ -131,7 +131,7 @@ temp_dependence: [
 
 
 [NdFeB.meta]
-tag: "magnet material"
+tag: "magnet_material"
 note: ""
 last_updated: "2026-01-20"
 

@@ -133,10 +133,11 @@ class FEMMConstructSolidGeometry:
     
     @classmethod
     def part_complement(
-        self, parts: list[ShapelyPolygon], domain: ShapelyPolygon
+        self, parts: list[ShapelyPolygon], domain: ShapelyPolygon, tolerance: float
     ) -> ShapelyGeometry:
         """ Computes the complement of the part regions within domain set"""
-        domain_union = unary_union(parts)
+        buffered_parts = [p.buffer(-tolerance * 0.01) for p in parts]  # tiny inward shrink
+        domain_union = unary_union(buffered_parts)
         return domain.difference(domain_union)
     
     @classmethod

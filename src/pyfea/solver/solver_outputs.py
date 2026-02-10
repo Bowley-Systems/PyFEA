@@ -23,6 +23,8 @@ class CircuitOptions(Enum):
 
 class MagneticOptions(Enum):
     """ Defines the different possible magnetic output variables """
+    VOLUME                  = auto()
+    CROSS_SECTION           = auto()
     FORCE_LORENTZ           = auto()
     TORQUE_LORENTZ          = auto()
     FIELD_ENERGY            = auto()

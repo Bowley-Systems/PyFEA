@@ -116,7 +116,7 @@ frequency = 50 * Hz
 x_inductive = 2 * pi * inductance * frequency
 impedance = (resistance ** 2 + x_inductive ** 2) ** 0.5
 
-print(f"==== U-transformer Performance =====")
+print("==== U-transformer Performance =====")
 print(f"Resistance: {resistance:.3f}")
 print(f"Inductance: {inductance:.3f}")
 print(f"Impedance at {frequency:.3f} : {impedance:.3f}")

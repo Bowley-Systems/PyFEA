@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from pathlib import Path
 
-from pyfea.domain.units import Quantity, strip_quantity
+from pyfea.domain.units import Quantity, Material, strip_quantity
 from pyfea.domain.geometry.domain import Domain
 from pyfea.domain.circuits.builder import Circuit
 
@@ -80,9 +80,12 @@ class MagneticRenderer(BaseRenderer, ABC):
 class ThermalRenderer(BaseRenderer, ABC):
     """ Renderer interface for thermal problems """
     @abstractmethod
-    def update_heat_source(self, element: Quantity, magnitude: Quantity) -> Any:
+    def update_volumetric_heat_source(self, material: Material, magnitude: Quantity) -> Any:
         """ Updates a volumetric heat source within the simulation domain """
     
+    @abstractmethod
+    def update_conductor_heat_source(self, element: Quantity, magnitude: Quantity) -> Any:
+        """ Updates a conductor heat source within the simulation domain"""
 
 class ElectricRenderer(BaseRenderer, ABC):
     """ Renderer interface for electric problems """

@@ -32,7 +32,8 @@ class MaterialManager:
     """
     def __init__(self, library_path: Optional[str] = None) -> None:
         """ Initialization of the material manager """
-        self.materials: Material = None
+        self.material_library: Material = None
+        self.materials: dict[str, Material] = {}
         self.path_name = "library/material.uiv"
 
         if library_path is None:
@@ -44,24 +45,48 @@ class MaterialManager:
 
     def use_material(self, name: str, **params: Any) -> Material:
         """ Retrieve a material by name and apply required parameters """
-        material = self.materials.find(name)
+        material = self.material_library.find(name)
 
         if not material.occupied:
             msg = f"Cannot find material {name!r} in {self.path_name!r}"
             raise MaterialManagerError(msg)
 
-        """
-        Need to add logic for applying required parameters such as magnet grade
-        """
-        _ = params
+        material_tag = material.values().meta.tag
+        match material_tag:
+            case "magnet_material":
+                if "grade" not in params:
+                    msg = f"Material {name!r} requires parameter 'grade'"
+                    raise MaterialManagerError(msg)
+                
+                grade_value = params["grade"]
+                if not isinstance(grade_value, str):
+                    msg = f"'grade' must be a string not {type(grade_value)}"
+                    raise MaterialManagerError(msg)
+                
+                try:
+                    coercivity = 0
+                    remanence = 0 
 
+                    grades = material.values().grades
+                    for grade, values in zip(grades.keys(), grades.values()):
+                        if grade == grade_value:
+                            coercivity, remanence = values[0][0], values[0][1]
+                    
+                    material.find_and_add(f"{name}.magnetic.remanence", remanence)
+                    material.find_and_add(f"{name}.magnetic.coercivity", coercivity)
+
+                except:
+                    msg = f"'{name!r}' is required to have a valid magnetic grades entry."
+                    raise MaterialManagerError(msg)  
+
+        self.materials[name] = material
         return material
 
     def _load_from_package(self) -> None:
         """ Loads the default material library """
         try:
             with resources.open_text("library", "materials.uiv") as f:
-                self.materials = Parser.open(f, loader_class=Material)
+                self.material_library = Parser.open(f, loader_class=Material)
 
         except Exception as err:
             msg = f"""Failed to load library from package resources: {err}"""
@@ -70,7 +95,7 @@ class MaterialManager:
     def _load_from_path(self, file_path: Path) -> None:
         """ Loads the user material library from path """
         try:
-            self.materials = Parser.open(file_path, loader_class=Material)
+            self.material_library = Parser.open(file_path, loader_class=Material)
 
         except Exception as err:
             msg = f"""Failed to load library from {file_path!r}: {err}"""

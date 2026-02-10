@@ -18,14 +18,28 @@ class Material(DynamicLoader):
     @property
     def _name(self) -> str:
         """ Returns the material direct members """
-        items = ', '.join(self.keys())
+        keys = self.keys()
+        items = ', '.join(keys) if isinstance(keys, list) else keys
         return f'Material({items})'
-
+    
     def __repr__(self):
         """ Returns the material name """
         return self._name
 
+class Configuration(DynamicLoader):
+    """ Class for configuration files using the dynamic loader from picounits """
+    @property
+    def _name(self) -> str:
+        """ Returns the configuration direct members """
+        keys = self.keys()
+        items = ', '.join(keys) if isinstance(keys, list) else keys
+        return f'Configuration({items})'
 
+    def __repr__(self):
+        """ Returns the configuration name """
+        return self._name
+
+      
 class UnitError(TypeError):
     """ Exception for Unit Error """
     def __init__(self, error: str):

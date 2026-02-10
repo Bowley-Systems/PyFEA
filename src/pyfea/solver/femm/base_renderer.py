@@ -58,7 +58,7 @@ class FEMMRenderer(BaseRenderer, ABC):
     def setup(self, system: CoordinateSystem, depth: Quantity) -> None:
         """ Setup the rendering environment and simulation space """
         # Strips depth of quantity at boundary between femm
-        depth: float | int = self._strip_quantity(depth, 0 * LENGTH)
+        depth: float | int = self._strip_quantity(depth, LENGTH)
         
         problem_type = None
         if system == CoordinateSystem.AXI_SYMMETRIC:

@@ -51,6 +51,13 @@
     "getcircuitproperties",
     "groupselectblock",
     "blockintegral",
-    "clearblock"
+    "clearblock",
+    "characterisation",
+    "modifymaterial",
+    "ylabel",
+    "xlabel",
+    "twinx",
+    "labelcolor",
+    "figsize"
   ]
 }

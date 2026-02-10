@@ -12,13 +12,13 @@ import femm
 from shapely.geometry import (
     Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon
 )
-
+from math import cos, sin, radians
 from pyfea.domain.units import (
-    kelvin, dimensionless, THERMAL_CONDUCTIVITY, VOLUMETRIC_HEAT_CAPACITY,
-    VOLUMETRIC_HEATING, watt, meter
+    Material, Quantity, kelvin, dimensionless, THERMAL_CONDUCTIVITY,
+    VOLUMETRIC_HEAT_CAPACITY, VOLUMETRIC_HEATING, watt, meter
 )
 
-from pyfea.domain.geometry.domain import Domain, BoundaryType
+from pyfea.domain.geometry.domain import Domain, BoundaryType, CoordinateSystem
 from pyfea.domain.geometry.elements.metadata import ThermalData
 
 from pyfea.solver.renderer_interface import ThermalRenderer, RendererError
@@ -83,7 +83,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
             self._add_properties(element_coord, part.metadata)
 
         # Computes part region complement
-        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain)
+        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain, self.tolerance)
         
         if parts_complement.is_empty:
             RendererError("Environmental regions are empty; Check geometry overlaps")
@@ -107,14 +107,91 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         
         self._save_changes()
     
-    def move_element(self, element_id, magnitude, angles):
-        return super().move_element(element_id, magnitude, angles)
+    def move_element(
+        self, element_id: Quantity, magnitude: Quantity, angle: Quantity
+    ) -> None:
+        """ Moves a element by a vector; expects degrees """
+        self.check_active()
+        
+        try:
+            element_id = self._strip_quantity(element_id, dimensionless) 
+            magnitude = self._strip_quantity(magnitude, meter)
+            angle = self._strip_quantity(angle, dimensionless)
+            
+            rad_angle = radians(angle)
+            dx = magnitude * cos(rad_angle)
+            dy = magnitude * sin(rad_angle)
+            
+            femm.hi_selectgroup(element_id)
+            femm.hi_movetranslate(dx, dy)
     
-    def rotate_element(self, element_id, axis, angles):
-        return super().rotate_element(element_id, axis, angles)
+            femm.hi_clearselected()
+            self._save_changes()
+
+        except Exception as err:
+            # NOTE: Add a fallback that rebuilds the geometry from scratch
+            msg = f"Failed to move element {element_id!r} due to {err}"
+            raise RendererError(msg)
+
+    def rotate_element(
+        self, element_id: Quantity, axis: Quantity, angle: Quantity
+    ) -> None:
+        """ Rotates a element by angle around a center axis; expects degrees"""
+        self.check_active()
+        if self.coordinate_system == CoordinateSystem.AXI_SYMMETRIC:
+            msg = f"Element cannot be rotated in axially symmetrical models"
+            raise RendererError(msg)
+
+        try:
+            element_id = self._strip_quantity(element_id, dimensionless)
+            axis = self._strip_quantity(axis, meter)
+            angle = self._strip_quantity(angle, dimensionless)
+            
+            x, y = axis
+            
+            femm.hi_selectgroup(element_id)
+            femm.hi_moverotate(x, y, angle)
+            
+            femm.hi_clearselected()
+            self._save_changes()
+        
+        except Exception as err:
+            # NOTE: Add a fallback that rebuilds the geometry from scratch
+            msg = f"Failed to rotate element {element_id!r} due to {err}"
+            raise RendererError(msg)
     
-    def update_heat_source(self, element, magnitude):
-        return super().update_heat_source(element, magnitude)
+    @classmethod
+    def pre_defined(cls, name: str, loaded: list[str]) -> str:
+        """ Checks to see if a material has already been loaded """
+        for loaded_material in loaded:
+            if loaded_material == name:
+                return loaded_material
+            
+        msg = f"{name!r} is an uninitialized material, cannot edit"
+        raise RendererError(msg)
+    
+    def update_conductor_heat_source(self, element, magnitude):
+        return super().update_conductor_heat_source(element, magnitude)
+
+    def update_volumetric_heat_source(
+        self, material: Material, magnitude: Quantity
+    ) -> None:
+        """ Updates a material volumetric heat """
+        self.check_active()
+        
+        # Extracts the material data and name
+        material_name = material.keys()
+        block_name = self.pre_defined(material_name, self.materials)
+        
+        try:
+            volumetric_heating = self._strip_quantity(magnitude, VOLUMETRIC_HEATING)
+            femm.hi_modifymaterial(block_name, 3, float(volumetric_heating))
+            self._save_changes()
+
+        except Exception as err:
+            msg = f"Failed to update {material_name!r} within femm: {err}"
+            raise RendererError(msg)
+        
     
     def _draw_polygon_boundaries(
         self, polygon: ShapelyPolygon,
@@ -230,10 +307,6 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                 msg = f"{property!r} not supported by {self.__class__.__name__}"
                 raise RendererError(msg)
 
-    def _add_conductor(self, metadata: ThermalData) -> str:
-        """ Adds a conductor to the simulation space"""
-        return
-        
     def _add_material(self, metadata: ThermalData) -> str:
         """ Adds a material to the FEMM suite using .UIV material"""
         if not isinstance(metadata, ThermalData):
@@ -243,8 +316,8 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
     
         # Extracts the material data and name
         material = metadata.material
-        material_name = material.keys()[0]
-        material_qualities = material.values()[0]
+        material_name = material.keys()
+        material_qualities = material.values()
         
         # Bypasses already loaded materials from being reloaded
         for loaded_material in self.materials:

@@ -12,7 +12,7 @@ import femm
 
 from typing import Any
 
-from pyfea.domain.units import Quantity, ampere, volt, weber
+from pyfea.domain.units import Quantity, ampere, volt, weber, newton, meter, tesla
 from pyfea.solver.solver_interface import MagneticSolver
 from pyfea.solver.solver_outputs import (
     SolverOutputs, CircuitOptions, MagneticOptions, SolverSolutions
@@ -46,7 +46,10 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 results = self._add_result(results, target.name, option, data)
 
             elif isinstance(option, MagneticOptions):
-                pass
+                data = self._element_outputs(option, target)
+                results = self._add_result(
+                    results, f"element_{target.value}", option, data
+                )
                 
             else:
                 name = self.__class__.__name__
@@ -92,7 +95,43 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
             case _:
                 name = name = self.__class__.__name__
                 msg = f"{option!r} is an unknown or unsupported output for {name}"
-                print(msg)
+                raise SolverError(msg)
+
+    def _element_outputs(
+        self, option: MagneticOptions, element_id: Quantity
+    ) -> Quantity:
+        """ Gets the requested magnetic output from the FEMM suite """
+        """NOTE: Might have to add a raise for axi; given axi torque might not work"""
+        match option:
+            case MagneticOptions.FIELD_ENERGY:
+                return self._get_block_integral(element_id, 2) * (newton * meter)
+            case MagneticOptions.CROSS_SECTION:
+                return self._get_block_integral(element_id, 5) * meter ** 2
+            case MagneticOptions.B_FIELD:
+                return (
+                    self._get_block_integral(element_id, 8),
+                    self._get_block_integral(element_id, 9)
+                ) * (tesla * meter ** 3)
+            case MagneticOptions.VOLUME:
+                return self._get_block_integral(element_id, 10) * meter ** 3
+            case MagneticOptions.FORCE_LORENTZ:
+                return (
+                    self._get_block_integral(element_id, 11),
+                    self._get_block_integral(element_id, 12)
+                ) * newton     
+            case MagneticOptions.TORQUE_LORENTZ:
+                return self._get_block_integral(element_id, 15) * (newton * meter)
+            case MagneticOptions.FORCE_STRESS_TENSOR:
+                return (
+                    self._get_block_integral(element_id, 18),
+                    self._get_block_integral(element_id, 19)
+                ) * newton
+            case MagneticOptions.TORQUE_STRESS_TENSOR:
+                return self._get_block_integral(element_id, 22) * (newton * meter)
+            
+            case _:
+                name = name = self.__class__.__name__
+                msg = f"{option!r} is an unknown or unsupported output for {name}"
                 raise SolverError(msg)
 
     def _get_circuit_properties(self, circuit: Circuit) -> tuple[Quantity]:
@@ -107,4 +146,19 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
             )
         except Exception as err:
             msg = f"Failed to get properties from circuit {circuit.name!r}: {err}"
+            raise SolverError(msg)
+
+    def _get_block_integral(self, group: Quantity, integral_type: int) -> Any:
+        """ Safely calculates a block integral on a specific group """
+        try:
+            femm.mo_groupselectblock(group.value)
+            result = femm.mo_blockintegral(integral_type)
+            femm.mo_clearblock()
+            return result
+
+        except Exception as e:
+            msg = (
+                f"Failed to calculate block integral of type {integral_type} "
+                f"for element {group}: {e}"
+            )
             raise SolverError(msg)

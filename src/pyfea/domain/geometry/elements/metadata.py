@@ -146,12 +146,13 @@ class ThermalData:
 
         # Validate Convection Coefficient (W/(m^2*K))
         if self.convection_coefficient is not None:
-            h_unit = watt / (meter**2 * kelvin)
+            h_unit = watt / (meter** 2 * kelvin)
             if (
                 not isinstance(self.convection_coefficient, Quantity) 
                 or self.convection_coefficient.unit != h_unit
             ):
-                msg = f"Convection coefficient must be a Quantity in {h_unit}"
+                msg = f"Convection coefficient must be a Quantity in {h_unit}, "
+                msg += f"not {self.convection_coefficient.unit}"
                 raise GeometryDimensionError(self.__class__.__name__, msg)
 
     @property
