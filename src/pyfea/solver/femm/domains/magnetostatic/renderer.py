@@ -15,8 +15,8 @@ from shapely.geometry import (
     Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon
 )
 from pyfea.domain.units import (
-    LENGTH, PERMEABILITY, COERCIVITY, CONDUCTIVITY, DIMENSIONLESS, CURRENT,
-    FLUX_DENSITY, Quantity
+    LENGTH, COERCIVITY, CONDUCTIVITY, DIMENSIONLESS, CURRENT,
+    FLUX_DENSITY, Quantity, kelvin
 )
 
 from pyfea.domain.geometry.domain import Domain, CoordinateSystem, BoundaryType
@@ -81,7 +81,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             parts_geometries.append(CSG_polygon)
             
             # Draws outer and inter boundary to FEMM
-            self._draw_polygon_boundaries(CSG_polygon)
+            self._draw_polygon_boundaries(CSG_polygon, metadata=part.metadata)
             element_coord = FEMMCSG.polygon_solid_centroid(CSG_polygon, self.tolerance)
             self._add_properties(element_coord, part.metadata)
 
@@ -110,7 +110,15 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         self.check_active()
         
         try:
-            element_id = self._strip_quantity(element_id, DIMENSIONLESS) 
+            if not isinstance(element_id, (list, tuple)):
+                groups_to_move = [element_id]
+            else:
+                groups_to_move = element_id
+
+            for group in groups_to_move:
+                group = self._strip_quantity(group, DIMENSIONLESS)
+                femm.mi_selectgroup(group)
+
             magnitude = self._strip_quantity(magnitude, LENGTH)
             angle = self._strip_quantity(angle, DIMENSIONLESS)
             
@@ -118,7 +126,6 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             dx = magnitude * cos(rad_angle)
             dy = magnitude * sin(rad_angle)
             
-            femm.mi_selectgroup(element_id)
             femm.mi_movetranslate(dx, dy)
     
             femm.mi_clearselected()
@@ -139,13 +146,19 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             raise RendererError(msg)
 
         try:
-            element_id = self._strip_quantity(element_id, DIMENSIONLESS)
+            if isinstance(element_id.value, int, float, complex):
+                groups_to_move = [element_id]
+            else:
+                groups_to_move = element_id
+
+            for group in groups_to_move:
+                group = self._strip_quantity(group, DIMENSIONLESS)
+                femm.mi_selectgroup(group)
+            
             axis = self._strip_quantity(axis, LENGTH)
             angle = self._strip_quantity(angle, DIMENSIONLESS)
             
             x, y = axis
-            
-            femm.mi_selectgroup(element_id)
             femm.mi_moverotate(x, y, angle)
             
             femm.mi_clearselected()
@@ -174,6 +187,73 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             msg = f"Failed to update current within circuit {circuit.name!r}: {err}"
             raise RendererError(msg)
 
+    @classmethod
+    def pre_defined(cls, name: str, loaded: list[str]) -> str:
+        """ Checks to see if a material has already been loaded """
+        for loaded_material in loaded:
+            if loaded_material == name:
+                return loaded_material
+            
+        msg = f"{name!r} is an uninitialized material, cannot edit"
+        raise RendererError(msg)
+
+    @classmethod
+    def _linear_interpolate(cls, points: Quantity, value: Quantity) -> Quantity:
+        """ Linear interpolates a quantity list from a specific linked value """
+        if value <= points[0][0]:
+            return points[0][1]
+
+        if value >= points[-1][0]:
+            return points[-1][1]
+
+        # finds specific interval
+        for index in range(len(points) - 1):
+            x0, x1 = points[index][0], points[index + 1][0]
+            y0, y1 = points[index][1], points[index + 1][1]
+
+            if x0 <= value <= x1:
+                slope = (y1 - y0) / (x1 - x0)
+                return y0 + slope * (value - x0)
+    
+    def update_temperature(self, material, temperature):
+        """ Updates a material definition to reflect a change in temperature """
+        self.check_active()
+        changes = []
+        
+        material_name = material.keys()
+        material_qualities = material.values()
+        block_name = self.pre_defined(material_name, self.materials)
+        
+        magnet_check = getattr(material_qualities, 'temp_coefficients', None)
+        if magnet_check:
+            hc_ref = material_qualities.magnetic.coercivity
+            hc_min = material_qualities.temp_coefficients.Hc_min_temperature
+            hc_max = material_qualities.temp_coefficients.Hc_max_temperature
+            
+            co_coercivity = material_qualities.temp_coefficients.coercivity
+            
+            if hc_min < temperature < hc_max:
+                hc = hc_ref * (1 + co_coercivity * (temperature - 298.15 * kelvin))
+                hc = self._strip_quantity(hc, COERCIVITY)
+            else:
+                hc = 0.0
+            changes.append((3, hc))
+            
+        try:
+            conductivity_temp_dep = material_qualities.electrical.temp_dependence
+            conductivity = self._linear_interpolate(conductivity_temp_dep, temperature)
+            conductivity = self._strip_quantity(conductivity, CONDUCTIVITY)
+            changes.append((5, conductivity/1e6))   # Femm requires MS/m
+            
+            for property_name, value in changes:
+                femm.mi_modifymaterial(block_name, property_name, value)
+        
+            self._save_changes()
+
+        except Exception as err:
+            msg = f"Failed to update {material_name!r} within femm: {err}"
+            raise RendererError(msg)
+    
     def _draw_polygon_boundaries(
         self, polygon: ShapelyPolygon, boundary: bool = False, 
         metadata: MagneticData = None
@@ -188,6 +268,11 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                 femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
                 femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, metadata.group.value)
                 femm.mi_clearselected()
+                
+            if metadata and not boundary:
+                femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
+                femm.mi_setsegmentprop("", 0, 0, 0, metadata.group.value)
+                femm.mi_clearselected()
 
         # Draw interior rings (holes)
         for interior in polygon.interiors:
@@ -197,6 +282,11 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                 if boundary and metadata:
                     femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
                     femm.mi_setsegmentprop(self.boundary_name, 0, 0, 0, metadata.group.value)
+                    femm.mi_clearselected()
+                
+                if metadata and not boundary:
+                    femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
+                    femm.mi_setsegmentprop("", 0, 0, 0, metadata.group.value)
                     femm.mi_clearselected()
     
     def _label_environmental_region(self, polygon: ShapelyPolygon) -> None:
@@ -321,7 +411,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             material_lamination = 3     # FEMM: 3 = Magnet Wire
             number_of_strands = 1
 
-            material_name = f"{material_name}_{metadata.diameter.value}"
+            # material_name = f"{material_name}_{metadata.diameter.value}"
 
         # Bypasses already loaded materials from being reloaded
         for loaded_material in self.materials:
@@ -335,7 +425,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             conductivity = material_qualities.electrical.conductivity
             
             # Checks unit and removes quantity
-            relative_perm = self._strip_quantity(relative_permeability, PERMEABILITY)
+            relative_perm = self._strip_quantity(relative_permeability, DIMENSIONLESS)
             
             coercivity = self._strip_quantity(coercivity, COERCIVITY)
             conductivity = self._strip_quantity(conductivity, CONDUCTIVITY)

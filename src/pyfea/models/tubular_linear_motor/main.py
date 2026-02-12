@@ -7,7 +7,6 @@ Description:
 
 from __future__ import annotations
 
-from typing import Any
 from pathlib import Path
 from math import ceil, sin, pi
 from pyfea import (
@@ -39,13 +38,19 @@ class TubularLinearMotor:
     """ Electro-magneto-thermal-mechanical Linear Motor """
     # Default configuration path
     MODEL_PATH = "default_configuration.uiv"
-    
+
     # Simulation elements
     ENVIRONMENT_ID = 0 * dimensionless
     SLOT_ID = 1 * dimensionless
     CORE_ID = 2 * dimensionless
     POLE_ID = 3 * dimensionless
     TUBE_ID = 4 * dimensionless 
+    
+    PHASES = [
+        Circuit("phase_a", 0 * A, CircuitConfig.SERIES), 
+        Circuit("phase_b", 0 * A, CircuitConfig.SERIES),
+        Circuit("phase_c", 0 * A, CircuitConfig.SERIES)
+    ]
     
     def __init__(self, configuration_path: Path) -> None:
         """ Initializes the class & defines dependencies """
@@ -59,10 +64,10 @@ class TubularLinearMotor:
         self._derived_parameters()
         self._load_material()
     
-    def build_domain(self, solver: BaseSolver) -> tuple[Domain, tuple[Any]]:
+    def build_domain(self, solver: BaseSolver) -> Domain:
         """ Builds the domain based on solver physics domain """
         solver_interfaces = solver.__class__.__bases__
-        
+
         for solver in solver_interfaces:
             if solver == ThermalSolver:
                 return thermal_domain.build(self)
@@ -173,11 +178,19 @@ class TubularLinearMotor:
         manager = self.manager
         
         # Finds the material in the .uiv material library
-        manager.use_material(self.config.model.environmental_material)
-        manager.use_material(self.config.armature_core.material)
-        manager.use_material(self.config.armature_slots.material)
-        manager.use_material(self.config.stator_tube.material)
-        manager.use_material(
+        self.environmental_material = manager.use_material(
+            self.config.model.environmental_material
+        )
+        self.armature_core_material = manager.use_material(
+            self.config.armature_core.material
+        )
+        self.armature_slots_material = manager.use_material(
+            self.config.armature_slots.material
+        )
+        self.stator_tube_material = manager.use_material(
+            self.config.stator_tube.material
+        )
+        self.stator_poles_material = manager.use_material(
             self.config.stator_poles.material, grade = self.config.stator_poles.grade
         )
     
@@ -221,13 +234,6 @@ class TubularLinearMotor:
 
 class magnetic_domain:
     """ Magnetic Implementation of linear motor """   
-    PHASES = [
-        Circuit("phase_a", 0 * A, CircuitConfig.SERIES), 
-        Circuit("phase_b", 0 * A, CircuitConfig.SERIES),
-        Circuit("phase_c", 0 * A, CircuitConfig.SERIES)
-    ]
-    
-    
     @classmethod
     def calculate_number_turns(cls, default: TubularLinearMotor) -> int:
         """ Calculates the approximate number of turns within the motor """
@@ -259,27 +265,21 @@ class magnetic_domain:
         parts.append(
             Builder.promote_to_part(
                 core,
-                MagneticData(
-                    default.CORE_ID, 
-                    default.manager.materials[default.config.armature_core.material]
-                )
+                MagneticData(default.CORE_ID, default.armature_core_material)
             )
         )
         
         parts.append(
             Builder.promote_to_part(
                 tube,
-                MagneticData(
-                    default.TUBE_ID,
-                    default.manager.materials[default.config.stator_tube.material]
-                )
+                MagneticData(default.TUBE_ID, default.stator_tube_material)
             )
         )
         
         # Updates the current based on the configuration
         initial = default.config.numerical.initial_current
         phases = []
-        for index, phase in enumerate(cls.PHASES):
+        for index, phase in enumerate(default.PHASES):
             phase.current = initial * sin((5 * pi) / 6 + (4 * pi) / 3 * index)
             phases.append(phase)
 
@@ -293,10 +293,8 @@ class magnetic_domain:
                 Builder.promote_to_part(
                     slot,
                     MagneticData(
-                        default.SLOT_ID,
-                        default.manager.materials[default.config.armature_slots.material],
-                        phase,
-                        turns * polarity,
+                        default.SLOT_ID, default.armature_slots_material,
+                        phase, turns * polarity,
                         default.config.armature_slots.wire_diameter
                     )
                 )
@@ -310,8 +308,7 @@ class magnetic_domain:
                 Builder.promote_to_part(
                     pole,
                     MagneticData(
-                        default.SLOT_ID,
-                        default.manager.materials[default.config.stator_poles.material],
+                        default.POLE_ID, default.stator_poles_material,
                         magnetization = pole_magnetization * dimensionless
                     )
                 )
@@ -320,15 +317,12 @@ class magnetic_domain:
         # Overall simulation problem defined for magnetic
         simulation_domain = Domain(
             parts, BoundaryType.DIRICHLET, 
-            MagneticData(
-                default.ENVIRONMENT_ID,
-                default.manager.materials[default.config.model.environmental_material],
-            ), 
+            MagneticData(default.ENVIRONMENT_ID, default.environmental_material), 
             default.coordinate_system,
             default.build_boundary()
         )
-        return simulation_domain, cls.PHASES
-    
+
+        return simulation_domain
         
 
 class thermal_domain:
@@ -347,38 +341,27 @@ class thermal_domain:
         parts.append(
             Builder.promote_to_part(
                 core,
-                ThermalData(
-                    default.CORE_ID, 
-                    default.manager.materials[default.config.armature_core.material]
-                )
+                ThermalData(default.CORE_ID, default.armature_core_material)
             )
         )
         
         parts.append(
             Builder.promote_to_part(
                 tube,
-                ThermalData(
-                    default.TUBE_ID,
-                    default.manager.materials[default.config.stator_tube.material]
-                )
+                ThermalData(default.TUBE_ID, default.stator_tube_material)
             )
         )
         
         data = ThermalData(
-            default.SLOT_ID,
-            default.manager.materials[default.config.armature_slots.material],
+            default.SLOT_ID,default.armature_slots_material,
             volumetric_heating=cls.INITIAL_WATTAGE
         )
         for slot in slots: parts.append(Builder.promote_to_part(slot, data))
         
-        data = ThermalData(
-            default.POLE_ID,
-            default.manager.materials[default.config.stator_poles.material]
-        )
+        data = ThermalData(default.POLE_ID, default.stator_poles_material)
         for pole in poles: parts.append(Builder.promote_to_part(pole, data))
         data = ThermalData(
-            default.ENVIRONMENT_ID,
-            default.manager.materials[default.config.model.environmental_material],
+            default.ENVIRONMENT_ID, default.environmental_material,
             temperature=default.config.thermal.atmospheric_temperature,
             convection_coefficient=default.config.thermal.convection_coefficient
         )
@@ -388,7 +371,4 @@ class thermal_domain:
             default.build_boundary()
         )
 
-        return (
-            simulation_domain,
-            default.manager.materials[default.config.armature_slots.material]
-        )
+        return simulation_domain

@@ -83,7 +83,6 @@ voltage = []
 for index in range(1, 10):
     phase_a.current = 1 / 10 * A * index
     solver.update_current(phase_a)
-
     results = solver.solve(RequestedOutputs)
     secant_inductance = results.phase_a.flux_linkage / phase_a.current
     print(f"Solved model at {phase_a.current:.3f}, secant inductance {secant_inductance:.3f}")

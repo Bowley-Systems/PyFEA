@@ -76,6 +76,11 @@ class MagneticRenderer(BaseRenderer, ABC):
     def update_current(self, circuit: Circuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
 
+    @abstractmethod
+    def update_temperature(
+        self, material: Material, temperature: Quantity
+    ) -> Any:
+        """ Updates the materials based on temperature """
 
 class ThermalRenderer(BaseRenderer, ABC):
     """ Renderer interface for thermal problems """

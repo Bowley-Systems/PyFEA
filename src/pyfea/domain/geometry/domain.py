@@ -40,9 +40,9 @@ class Domain:
         )
         
     def __str__(self) -> str:
-        """ Returns the points name from Metadata.type """
+        """ Returns self._name """
         return self._name
 
     def __repr__(self) -> str:
-        """ Returns the points name from Metadata.type """
+        """ Returns self._name """
         return self._name     

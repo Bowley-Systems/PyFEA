@@ -15,7 +15,7 @@ from shapely.geometry import (
 from math import cos, sin, radians
 from pyfea.domain.units import (
     Material, Quantity, kelvin, dimensionless, THERMAL_CONDUCTIVITY,
-    VOLUMETRIC_HEAT_CAPACITY, VOLUMETRIC_HEATING, watt, meter
+    VOLUMETRIC_HEAT_CAPACITY, VOLUMETRIC_HEATING, watt, meter, TIME
 )
 
 from pyfea.domain.geometry.domain import Domain, BoundaryType, CoordinateSystem
@@ -29,29 +29,55 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
     """ Thermostatic renderer for FEMM (finite element magnetic methods) """
 
     def _suite_define(
-        self, problem_type: FEMMPhysicsTypes, depth: float | int
+        self, problem_type: FEMMPhysicsTypes, depth: float | int, 
+        time_step: Quantity = None, solution_file: str = None
     ) -> None:
         """ Defines the suite problem as magnetostatic """
-        femm.hi_probdef(
-            self.femm_unit,             # Default length unit in suite
-            problem_type,               # Planar or Axial Symmetric
-            self.tolerance,             # Meshing tolerance
-            depth                       # Planar depth extrusion 
-        )
+        if time_step:
+            femm.hi_probdef(
+                self.femm_unit,             # Default length unit in suite
+                problem_type,               # Planar or Axial Symmetric
+                self.tolerance,             # Meshing tolerance
+                depth,                      # Planar depth extrusion
+                30,
+                str(solution_file),
+                float(self._strip_quantity(time_step, TIME))
+            )
+        else:
+            femm.hi_probdef(
+                self.femm_unit,             # Default length unit in suite
+                problem_type,               # Planar or Axial Symmetric
+                self.tolerance,             # Meshing tolerance
+                depth,                      # Planar depth extrusion
+            )
         
         # Saves problem definitions for marching
         self.problem_type = problem_type
         self.depth = depth
     
-    def tolerance_march(self, new_tolerance: float) -> None:
+    def tolerance_march(
+        self, new_tolerance: float, 
+        time_step: Quantity = None, solution_file: str = None
+    ) -> None:
         """ Defines the suite problem with new tolerance """
-        femm.hi_probdef(
-            self.femm_unit,             # Default length unit in suite
-            self.problem_type,          # Problem type defined during setup
-            float(new_tolerance),       # New meshing tolerance
-            self.depth                  # Depth of problem defined during setup
-        )
-        
+        if time_step:
+            femm.hi_probdef(
+                self.femm_unit,             # Default length unit in suite
+                self.problem_type,          # Problem type defined during setup
+                float(new_tolerance),       # New meshing tolerance
+                self.depth,                 # Depth of problem defined during setup
+                30,
+                str(solution_file),
+                float(self._strip_quantity(time_step, TIME))
+            )
+        else:
+            femm.hi_probdef(
+                self.femm_unit,             # Default length unit in suite
+                self.problem_type,          # Planar or Axial Symmetric
+                float(new_tolerance),       # Meshing tolerance
+                self.depth,                 # Planar depth extrusion
+            )
+
         self.tolerance = new_tolerance
     
     def draw_domain(self, domain: Domain):
@@ -111,54 +137,13 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         self, element_id: Quantity, magnitude: Quantity, angle: Quantity
     ) -> None:
         """ Moves a element by a vector; expects degrees """
-        self.check_active()
-        
-        try:
-            element_id = self._strip_quantity(element_id, dimensionless) 
-            magnitude = self._strip_quantity(magnitude, meter)
-            angle = self._strip_quantity(angle, dimensionless)
-            
-            rad_angle = radians(angle)
-            dx = magnitude * cos(rad_angle)
-            dy = magnitude * sin(rad_angle)
-            
-            femm.hi_selectgroup(element_id)
-            femm.hi_movetranslate(dx, dy)
-    
-            femm.hi_clearselected()
-            self._save_changes()
-
-        except Exception as err:
-            # NOTE: Add a fallback that rebuilds the geometry from scratch
-            msg = f"Failed to move element {element_id!r} due to {err}"
-            raise RendererError(msg)
+        raise RendererError(f"move element not implemented for {self.__class__.__name__}")
 
     def rotate_element(
         self, element_id: Quantity, axis: Quantity, angle: Quantity
     ) -> None:
         """ Rotates a element by angle around a center axis; expects degrees"""
-        self.check_active()
-        if self.coordinate_system == CoordinateSystem.AXI_SYMMETRIC:
-            msg = f"Element cannot be rotated in axially symmetrical models"
-            raise RendererError(msg)
-
-        try:
-            element_id = self._strip_quantity(element_id, dimensionless)
-            axis = self._strip_quantity(axis, meter)
-            angle = self._strip_quantity(angle, dimensionless)
-            
-            x, y = axis
-            
-            femm.hi_selectgroup(element_id)
-            femm.hi_moverotate(x, y, angle)
-            
-            femm.hi_clearselected()
-            self._save_changes()
-        
-        except Exception as err:
-            # NOTE: Add a fallback that rebuilds the geometry from scratch
-            msg = f"Failed to rotate element {element_id!r} due to {err}"
-            raise RendererError(msg)
+        raise RendererError(f"move rotate not implemented for {self.__class__.__name__}")
     
     @classmethod
     def pre_defined(cls, name: str, loaded: list[str]) -> str:
@@ -191,7 +176,6 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         except Exception as err:
             msg = f"Failed to update {material_name!r} within femm: {err}"
             raise RendererError(msg)
-        
     
     def _draw_polygon_boundaries(
         self, polygon: ShapelyPolygon,

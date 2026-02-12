@@ -2,22 +2,8 @@
 format: 0.1.0
 unit_frame: SI_METRIC_NON_DERIVED
 
-[notes]
-# The configuration file describes a tubular synchronous linear motor simulation.
-# It is simulated via electro-magneto-thermal-mechanical quasi-transient loop in
-# axial-symmetric coordinate system (Z-R) (Axial-radial).
-
-# It uses a Proportional Derivative current and Proportional integral position 
-# controller which allows the armature to be moved from an initial to a final position. 
-# This allows for model characterisation for either optimization or verification. 
-
 [numerical]
-de_solver_maximum_steps:    10000
-initial_current:            1.0 m(A)
-
-[motion]
-target_speed:               200 m(m*s^-1)
-axial_displacement:         150 m(m)
+initial_current:            20 m(A)
 
 [circuit]
 supply_voltage:             24  (kg*m^2*s^-3*A^-1)   # Volts

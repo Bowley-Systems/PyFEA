@@ -96,18 +96,6 @@ class FEMMSolver(BaseSolver, ABC):
                 logging.info(msg)
                 
                 self._change_tolerance(new_tolerance)
-
-    def _clean_up(self) -> None:
-        """ Closes FEMM and removes the .ans file """
-        self.renderer._clean_up()
-        
-        ans_path = self.renderer.file_path.with_suffix(".ans")
-        if ans_path.exists():
-            try:
-                ans_path.unlink()
-            except Exception as err:
-                msg = f"{self.__class__.__name__} could not delete .ans file: {err}"
-                logging.warning(msg)
    
     def _setup_check(self, method: str) -> None:
         """ Checks if the problem has be setup """

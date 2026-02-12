@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from pathlib import Path
 
-from pyfea.domain.units import Quantity
+from pyfea.domain.units import Quantity, Material
 from pyfea.domain.geometry.domain import Domain
 from pyfea.domain.circuits.builder import Circuit
 
@@ -94,6 +94,12 @@ class MagneticSolver(BaseSolver):
     @abstractmethod
     def update_current(self, circuit: Circuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
+
+    @abstractmethod
+    def update_temperature(
+        self, material: Material | list[Material], temperature: Quantity
+    ) -> Any:
+        """ Updates the materials based on temperature """
 
 class ThermalSolver(BaseSolver):
     """ Solver interface for thermal problems """

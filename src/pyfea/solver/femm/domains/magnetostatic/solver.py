@@ -9,10 +9,11 @@ Description:
 """
 
 import femm
+import logging
 
 from typing import Any
 
-from pyfea.domain.units import Quantity, ampere, volt, weber, newton, meter, tesla
+from pyfea.domain.units import Quantity, Material, ampere, volt, weber, newton, meter, tesla
 from pyfea.solver.solver_interface import MagneticSolver
 from pyfea.solver.solver_outputs import (
     SolverOutputs, CircuitOptions, MagneticOptions, SolverSolutions
@@ -62,6 +63,10 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         self._setup_check("moving an element")
         self.renderer.move_element(element_id, magnitude, angles)
 
+    def move_elements(self, element_ids, magnitude, angles):
+        self._setup_check("moving an element")
+        self.renderer.move_element(element_ids, magnitude, angles)
+    
     def rotate_element(self, element_id, axis, angles):
         self._setup_check("rotating an element")
         self.renderer.rotate_element(element_id, axis, angles)
@@ -70,6 +75,15 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         """ Updates the the current in a specific circuit """
         self._setup_check("updating currents")
         self.renderer.update_current(circuit)
+    
+    def update_temperature(self, material: list[Material] | Material, temperature):
+        """ Update temperature of materials within FEMM suite """
+        if not isinstance(material, (list, tuple)):
+            material = [material]
+            
+        self._setup_check("updating temperature")
+        for mat in material:
+            self.renderer.update_temperature(mat, temperature)
     
     def _circuit_outputs(
         self, option: CircuitOptions, circuit: Circuit
@@ -89,8 +103,9 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 if abs(current) > tolerance * ampere: 
                     return circuit_properties[1] / current
 
-                msg  = f"Failed to calculate resistance, {current} < {tolerance}"
-                raise SolverError(msg)
+                msg = f"Failed to calculate resistance, {current} < {tolerance}"
+                logging.error(msg)
+                return 0.0 * (circuit_properties[1].unit / current.unit)
 
             case _:
                 name = name = self.__class__.__name__
@@ -162,3 +177,15 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 f"for element {group}: {e}"
             )
             raise SolverError(msg)
+        
+    def _clean_up(self) -> None:
+        """ Closes FEMM and removes the .ans file """
+        self.renderer._clean_up()
+        
+        # ans_path = self.renderer.file_path.with_suffix(".ans")
+        # if ans_path.exists():
+        #     try:
+        #         ans_path.unlink()
+        #     except Exception as err:
+        #         msg = f"{self.__class__.__name__} could not delete .ans file: {err}"
+        #         logging.warning(msg)
