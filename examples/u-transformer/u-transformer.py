@@ -74,7 +74,7 @@ RequestedOutputs.add_circuit(phase_a, CircuitOptions.CURRENT)
 RequestedOutputs.add_circuit(phase_a, CircuitOptions.VOLTAGE)
 
 solver = FEMMMagnetostaticSolver(folder_location)
-solver.setup(simulation_domain, 20 * mm)
+solver.setup(simulation_domain, "test", depth=20 * mm)
 
 flux_linkage = []
 current = []

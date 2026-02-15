@@ -19,6 +19,7 @@ from pyfea.solver.solver_outputs import (
     SolverOutputs, CircuitOptions, MagneticOptions, SolverSolutions
 )
 
+from pyfea.domain.geometry.domain import Domain
 from pyfea.solver.femm.base_solver import FEMMSolver, SolverError
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.magnetostatic.renderer import FEMMMagnetostaticRenderer
@@ -27,12 +28,26 @@ from pyfea.domain.circuits.builder import Circuit
 
 class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
     """ Magnetostatic Solver for FEMM (finite element magnetic methods) """
-    def _create_renderer(self, tolerance: float) -> FEMMMagnetostaticRenderer:
-        femm_file = self.folder_path / "magnetostatic.fem"
+    def _create_renderer(self, filename: str, tolerance: float) -> FEMMMagnetostaticRenderer:
+        femm_file = self.folder_path / f"{filename}.fem"
         
+        self.filename = filename
         return FEMMMagnetostaticRenderer(
             femm_file, FEMMPhysicsTypes.magnetostatic, tolerance
         )
+    
+    def setup(
+        self, simulation_domain: Domain, filename: str = "magnetostatic", depth: Quantity = 0 * meter
+    ) -> SolverSolutions:
+        """ Setups the problem in FEMMRenderer """
+        # Sets up the FEMM suite under the users coordinate system
+        coordinate_system = simulation_domain.coordinate_system
+        self.renderer = self._create_renderer(filename, self.tolerance)
+        self.renderer.setup(coordinate_system, depth)
+
+        # Draws the domain to the FEMM suite 
+        self.renderer.draw_domain(simulation_domain)
+        self.problem_setup = True
     
     def _domain_analyse(self, outputs: SolverOutputs):
         """ Solves the problem defined within the FEMM suite """

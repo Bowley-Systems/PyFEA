@@ -7,7 +7,6 @@ Description:
     solves the problem with tolerance marching
 """
 
-import femm
 import logging
 
 from pathlib import Path
@@ -36,24 +35,13 @@ class FEMMSolver(BaseSolver, ABC):
         """ Initializes the FEMM solver and FEMM renderer """  
         self._folder_path_exist(folder_path)
 
+        self.tolerance = tolerance
         self.max_attempts = max_attempts
         self.max_tolerance = max_tolerance
         
         # Overrides the FEMMRenderer on BaseRenderer
-        self.renderer: FEMMRenderer = self._create_renderer(tolerance)
+        self.renderer: FEMMRenderer = None
         self.problem_setup = False
-
-    def setup(
-        self, simulation_domain: Domain, depth: Quantity = 0 * LENGTH
-    ) -> SolverSolutions:
-        """ Setups the problem in FEMMRenderer """
-        # Sets up the FEMM suite under the users coordinate system
-        coordinate_system = simulation_domain.coordinate_system
-        self.renderer.setup(coordinate_system, depth)
-
-        # Draws the domain to the FEMM suite 
-        self.renderer.draw_domain(simulation_domain)
-        self.problem_setup = True
 
     def solve(self, outputs: SolverOutputs):
         """ Solves the problem constructed by the FEMMRenderer """
@@ -93,7 +81,7 @@ class FEMMSolver(BaseSolver, ABC):
                     f"{self.renderer.tolerance}: {err}. "
                     f"Retrying with tolerance {new_tolerance}"
                 )
-                logging.info(msg)
+                # logging.info(msg)
                 
                 self._change_tolerance(new_tolerance)
    
@@ -128,7 +116,7 @@ class FEMMSolver(BaseSolver, ABC):
         return result
 
     @abstractmethod
-    def _create_renderer(self, tolerance: float) -> FEMMRenderer:
+    def _create_renderer(self, filename: str, tolerance: float) -> FEMMRenderer:
         """ Overrides the BaseSolver abstractmethod to include tolerance """
         
     @abstractmethod

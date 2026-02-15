@@ -7,7 +7,7 @@ Description:
     And also defines the 
 """
 
-from typing import Any
+from typing import Any, Iterable
 from enum import Enum, auto
 
 from pyfea.domain.circuits.builder import Circuit
@@ -40,24 +40,41 @@ class ThermalOptions(Enum):
     FLUX_OVER_ELEMENT       = auto()
     GRADIENT_OVER_ELEMENT   = auto()
 
+
 class SolverOutputs:
+    """ Select outputs for the solver to compute """
     def __init__(self):
         """ Initializes the internal map for reference """
-        
         # Tuple storage as key ensures that each combination is unique
         self.registry: dict[tuple[Any, Any], Any] = {}
-    
-    def add_circuit(self, circuit: Circuit, output: CircuitOptions) -> None:
-        """ Requests a circuit output and the circuit to probe """
-        self.registry[(circuit, output)] = circuit
 
-    def add_magnetic(self, element_id: Any, output: MagneticOptions) -> None:
+    def _register(self, entity: Any, outputs: Any | Iterable[Any]) -> None:
+        """Handles both single output objects and lists/tuples of outputs."""
+        # Treat strings as single items, otherwise check if it's iterable
+        if isinstance(outputs, (list, tuple)):
+            for opt in outputs:
+                self.registry[(entity, opt)] = entity
+        else:
+            self.registry[(entity, outputs)] = entity
+
+    def add_circuit(
+        self, circuit: Circuit, output: CircuitOptions | list[CircuitOptions]
+    ) -> None:
+        """" Requests a circuit output and the circuit to probe """
+        self._register(circuit, output)
+
+    def add_magnetic(
+        self, element_id: Any, output: MagneticOptions | list[MagneticOptions]
+    ) -> None:
         """ Requests a magnetic output and the element to probe """
-        self.registry[(element_id, output)] = element_id
+        self._register(element_id, output)
 
-    def add_thermal(self, element_id: Any, output: ThermalOptions) -> None:
+    def add_thermal(
+        self, element_id: Any, output: ThermalOptions | list[ThermalOptions]
+    ) -> None:
         """ Requests a thermal output and the element to probe """
-        self.registry[(element_id, output)] = element_id
+        self._register(element_id, output)
+
 
 class SolverSolutions:
     def __init__(self, data_dict: dict = None, **kwargs):

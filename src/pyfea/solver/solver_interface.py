@@ -35,23 +35,25 @@ class BaseSolver(ABC):
         """ Initializes the solver and renderers the geometry """
         # Renderer & folder path
         self._folder_path_exist(folder_path)
-        self.renderer: BaseRenderer = self._create_renderer()
+        self.tolerance = 1e-10
+        self.renderer = None
 
     @abstractmethod
     def setup(
         self,
-        simulation_domain: Domain
+        simulation_domain: Domain,
+        filename: str
     ) -> None:
         """ Setups the solver problem via the renderer """
-    
+        self.renderer: BaseRenderer = self._create_renderer(filename, self.tolerance)
+
     @abstractmethod
     def solve(self,  outputs: SolverOutputs) -> SolverSolutions:
         """ Solves the problem defined by user during initialization """
     
     @abstractmethod
-    def _create_renderer(self) -> BaseRenderer:
+    def _create_renderer(self, filename: str, tolerance: float) -> BaseRenderer:
         """ Subclasses instantiate their specific renderer """
-        pass
     
     @abstractmethod
     def _clean_up(self) -> None:

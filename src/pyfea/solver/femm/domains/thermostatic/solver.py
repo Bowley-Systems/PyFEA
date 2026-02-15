@@ -19,27 +19,40 @@ from pyfea.solver.solver_outputs import (
     SolverOutputs, ThermalOptions, SolverSolutions
 )
 
-from pyfea.domain.units import Quantity, LENGTH, TIME
+from pyfea.domain.units import Quantity, LENGTH, TIME, Material, meter, kelvin, watt
 from pyfea.domain.geometry.domain import Domain
 
-from pyfea.domain.units import Quantity, Material, meter, kelvin, watt
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.thermostatic.renderer import FEMMThermostaticRenderer
 
 class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
     """ Thermostatic Solver for FEMM (finite element magnetic methods) """
-    def _create_renderer(self, tolerance: float) -> FEMMThermostaticRenderer:
-        femm_file = self.folder_path / "Thermostatic.feh"
-        
+    def _create_renderer(self, filename: str, tolerance: float) -> FEMMThermostaticRenderer:
+        femm_file = self.folder_path / f"{filename}.feh"
+
+        self.filename = filename
         return FEMMThermostaticRenderer(
             femm_file, FEMMPhysicsTypes.thermostatic, tolerance
         )
+
+    def setup(
+        self, simulation_domain: Domain, filename: str = "thermostatic", depth: Quantity = 0 * meter
+    ) -> SolverSolutions:
+        """ Setups the problem in FEMMRenderer """
+        # Sets up the FEMM suite under the users coordinate system
+        coordinate_system = simulation_domain.coordinate_system
+        self.renderer = self._create_renderer(filename, self.tolerance)
+        self.renderer.setup(coordinate_system, depth)
+
+        # Draws the domain to the FEMM suite 
+        self.renderer.draw_domain(simulation_domain)
+        self.problem_setup = True
 
     def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * TIME):
         """ Solves the problem constructed by the FEMMRenderer """
         self._setup_check("solving")
         if time_step:
-            ans_path = Path("Thermostatic.anh")
+            ans_path = Path(f"{self.filename}.anh")
             self.renderer._suite_define(
                 self.renderer.problem_type,
                 self.renderer.depth,
@@ -57,7 +70,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
                     f"Solved problem with tolerance {self.renderer.tolerance} "
                     f"on attempt {attempt}"
                 )
-                logging.info(msg)
+                # logging.info(msg)
 
                 self._clean_up()
                 return solution
@@ -92,7 +105,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         
         try:
             if time_step:
-                ans_path = Path("Thermostatic.anh")
+                ans_path = Path(f"{self.filename}.anh")
                 self.renderer.tolerance_march(tolerance, time_step, ans_path)
 
         except Exception as err:
