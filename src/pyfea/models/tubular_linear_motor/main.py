@@ -155,13 +155,13 @@ class TubularLinearMotor:
             self.total_poles * self.pole_pitch
         )
     
-    def build_poles(self) -> list[VectorGeometry]:
+    def build_poles(self, num_poles: Quantity) -> list[VectorGeometry]:
         """ Builds the stator poles which are enclosed within the stator tube """
         config = self.config
-        
+
         poles = []
-        for pole in range(0, self.total_poles.value):
-            offset = - self.total_poles * self.pole_pitch / 2
+        for pole in range(0, num_poles.value):
+            offset = - num_poles * self.pole_pitch / 2
             bottom_left = offset + pole * self.pole_pitch
             
             poles.append(
@@ -258,7 +258,7 @@ class magnetic_domain:
         """ Builds the magnetic simulation for the tubular linear motor """
         # Builds Armature and Stator geometry
         core, slots = default.build_core(), default.build_slots()
-        tube, poles = default.build_tube(), default.build_poles()
+        tube, poles = default.build_tube(), default.build_poles(default.total_poles)
     
         # Defines simulation parts via promoting and metadata
         parts = []
@@ -334,7 +334,7 @@ class thermal_domain:
         """ Builds the thermal simulation for the tubular linear motor """
         # Builds Armature and Stator geometry
         core, slots = default.build_core(), default.build_slots()
-        tube, poles = default.build_tube(), default.build_poles()
+        tube, poles = default.build_tube(), default.build_poles(2 * default.config.model.number_pairs + 2)
         
         # Defines simulation parts via promoting and metadata
         parts = []

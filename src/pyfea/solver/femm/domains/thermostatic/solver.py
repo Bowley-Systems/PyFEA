@@ -51,7 +51,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
     def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * TIME):
         """ Solves the problem constructed by the FEMMRenderer """
         self._setup_check("solving")
-        if time_step:
+        if time_step.value > 0:
             ans_path = Path(f"{self.filename}.anh")
             self.renderer._suite_define(
                 self.renderer.problem_type,
@@ -59,12 +59,18 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
                 time_step,
                 ans_path
             )
-        
+        else:
+            self.renderer._suite_define(
+                self.renderer.problem_type,
+                self.renderer.depth,
+                time_step,
+            )
+
         for attempt in range(0, self.max_attempts):
             try:
                 # Opens FEMM suite as a hidden window
                 self.renderer.check_active()
-                
+
                 solution = self._domain_analyse(outputs)
                 msg = (
                     f"Solved problem with tolerance {self.renderer.tolerance} "
@@ -74,7 +80,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
 
                 self._clean_up()
                 return solution
-            
+
             except Exception as err:
                 if (
                     self.renderer.tolerance > self.max_tolerance or 

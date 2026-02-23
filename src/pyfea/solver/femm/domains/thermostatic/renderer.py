@@ -12,13 +12,12 @@ import femm
 from shapely.geometry import (
     Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon
 )
-from math import cos, sin, radians
 from pyfea.domain.units import (
     Material, Quantity, kelvin, dimensionless, THERMAL_CONDUCTIVITY,
-    VOLUMETRIC_HEAT_CAPACITY, VOLUMETRIC_HEATING, watt, meter, TIME
+    VOLUMETRIC_HEAT_CAPACITY, VOLUMETRIC_HEATING, watt, meter, TIME, second
 )
 
-from pyfea.domain.geometry.domain import Domain, BoundaryType, CoordinateSystem
+from pyfea.domain.geometry.domain import Domain, BoundaryType
 from pyfea.domain.geometry.elements.metadata import ThermalData
 
 from pyfea.solver.renderer_interface import ThermalRenderer, RendererError
@@ -30,10 +29,10 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
 
     def _suite_define(
         self, problem_type: FEMMPhysicsTypes, depth: float | int, 
-        time_step: Quantity = None, solution_file: str = None
+        time_step: Quantity = 0 * second, solution_file: str = None
     ) -> None:
         """ Defines the suite problem as magnetostatic """
-        if time_step:
+        if time_step.value > 0:
             femm.hi_probdef(
                 self.femm_unit,             # Default length unit in suite
                 problem_type,               # Planar or Axial Symmetric
