@@ -58,6 +58,7 @@
     "xlabel",
     "twinx",
     "labelcolor",
-    "figsize"
+    "figsize",
+    "PTFE",
   ]
 }

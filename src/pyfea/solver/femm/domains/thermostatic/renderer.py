@@ -10,7 +10,7 @@ Description:
 
 import femm
 from shapely.geometry import (
-    Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon
+    Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon, point as ShapelyPoint
 )
 from pyfea.domain.units import (
     Material, Quantity, kelvin, dimensionless, THERMAL_CONDUCTIVITY,
@@ -87,8 +87,8 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         )
 
         # Draws the domain boundary and add boundary condition
-        CSG_domain = FEMMCSG.evaluate_csg_tree(domain.shape)
-        self._draw_polygon_boundaries(CSG_domain, self.environmental_data, environmental_boundary_name)
+        csg_domain = FEMMCSG.evaluate_csg_tree(domain.shape)
+        self._draw_polygon_boundaries(csg_domain, self.environmental_data, environmental_boundary_name)
         
         # Draws part boundaries and labels solids for all parts
         domain_parts = domain.parts
@@ -99,20 +99,20 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
 
         for part in domain_parts:
             # Constructs shapely geometry via csg tree evaluation
-            CSG_polygon = FEMMCSG.evaluate_csg_tree(part.geometry)
-            parts_geometries.append(CSG_polygon)
-            
+            csg_polygon = FEMMCSG.evaluate_csg_tree(part.geometry)
+            parts_geometries.append(csg_polygon)
+
             # Draws outer and inter boundary to FEMM
-            self._draw_polygon_boundaries(CSG_polygon)
-            element_coord = FEMMCSG.polygon_solid_centroid(CSG_polygon, self.tolerance)
+            self._draw_polygon_boundaries(csg_polygon)
+            element_coord = FEMMCSG.polygon_solid_centroid(csg_polygon, self.tolerance)
             self._add_properties(element_coord, part.metadata)
 
         # Computes part region complement
-        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain, self.tolerance)
-        
+        parts_complement = FEMMCSG.part_complement(parts_geometries, csg_domain)
+
         if parts_complement.is_empty:
-            RendererError("Environmental regions are empty; Check geometry overlaps")
-        
+            raise RendererError("Environmental regions are empty; Check geometry overlaps;")
+
         if isinstance(parts_complement, ShapelyPolygon):
             self._draw_polygon_boundaries(
                 parts_complement, self.environmental_data, environmental_boundary_name, False
@@ -125,11 +125,11 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                     polygon, self.environmental_data, environmental_boundary_name, False
                 )
                 self._label_environmental_region(polygon)
-        
+
         else:
             msg = f"Unexpected environmental geometry type: {type(parts_complement)}"
             raise RendererError(msg)
-        
+    
         self._save_changes()
     
     def move_element(
@@ -174,7 +174,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
 
         except Exception as err:
             msg = f"Failed to update {material_name!r} within femm: {err}"
-            raise RendererError(msg)
+            raise RendererError(msg) from err
     
     def _draw_polygon_boundaries(
         self, polygon: ShapelyPolygon,
@@ -221,19 +221,44 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                     )
                     femm.hi_clearselected()
                     
-    
+    def _is_already_defined(self, pt: ShapelyPoint) -> bool:
+        """Check if this point is close enough to any previously placed label"""
+        px, py = pt.x, pt.y
+
+        for existing in self.defined_area:
+            ex, ey = existing.x, existing.y
+            # rounded coordinate equality than checks (primary check)
+            if (round(px, 7) == round(ex, 7) and
+                round(py, 7) == round(ey, 7)):
+                return True
+
+            # Distance-based check (secondary check)
+            if ((px - ex)**2 + (py - ey)**2) < self.tolerance**2:
+                return True
+
+        return False
+
     def _label_environmental_region(self, polygon: ShapelyPolygon) -> None:
         """ Adds environmental label to a single polygon region """
+        if polygon.is_empty or polygon.area < self.junk_scale:
+            return
+
+        # Early exit if we already have a label very close by (Assumes defined)
         coordinates = FEMMCSG.polygon_solid_centroid(polygon, self.tolerance)
+        if self._is_already_defined(coordinates):
+            return
+
+        # If coordinate not known, we add properties and accept it as defined.
+        self.defined_area.append(coordinates)    
         self._add_properties(coordinates, self.environmental_data)
-    
+
     def _add_properties(
-        self, coordinates: tuple[float, float], metadata: ThermalData
+        self, coordinates: ShapelyPoint, metadata: ThermalData
     ) -> None:
         """ Sets element properties via adding a block-label """
         try:
-            femm.hi_addblocklabel(float(coordinates[0]), float(coordinates[1]))
-            femm.hi_selectlabel(float(coordinates[0]), float(coordinates[1]))
+            femm.hi_addblocklabel(float(coordinates.x), float(coordinates.y))
+            femm.hi_selectlabel(float(coordinates.x), float(coordinates.y))
             
             # Adds or retrieve the material name and converts element id
             material_name = self._add_material(metadata)
@@ -251,14 +276,14 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         except Exception as err:
             name = self.__class__.__name__
             msg = f"Failed to set properties for {element_id!r} in {name}: {err}"
-            raise RendererError(msg)
+            raise RendererError(msg) from err
 
-    def _create_environmental_boundary_property(self, property: BoundaryType) -> str:
+    def _create_environmental_boundary_property(self, boundary: BoundaryType) -> str:
         """ Adds boundary property to the outer domain boundary """
         self.check_active()
         meta_data: ThermalData = self.environmental_data
         
-        match property:
+        match boundary:
             case BoundaryType.DIRICHLET:
                 try:
                     temperature = self._strip_quantity(meta_data.temperature, kelvin)
@@ -268,7 +293,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
 
                 except Exception as err:
                     msg = f"Failed to create dirichlet boundary condition: {err}"
-                    raise RendererError(msg)
+                    raise RendererError(msg) from err
 
             case BoundaryType.CONVECTION:
                 try:
@@ -285,7 +310,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
     
                 except Exception as err:
                     msg = f"Failed to create convection boundary condition: {err}"
-                    raise RendererError(msg)    
+                    raise RendererError(msg) from err 
             case _:
                 msg = f"{property!r} not supported by {self.__class__.__name__}"
                 raise RendererError(msg)
@@ -351,7 +376,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
        
         except Exception as err:
             msg = f"Failed to add {material_name!r} as a material within femm: {err}"
-            raise RendererError(msg)
+            raise RendererError(msg) from err
 
     def _save_changes(self):
         """ Manages the changes to the femm file """

@@ -11,7 +11,7 @@ last_updated: "2026-01-19"
 
 [stc_air.physical]
 pressure: 101.325 k(kg*m^-1*s^-2)
-density: 1.184   (kg*m^-3)
+density: 1.184  (kg*m^-3)
 
 [stc_air.magnetic]
 relative_permeability: [1.0, 1.0]  
@@ -296,4 +296,43 @@ temp_dependence: [
   [500.0, 1.0],
   [600.0, 1.0],
   [700.0, 1.0]
+] (K), (kg*m*s^-3*K^-1)
+
+[PTFE_unfilled.meta]
+tag: "material"
+note: "PTFE without any fillers such as glass fibre, carbon fibre, graphite etc"
+last_updated: "2026-02-25"
+
+[PTFE_unfilled.physical]
+density: 2160 (kg*m^-3)
+
+[PTFE_unfilled.magnetic]
+relative_permeability: [1.0, 1.0]
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[PTFE_unfilled.electrical]
+relative_permittivity: [2.1, 2.1]
+conductivity: 1e-17 (kg^-1*m^-3*s^3*A^2)
+temp_dependence: [
+[200.0, 1e-17],
+[250.0, 1e-17],
+[300.0, 1e-17],
+[350.0, 1e-17],
+[400.0, 1e-17],
+[450.0, 1e-17],
+[500.0, 1e-17]
+] (K), (kg^-1*m^-3*s^3*A^2)
+
+[PTFE_unfilled.thermal]
+volumetric_heat_capacity: 2.10e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [0.25, 0.25] (kg*m*s^-3*K^-1)
+temp_dependence: [
+[200.0, 0.23],
+[250.0, 0.24],
+[300.0, 0.25],
+[350.0, 0.25],
+[400.0, 0.26],
+[450.0, 0.26],
+[500.0, 0.27]
 ] (K), (kg*m*s^-3*K^-1)

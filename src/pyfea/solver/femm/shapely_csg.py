@@ -126,18 +126,16 @@ class FEMMConstructSolidGeometry:
     @classmethod
     def polygon_solid_centroid(
         cls, polygon: ShapelyPolygon, tolerance: float
-    ) -> tuple[float, float]:
+    ) -> ShapelyPoint:
         """ Returns a point guaranteed to be inside of the solid material of a polygon """
-        point = polylabel(polygon, tolerance)
-        return point.x, point.y
+        return polylabel(polygon, tolerance)
     
     @classmethod
     def part_complement(
-        self, parts: list[ShapelyPolygon], domain: ShapelyPolygon, tolerance: float
+        self, parts: list[ShapelyPolygon], domain: ShapelyPolygon
     ) -> ShapelyGeometry:
         """ Computes the complement of the part regions within domain set"""
-        buffered_parts = [p.buffer(-tolerance * 0.01) for p in parts]  # tiny inward shrink
-        domain_union = unary_union(buffered_parts)
+        domain_union = unary_union(parts)
         return domain.difference(domain_union)
     
     @classmethod

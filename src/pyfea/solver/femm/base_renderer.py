@@ -14,6 +14,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from shapely.geometry import Point as ShapelyPoint
 from pyfea.domain.units import Quantity, LENGTH
 from pyfea.domain.geometry.definitions import CoordinateSystem
 
@@ -44,9 +45,11 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.femm_unit = "meters"
         self.suite_is_active = False
         self.tolerance = tolerance
+        self.junk_scale = 1e-12
         self.depth = 1 * LENGTH
         
         # Simulation variables
+        self.defined_area: list[ShapelyPoint] = []
         self.boundary_name: str = ""
         self.environmental_data: Any = ""
         self.materials: list[str] = []

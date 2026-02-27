@@ -12,7 +12,8 @@ import femm
 
 from math import cos, sin, radians
 from shapely.geometry import (
-    Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon
+    Polygon as ShapelyPolygon, MultiPolygon as ShapelyMultiPolygon, 
+    point as ShapelyPoint
 )
 from pyfea.domain.units import (
     LENGTH, COERCIVITY, CONDUCTIVITY, DIMENSIONLESS, CURRENT,
@@ -79,30 +80,30 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             # Constructs shapely geometry via csg tree evaluation
             CSG_polygon = FEMMCSG.evaluate_csg_tree(part.geometry)
             parts_geometries.append(CSG_polygon)
-            
+
             # Draws outer and inter boundary to FEMM
             self._draw_polygon_boundaries(CSG_polygon, metadata=part.metadata)
             element_coord = FEMMCSG.polygon_solid_centroid(CSG_polygon, self.tolerance)
             self._add_properties(element_coord, part.metadata)
 
         # Computes part region complement
-        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain, self.tolerance)
-        
+        parts_complement = FEMMCSG.part_complement(parts_geometries, CSG_domain)
+
         if parts_complement.is_empty:
-            RendererError("Environmental regions are empty; Check geometry overlaps")
-        
+            raise RendererError("Environmental regions are empty; Check geometry overlaps")
+
+        # Label environmental regions
         if isinstance(parts_complement, ShapelyPolygon):
             self._label_environmental_region(parts_complement)
         elif isinstance(parts_complement, ShapelyMultiPolygon):
-            for polygon in parts_complement.geoms:
-                self._label_environmental_region(polygon)
-        
+            for poly in parts_complement.geoms:
+                self._label_environmental_region(poly)
         else:
             msg = f"Unexpected environmental geometry type: {type(parts_complement)}"
             raise RendererError(msg)
-        
+
         self._save_changes()
-    
+
     def move_element(
         self, element_id: Quantity, magnitude: Quantity, angle: Quantity
     ) -> None:
@@ -142,11 +143,11 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         """ Rotates a element by angle around a center axis; expects degrees"""
         self.check_active()
         if self.coordinate_system == CoordinateSystem.AXI_SYMMETRIC:
-            msg = f"Element cannot be rotated in axially symmetrical models"
+            msg = "Element cannot be rotated in axially symmetrical models"
             raise RendererError(msg)
 
         try:
-            if isinstance(element_id.value, int, float, complex):
+            if isinstance(element_id.value, (int, float)):
                 groups_to_move = [element_id]
             else:
                 groups_to_move = element_id
@@ -288,16 +289,42 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                     femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
                     femm.mi_setsegmentprop("", 0, 0, 0, metadata.group.value)
                     femm.mi_clearselected()
-    
+
+    def _is_already_defined(self, pt: ShapelyPoint) -> bool:
+        """Check if this point is close enough to any previously placed label"""
+        px, py = pt.x, pt.y
+
+        for existing in self.defined_area:
+            ex, ey = existing.x, existing.y
+            # rounded coordinate equality than checks (primary check)
+            if (round(px, 7) == round(ex, 7) and
+                round(py, 7) == round(ey, 7)):
+                return True
+
+            # Distance-based check (secondary check)
+            if ((px - ex)**2 + (py - ey)**2) < self.tolerance**2:
+                return True
+
+        return False
+
     def _label_environmental_region(self, polygon: ShapelyPolygon) -> None:
         """ Adds environmental label to a single polygon region """
+        if polygon.is_empty or polygon.area < self.junk_scale:
+            return
+
+        # Early exit if we already have a label very close by (Assumes defined)
         coordinates = FEMMCSG.polygon_solid_centroid(polygon, self.tolerance)
+        if self._is_already_defined(coordinates):
+            return
+
+        # If coordinate not known, we add properties and accept it as defined.
+        self.defined_area.append(coordinates)    
         self._add_properties(coordinates, self.environmental_data)
 
-    def _create_boundary_property(self, property: BoundaryType) -> None:
+    def _create_boundary_property(self, boundary: BoundaryType) -> None:
         """ Adds boundary property to the outer domain boundary """
         self.check_active()
-        match property:
+        match boundary:
             case BoundaryType.DIRICHLET:
                 try:
                     femm.mi_addboundprop("A=0", 0, 0, 0, 0)
@@ -305,7 +332,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
 
                 except Exception as err:
                     msg = f"Failed to create dirichlet boundary condition: {err}"
-                    raise RendererError(msg)
+                    raise RendererError(msg) from err
             case _:
                 msg = f"{property!r} not supported by {self.__class__.__name__}"
                 raise RendererError(msg)
@@ -339,17 +366,17 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         
         except Exception as err:
             msg = f"Failed to add circuit {circuit.name!r} to FEMM: {err}"
-            raise RendererError(msg)
+            raise RendererError(msg) from err
 
     def _add_properties(
         self,
-        coordinates: tuple[float, float],
+        coordinates: ShapelyPoint,
         metadata: MagneticData
     ) -> None:
         """ Sets element properties via adding a block-label """
         try:
-            femm.mi_addblocklabel(float(coordinates[0]), float(coordinates[1]))
-            femm.mi_selectlabel(float(coordinates[0]), float(coordinates[1]))
+            femm.mi_addblocklabel(float(coordinates.x), float(coordinates.y))
+            femm.mi_selectlabel(float(coordinates.x), float(coordinates.y))
             
             # Adds or retrieve the material name and converts element id
             material_name = self._add_material(metadata)
