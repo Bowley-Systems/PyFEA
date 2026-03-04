@@ -32,4 +32,4 @@ Jump to the **release branch** for everything: <a href="https://github.com/wgbow
 ## Sneak Peak
 This example is of a tubular linear motor using quasi-transient modelling across multiple physics domains and took about 400 time steps.
 
-<img src="media/figure_12.png" alt="pyFea" >
+<img src="media/Figure_12.png" alt="pyFea" >
