@@ -1,37 +1,35 @@
-<img src="media/logo.png" alt="BlueShark Logo" width="200"/> 
+<p align="center">
+  <img src="media/banner.png" alt="pyFea" style="max-width:600px;">
+  <br>
+  <em>A Solver-Adaptor Engine for Multi-Physics Simulation & Optimization
+   – Built with headaches by <a href="https://github.com/wgbowley">William Bowley</a></em>
+</p>
 
-# An Idealized Linear Motor Design Explorer
 
-## Note: A work in progress 
-This repository is an active work in progress. It represents a core set of functionalities that were submitted as an early-release version for the RMIT Early Entry application. The code is currently being refactored from <code>v1.3-dev</code> to <code>release</code> and is also expanded upon.
- 
-## Overview  
-This package serves to explore linear motor designs quickly, providing easy integration for optimizers. It targets applications such as 3D printers, pick-and-place machines, laser cutters, and other electromechanical systems.
+## Overview
+Sick of glue code and brittle pipelines? Annoyed by having to learn 10 different APIs? What if we could have a single high-level API handle all translation, leaving us to focus on what we're good at? PyFea is a solver-adaptor engine that functions as a single high-level API for finite element and lumped parameter multi-physics problems. PyFea leverages (unit informed values) DSL and runtime checking for configuration files and material libraries. Currently, PyFea supports these physics domains: thermal, magnetic, electric, and electric circuits.
 
-This initial release supports FEMM (Finite Element Method Magnetics) as the primary solver and renderer. Planned future releases will expand support to include additional solvers.
+## Where to go next
 
-## Example Simulation
-A full example of a magnetic simulation of a tubular linear motor is available in the repository:
-[examples/tubular/simulate.py](examples/tubular_motor/tubular_motor.py)
+**Current status (March 2026)**  
+> The active, and installable version of pyfea is on the **`release`** branch.  
+> All the code, examples, documentation, packaging files (`setup.py`), and full README are there.
 
-## Installation
 
-1.  **Install FEMM**<br>  `(Windows Only)`
-    FEMM (Finite Element Method Magnetics) is a free, open-source tool for low-frequency electromagnetic simulations, ideal for motor design.
+Jump to the **release branch** for everything: <a href="https://github.com/wgbowley/PyFEA/tree/release">pyfea/release</a>
 
-    Download and install FEMM from the official website:  
-    [https://www.femm.info/wiki/HomePage](https://www.femm.info/wiki/HomePage)
+- Full README with usage examples, features, and philosophy  
+- Source code in `src/pyfea/`  
+- Practical examples in `examples/`  
+- Docs in `docs/` 
+- Ready-to-install setup files  
 
-    > Ensure FEMM is added to your system PATH or installed in the default location (usually `C:\femm42` on Windows) so the simulator can call it without issues.
+> [!NOTE]
+> PyPI is currently not the supported install path. Use manual installation via setup.py from the release branch instead. (No official release yet.)
 
-2.  **Install BlueShark**  
-    Clone the repository and install the package locally in editable mode:
+(Once stabilized, this main branch will be updated with the merged/final code.)
 
-    ```bash
-    git clone https://github.com/wgbowley/blueshark.git
-    cd blueshark
-    pip install -e .
-    ```
+## Sneak Peak
+This example is of a tubular linear motor using quasi-transient modelling across multiple physics domains and took about 400 time steps.
 
-## Usage
-This section is under development. A detailed usage example will be provided here soon.
+<img src="media/figure_12.png" alt="pyFea" >
