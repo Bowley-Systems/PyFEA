@@ -239,7 +239,7 @@ coercivity: 0.0 k(A*m^-1)
 remanence: 0.0 (kg*s^-2*A^-1)
 
 [isotropic_carbon_fibre.electrical]
-conductivity: 0.0 (kg^-1*m^-3*s^3*A^2)
+conductivity: 0.1 (kg^-1*m^-3*s^3*A^2)
 temp_dependence: [
   [200.0, 0.0],
   [300.0, 0.0],
@@ -335,4 +335,153 @@ temp_dependence: [
 [400.0, 0.26],
 [450.0, 0.26],
 [500.0, 0.27]
+] (K), (kg*m*s^-3*K^-1)
+
+[mineral_oil.meta]
+tag: "fluid"
+note: "Typical mineral oil (light or transformer grade); non-polar, low-acidity (no significant corrosion)"
+last_updated: "2026-03-09"
+
+[mineral_oil.physical]
+density: 860 (kg*m^-3)
+
+[mineral_oil.magnetic]
+relative_permeability: [1.0, 1.0]
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[mineral_oil.electrical]
+relative_permittivity: [2.2, 2.2]
+conductivity: 1e-12 (kg^-1*m^-3*s^3*A^2)
+temp_dependence: [
+[200.0, 1e-12],
+[250.0, 1e-12],
+[300.0, 1e-12],
+[350.0, 1e-12],
+[400.0, 1e-12],
+[450.0, 1e-12],
+[500.0, 1e-12]
+] (K), (kg^-1*m^-3*s^3*A^2)
+
+[mineral_oil.thermal]
+volumetric_heat_capacity: 1.75e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [0.130, 0.130] (kg*m*s^-3*K^-1)
+temp_dependence: [
+[200.0, 0.136],
+[250.0, 0.134],
+[300.0, 0.132],
+[350.0, 0.130],
+[400.0, 0.128],
+[450.0, 0.126],
+[500.0, 0.124]
+] (K), (kg*m*s^-3*K^-1)
+
+
+[aluminum_6061.meta]
+tag: "material"
+note: "Aluminum alloy 6061-T6 (most common temper); good strength, corrosion resistance via oxide layer"
+last_updated: "2026-03-09"
+
+[aluminum_6061.physical]
+density: 2700 (kg*m^-3)
+
+[aluminum_6061.magnetic]
+relative_permeability: [1.0, 1.0]
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[aluminum_6061.electrical]
+relative_permittivity: [1, 1]
+conductivity: 3.5e7 (kg^-1*m^-3*s^3*A^2)
+temp_dependence: [
+[273.0, 3.8e7],
+[300.0, 3.5e7],
+[373.0, 3.0e7],
+[473.0, 2.5e7]
+] (K), (kg^-1*m^-3*s^3*A^2)
+
+[aluminum_6061.thermal]
+volumetric_heat_capacity: 2.42e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [167, 167] (kg*m*s^-3*K^-1)
+temp_dependence: [
+[273.0, 180],
+[300.0, 167],
+[373.0, 160],
+[473.0, 150]
+] (K), (kg*m*s^-3*K^-1)
+
+[isotropic_cf_nylon.meta]
+tag: "composite"
+note: "Carbon fiber reinforced Polyamide 6 (PA6-CF, e.g. 20-30% chopped CF for 3D printing filament)"
+last_updated: "2026-03-10"
+
+[isotropic_cf_nylon.physical]
+density: 1150 (kg*m^-3)
+
+[isotropic_cf_nylon.magnetic]
+relative_permeability: [1.0, 1.0]
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[isotropic_cf_nylon.electrical]
+relative_permittivity: [3.5, 3.5]
+conductivity: 0.1 (kg^-1*m^-3*s^3*A^2)
+temp_dependence: [
+[200.0, 0.1],
+[300.0, 0.1],
+[400.0, 0.1],
+[500.0, 0.1],
+[600.0, 0.1],
+[700.0, 0.1]
+] (K), (kg^-1*m^-3*s^3*A^2)
+
+[isotropic_cf_nylon.thermal]
+volumetric_heat_capacity: 1.60e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [1.0, 1.0] (kg*m*s^-3*K^-1) 
+temp_dependence: [
+[200.0, 1.0],
+[300.0, 1.0],
+[400.0, 1.0],
+[500.0, 1.0],
+[600.0, 1.0],
+[700.0, 1.0]
+] (K), (kg*m*s^-3*K^-1)
+
+[isotropic_thermal_paste.meta]
+tag: "thermal_interface"
+note: "Typical non-electrically-conductive thermal paste/compound"
+last_updated: "2026-03-10"
+
+[isotropic_thermal_paste.physical]
+density: 2800 (kg*m^-3)
+
+[isotropic_thermal_paste.magnetic]
+relative_permeability: [1.0, 1.0]
+coercivity: 0.0 k(A*m^-1)
+remanence: 0.0 (kg*s^-2*A^-1)
+
+[isotropic_thermal_paste.electrical]
+relative_permittivity: [4.8, 4.8]
+conductivity: 1e-12 (kg^-1*m^-3*s^3*A^2)
+temp_dependence: [
+[200.0, 1e-12],
+[250.0, 1e-12],
+[300.0, 1e-12],
+[350.0, 1e-12],
+[400.0, 1e-12],
+[450.0, 1e-12],
+[500.0, 1e-12]
+] (K), (kg^-1*m^-3*s^3*A^2)
+
+[isotropic_thermal_paste.thermal]
+volumetric_heat_capacity: 2.50e6 (kg*m^-1*s^-2*K^-1)
+conductivity: [6.0, 6.0] (kg*m*s^-3*K^-1)
+temp_dependence: [
+[200.0, 6.2],
+[250.0, 6.1],
+[300.0, 6.0],
+[350.0, 5.9],
+[400.0, 5.8],
+[450.0, 5.7],
+[500.0, 5.6]
 ] (K), (kg*m*s^-3*K^-1)

@@ -85,7 +85,12 @@ class FEMMConstructSolidGeometry:
             ]
 
             if geometry.operation == CSOperation.UNION:
-                return unary_union(shapes)
+                base_shape = shapes[0]
+
+                for shape in shapes[1:]:
+                    base_shape = base_shape.union(shape)
+        
+                return base_shape
 
             elif geometry.operation == CSOperation.SUBTRACT:
                 base_shape = shapes[0]
