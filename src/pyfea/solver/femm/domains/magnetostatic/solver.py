@@ -115,7 +115,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 current = circuit_properties[0]
                 tolerance = self.renderer.tolerance
 
-                if abs(current) > tolerance * ampere: 
+                if abs(current) > tolerance * ampere:
                     return circuit_properties[1] / current
 
                 msg = f"Failed to calculate resistance, {current} < {tolerance}"

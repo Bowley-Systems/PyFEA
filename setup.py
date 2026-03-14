@@ -19,6 +19,9 @@ setup(
     author_email='wgrantbowley@gmail.com',
     packages=find_packages(where="src"),
     package_dir={"": "src"},
+    package_data={
+        "pyfea": ["library/*.ut", "library/*.uiv"],
+    },
     install_requires=[
         'PyYAML',
         'pyfemm',

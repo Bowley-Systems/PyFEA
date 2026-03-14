@@ -10,7 +10,8 @@ from typing import Optional, Any
 from pathlib import Path
 from importlib import resources
 
-from pyfea.domain.units import Material, Parser
+from pyfea.domain.units import Material, MaterialParser
+
 
 class MaterialManagerError(TypeError):
     """ Exception for Material Loader Error """
@@ -57,27 +58,27 @@ class MaterialManager:
                 if "grade" not in params:
                     msg = f"Material {name!r} requires parameter 'grade'"
                     raise MaterialManagerError(msg)
-                
+
                 grade_value = params["grade"]
                 if not isinstance(grade_value, str):
                     msg = f"'grade' must be a string not {type(grade_value)}"
                     raise MaterialManagerError(msg)
-                
+
                 try:
                     coercivity = 0
-                    remanence = 0 
+                    remanence = 0
 
                     grades = material.values().grades
                     for grade, values in zip(grades.keys(), grades.values()):
                         if grade == grade_value:
-                            coercivity, remanence = values[0][0], values[0][1]
-                    
+                            coercivity, remanence = values[0], values[1]
+
                     material.find_and_add(f"{name}.magnetic.remanence", remanence)
                     material.find_and_add(f"{name}.magnetic.coercivity", coercivity)
 
                 except:
                     msg = f"'{name!r}' is required to have a valid magnetic grades entry."
-                    raise MaterialManagerError(msg)  
+                    raise MaterialManagerError(msg) from None
 
         self.materials[name] = material
         return material
@@ -85,17 +86,19 @@ class MaterialManager:
     def _load_from_package(self) -> None:
         """ Loads the default material library """
         try:
-            with resources.open_text("library", "materials.uiv") as f:
-                self.material_library = Parser.open(f, loader_class=Material)
+            library = resources.files("library")
+            materials_path = library / "materials.uiv"
+
+            self.material_library = MaterialParser.open(str(materials_path), loader_class=Material)
 
         except Exception as err:
-            msg = f"""Failed to load library from package resources: {err}"""
+            msg = f"Failed to load library from package resources: {err}"
             raise MaterialManagerError(msg) from None
 
     def _load_from_path(self, file_path: Path) -> None:
         """ Loads the user material library from path """
         try:
-            self.material_library = Parser.open(file_path, loader_class=Material)
+            self.material_library = MaterialParser.open(file_path, loader_class=Material)
 
         except Exception as err:
             msg = f"""Failed to load library from {file_path!r}: {err}"""

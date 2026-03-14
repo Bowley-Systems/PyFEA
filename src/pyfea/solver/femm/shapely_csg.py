@@ -76,6 +76,7 @@ class FEMMConstructSolidGeometry:
 
     @classmethod
     def evaluate_csg_tree(cls, geometry: GeometryElement) -> ShapelyPolygon:
+        """ Collapses pyfea csg tree notation into shapely geometry """
         if isinstance(geometry, VectorGeometry):
             return cls.vector_to_shapely(geometry)
 
@@ -86,11 +87,14 @@ class FEMMConstructSolidGeometry:
 
             if geometry.operation == CSOperation.UNION:
                 base_shape = shapes[0]
+                if not shapes:
+                    raise RendererError("Empty union")
 
-                for shape in shapes[1:]:
-                    base_shape = base_shape.union(shape)
-        
-                return base_shape
+                result = unary_union(shapes)
+                if not result.is_valid:
+                    result = result.buffer(0)
+
+                return result
 
             elif geometry.operation == CSOperation.SUBTRACT:
                 base_shape = shapes[0]
@@ -137,7 +141,7 @@ class FEMMConstructSolidGeometry:
     
     @classmethod
     def part_complement(
-        self, parts: list[ShapelyPolygon], domain: ShapelyPolygon
+        cls, parts: list[ShapelyPolygon], domain: ShapelyPolygon
     ) -> ShapelyGeometry:
         """ Computes the complement of the part regions within domain set"""
         domain_union = unary_union(parts)

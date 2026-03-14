@@ -413,7 +413,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         except Exception as err:
             name = self.__class__.__name__
             msg = f"Failed to set properties for {element_id!r} in {name}: {err}"
-            raise RendererError(msg)
+            raise RendererError(msg) from None
         
     def _add_material(self, metadata: MagneticData) -> str:
         """ Adds a material to the FEMM suite using .UIV material """

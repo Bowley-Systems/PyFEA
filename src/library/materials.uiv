@@ -1,7 +1,9 @@
-[file]
-unit_frame: SI_METRIC_NON_DERIVED
-reference_temperature: 298.15 (K)
+[version]
 format: 0.1.0
+unit_frame: si_metric.ut
+
+[file]
+reference_temperature: 298.15 (K)
 
 [stc_air.meta]
 tag: "environmental"
@@ -190,17 +192,17 @@ Hc_min_temperature: 223.15 (K)
 Hc_max_temperature: 393.15 (K)
 
 [NdFeB.grades]
-N30: [[836420, 1.10]] k(A*m^-1), (kg*s^-2*A^-1)
-N33: [[878619, 1.14]] k(A*m^-1), (kg*s^-2*A^-1)
-N35: [[905659,1.17]] k(A*m^-1), (kg*s^-2*A^-1)
-N38: [[944771, 1.22]] k(A*m^-1), (kg*s^-2*A^-1)
-N40: [[969969, 1.25]] k(A*m^-1), (kg*s^-2*A^-1)
-N42: [[994529, 1.28]] k(A*m^-1), (kg*s^-2*A^-1)
-N45: [[1030272, 1.32]] k(A*m^-1), (kg*s^-2*A^-1)
-N48: [[1014538, 1.37]] k(A*m^-1), (kg*s^-2*A^-1)
-N50: [[987837, 1.40]] k(A*m^-1), (kg*s^-2*A^-1)
-N52: [[956180, 1.43]] k(A*m^-1), (kg*s^-2*A^-1)
-N55: [[922850, 1.47]] k(A*m^-1), (kg*s^-2*A^-1)
+N30: [836420, 1.10] k(A*m^-1), (kg*s^-2*A^-1)
+N33: [878619, 1.14] k(A*m^-1), (kg*s^-2*A^-1)
+N35: [905659,1.17] k(A*m^-1), (kg*s^-2*A^-1)
+N38: [944771, 1.22] k(A*m^-1), (kg*s^-2*A^-1)
+N40: [969969, 1.25] k(A*m^-1), (kg*s^-2*A^-1)
+N42: [994529, 1.28] k(A*m^-1), (kg*s^-2*A^-1)
+N45: [1030272, 1.32] k(A*m^-1), (kg*s^-2*A^-1)
+N48: [1014538, 1.37] k(A*m^-1), (kg*s^-2*A^-1)
+N50: [987837, 1.40] k(A*m^-1), (kg*s^-2*A^-1)
+N52: [956180, 1.43] k(A*m^-1), (kg*s^-2*A^-1)
+N55: [922850, 1.47] k(A*m^-1), (kg*s^-2*A^-1)
 
 [NdFeB.electrical]
 relative_permittivity: [1, 1] 
@@ -434,6 +436,7 @@ temp_dependence: [
 [600.0, 0.1],
 [700.0, 0.1]
 ] (K), (kg^-1*m^-3*s^3*A^2)
+test: 10 (W)
 
 [isotropic_cf_nylon.thermal]
 volumetric_heat_capacity: 1.60e6 (kg*m^-1*s^-2*K^-1)

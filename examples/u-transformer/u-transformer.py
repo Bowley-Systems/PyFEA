@@ -29,7 +29,7 @@ from pyfea.solver.solver_outputs import RequestedOutputs, CircuitOptions
 from pyfea.solver.femm.domains.magnetostatic.solver import FEMMMagnetostaticSolver
 
 # FEA file output
-folder_location = "examples/u-transformer/"
+FOLDER_LOCATION = "examples/u-transformer/"
 
 # Pulls materials into the script from package library
 manager = MaterialManager()
@@ -73,20 +73,24 @@ RequestedOutputs.add_circuit(phase_a, CircuitOptions.FLUX_LINKAGE)
 RequestedOutputs.add_circuit(phase_a, CircuitOptions.CURRENT)
 RequestedOutputs.add_circuit(phase_a, CircuitOptions.VOLTAGE)
 
-solver = FEMMMagnetostaticSolver(folder_location)
-solver.setup(simulation_domain, "test", depth=20 * mm)
+solver = FEMMMagnetostaticSolver(FOLDER_LOCATION)
+solver.setup(simulation_domain, "iron-core_u_transformer", depth=20 * mm)
 
 flux_linkage = []
 current = []
 voltage = []
 
+print("========== Dynamic Response ==========")
 for index in range(1, 10):
     phase_a.current = 1 / 10 * A * index
     solver.update_current(phase_a)
     results = solver.solve(RequestedOutputs)
     secant_inductance = results.phase_a.flux_linkage / phase_a.current
-    print(f"Solved model at {phase_a.current:.3f}, secant inductance {secant_inductance:.3f}")
-    
+    print(
+        f"Solved model at {phase_a.current:.3f}, "
+        f"secant inductance {secant_inductance:.3f}"
+    )
+
     current.append(phase_a.current)
     flux_linkage.append(results.phase_a.flux_linkage)
     voltage.append(results.phase_a.voltage)
@@ -96,14 +100,14 @@ def gradient_via_regression(output_1: list, output_2: list):
     """ Calculates the gradient via regression """
     x = [i.value for i in output_1]
     y = [i.value for i in output_2]
-    
+
     sample_space = len(x)
     sum_product = sum(a * b for a, b in zip(x, y))
     sum_squared = sum(a ** 2 for a in x)
-    
+
     numerator = sample_space * (sum_product) - sum(y) * sum(x)
     denominator = sample_space * sum_squared - sum(x) ** 2
-    
+
     return numerator / denominator
 
 # Calculates inductance (df/di ~= inductance) and resistance (r = v/i)
@@ -115,7 +119,8 @@ frequency = 50 * Hz
 x_inductive = 2 * pi * inductance * frequency
 impedance = (resistance ** 2 + x_inductive ** 2) ** 0.5
 
-print("==== U-transformer Performance =====")
+print("===== U-transformer Performance =====")
 print(f"Resistance: {resistance:.3f}")
 print(f"Inductance: {inductance:.3f}")
 print(f"Impedance at {frequency:.3f} : {impedance:.3f}")
+print("=====================================")
