@@ -1,172 +1,77 @@
 """
 Filename: metadata.py
+
 Description:
-    Defines the dataclasses for 
-    different types of metadata
+    Defines the dataclasses for different types of metadata
+    such as magnetic metadata which contains parameters like
+    magnetization and diameter.
 """
 
-from dataclasses import dataclass
+from typing import Optional
+from dataclasses import dataclass, field
 
-from pyfea import dimensionless, meter, Quantity, Material, watt, meter, kelvin
 from pyfea.domain.geometry.definitions import GeometryDimensionError
 from pyfea.domain.circuits.builder import Circuit
 
+from pyfea import (
+    Quantity as Q, Material, SystemBoundary, nullset, meter, watt, kelvin, h
+)
+
 
 @dataclass(slots=True)
-class MagneticData:
-    """ Construct solid geometry node between two objects """
-    group: Quantity
-    material: Material
-    circuit: Circuit = None
-    turns: Quantity = None
-    diameter: Quantity = None
-    magnetization: Quantity = None
+class MagneticData(SystemBoundary):
+    """ Defines magnetic properties for a geometry group """
+    group:          Q                   = field(metadata={Q: nullset})
+    material:       Material
+    circuit:        Optional[Circuit]   = field(default=None, metadata={})
+    turns:          Optional[Q]         = field(default=None, metadata={Q: nullset})
+    diameter:       Optional[Q]         = field(default=None, metadata={Q: meter})
+    magnetization:  Optional[Q]         = field(default=None, metadata={Q: nullset})
 
     def __post_init__(self) -> None:
-        """ Validates that metadata dimensions """
+        """ Validates that non-typed parameters are correct """
         if not isinstance(self.material, Material):
             msg = f"Material must be a Material, not {type(self.material)}"
-            raise ValueError(msg)
-
-        if not isinstance(self.group, Quantity):
-            msg = f"Group must be a Quantity not, {type(self.group)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
-        if not isinstance(self.circuit, Circuit) and self.circuit is not None:
-            msg = f"Circuit must be str, not {type(self.circuit)}"
-            raise ValueError(msg)
-    
-        if not isinstance(self.diameter, Quantity) and self.diameter is not None:
-            msg = f"Diameter must be a Quantity not, {type(self.group)}"
+        if self.circuit is not None and not isinstance(self.circuit, Circuit):
+            msg = f"Circuit must be a Circuit, not {type(self.circuit)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
-        if not isinstance(self.turns, Quantity) and self.turns is not None:
-            msg = f"Turns must be a Quantity not, {type(self.group)}"
-            raise GeometryDimensionError(self.__class__.__name__, msg)
-        
-        if (
-            not isinstance(self.magnetization, Quantity) 
-            and self.magnetization is not None
-        ):
-            msg = f"Magnetization must be a Quantity, not {type(self.magnetization)}"
-            raise GeometryDimensionError(self.__class__.__name__, msg)
-
-        if self.group.unit != dimensionless:
-            msg = f"Group must be a dimensionless not, {self.group.unit}"
-            raise GeometryDimensionError(self.__class__.__name__, msg)
-
-        if self.diameter is not None:
-            if self.diameter.unit != meter:
-                msg = f"Diameter must have unit {meter} not, {self.group.unit}"
-                raise GeometryDimensionError(self.__class__.__name__, msg)
-
-        if self.turns is not None:
-            if self.turns.unit != dimensionless:
-                msg = f"Turns must be a dimensionless not, {self.group.unit}"
-                raise GeometryDimensionError(self.__class__.__name__, msg)
-            
-        if self.magnetization is not None:
-            if self.magnetization.unit != dimensionless:
-                unit = self.magnetization.unit
-                msg = f"Magnetization (angle) must be dimensionless, not {unit}"
-                raise GeometryDimensionError(self.__class__.__name__, msg)
-            
+        self.validate_units()
 
     @property
     def _name(self) -> str:
-        """ Returns its name as the auto definition """
         return (
-            f"<Metadata=(group={self.group}, material={self.material}, "
-            f"circuit={self.circuit}, turns={self.turns} diameter={self.diameter})>"
+            f"<MagneticData=(group={self.group}, material={self.material}, "
+            f"circuit={self.circuit}, turns={self.turns}, diameter={self.diameter})>"
         )
 
-    def __str__(self) -> str:
-        """ Returns the points name from Metadata.type """
-        return self._name
-
-    def __repr__(self) -> str:
-        """ Returns the points name from Metadata.type """
-        return self._name
-
 
 @dataclass(slots=True)
-class ThermalData:
+class ThermalData(SystemBoundary):
     """ Defines thermal properties and heat sources for a geometry group """
-    group: Quantity
-    material: Material
-    heating_index: Quantity = None
-    temperature: Quantity = None
-    heat_flow_value: Quantity = None
-    volumetric_heating: Quantity = None
-    convection_coefficient: Quantity = None 
-    ambient_temperature: Quantity = None
+    group:                  Q           = field(metadata={Q: nullset})
+    material:               Material
+    heating_index:          Optional[Q] = field(default=None, metadata={})
+    temperature:            Optional[Q] = field(default=None, metadata={Q: kelvin})
+    heat_flow_value:        Optional[Q] = field(default=None, metadata={Q: watt})
+    volumetric_heating:     Optional[Q] = field(default=None, metadata={Q:watt/meter**3})
+    convection_coefficient: Optional[Q] = field(default=None, metadata={Q: h})
+    ambient_temperature:    Optional[Q] = field(default=None, metadata={Q: kelvin})
 
     def __post_init__(self) -> None:
-        """ Validates thermal metadata dimensions """
         if not isinstance(self.material, Material):
             msg = f"Material must be a Material, not {type(self.material)}"
-            raise ValueError(msg)
-
-        if not isinstance(self.group, Quantity):
-            msg = f"Group must be a Quantity, not {type(self.group)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
-        if self.group.unit != dimensionless:
-            msg = f"Group must be dimensionless, not {self.group.unit}"
-            raise GeometryDimensionError(self.__class__.__name__, msg)
-
-        # Validate Temperatures (K)
-        for val, label in [(self.temperature, "Temperature"), 
-                           (self.ambient_temperature, "Ambient temperature")]:
-            if val is not None:
-                if not isinstance(val, Quantity) or val.unit != kelvin:
-                    raise GeometryDimensionError(
-                        self.__class__.__name__, f"{label} must be a Quantity in Kelvin"
-                    )
-
-        # Validate Heat Flow Value (W)
-        if self.heat_flow_value is not None:
-            if (
-                not isinstance(self.heat_flow_value, Quantity) or 
-                self.heat_flow_value.unit != watt
-            ):
-                raise GeometryDimensionError(
-                    self.__class__.__name__, "Heat flow must be a Quantity in Watts"
-                )
-
-        # Validate Volumetric Heating (W/m^3)
-        if self.volumetric_heating is not None:
-            if (
-                not isinstance(self.volumetric_heating, Quantity) 
-                or self.volumetric_heating.unit != (watt / meter ** 3)
-            ):
-                raise GeometryDimensionError(
-                    self.__class__.__name__, "Volumetric heating must be in W/m^3"
-                )
-
-        # Validate Convection Coefficient (W/(m^2*K))
-        if self.convection_coefficient is not None:
-            h_unit = watt / (meter** 2 * kelvin)
-            if (
-                not isinstance(self.convection_coefficient, Quantity) 
-                or self.convection_coefficient.unit != h_unit
-            ):
-                msg = f"Convection coefficient must be a Quantity in {h_unit}, "
-                msg += f"not {self.convection_coefficient.unit}"
-                raise GeometryDimensionError(self.__class__.__name__, msg)
+        self.validate_units()
 
     @property
     def _name(self) -> str:
-        """ Returns formatted string of thermal parameters """
         return (
             f"<ThermalData=(group={self.group}, material={self.material}, "
             f"T={self.temperature}, Q_flow={self.heat_flow_value}, "
             f"Q_vol={self.volumetric_heating}, h={self.convection_coefficient}, "
             f"T_amb={self.ambient_temperature})>"
         )
-
-    def __str__(self) -> str:
-        return self._name
-
-    def __repr__(self) -> str:
-        return self._name

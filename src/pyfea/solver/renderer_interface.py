@@ -1,5 +1,6 @@
 """
 Filename: renderer_interface.py
+
 Description:
     Abstract base class which defines the interface for 
     solver renderers
@@ -29,30 +30,30 @@ class RendererError(Exception):
 
 class BaseRenderer(ABC):
     """ Core interface for all solver renderers """
-        
+
     @abstractmethod
     def __init__(self, file_path: Path) -> Any:
         """ Setups the rendering environment in file_path """
         self.file_path = file_path
-    
+
     @abstractmethod
     def draw_domain(self, domain: Domain) -> None:
         """ Defines the domain and than draws the elements within """
-        
+
     @abstractmethod
     def move_element(
         self, element_id: Quantity, magnitude: Quantity, angles: Quantity
     ) -> None:
         """ Moves an element within the simulation domain """
-    
+
     @abstractmethod
     def rotate_element(
         self, element_id: Quantity, axis: Quantity, angles: Quantity
     ) -> None:
         """ Rotates an element around an axis in the simulation domain """
-    
+
     @abstractmethod
-    def _clean_up(self) -> None:
+    def clean_up(self) -> None:
         """ Removes any temporary files and closes the renderer """
 
     def _file_path_exist(self) -> None:
@@ -60,15 +61,17 @@ class BaseRenderer(ABC):
         try:
             self.file_path.parent.mkdir(parents=True, exist_ok=True)
             self.file_path.touch(exist_ok=True)
-    
+
         except Exception:
-            msg = f"File path given to {self.__class__.__name__} invalid or inaccessible"
-            raise RendererError(msg)
+            msg = (
+                f"File path given to {self.__class__.__name__} invalid or inaccessible"
+            )
+            raise RendererError(msg) from None
 
     def _strip_quantity(self, quantity: Quantity, ref: Quantity) -> Any:
         """ Strips quantity from value returns raw value """
         return strip_quantity(quantity, ref)
-            
+
 
 class MagneticRenderer(BaseRenderer, ABC):
     """ Renderer interface for magnetic problems """
@@ -82,15 +85,21 @@ class MagneticRenderer(BaseRenderer, ABC):
     ) -> Any:
         """ Updates the materials based on temperature """
 
+
 class ThermalRenderer(BaseRenderer, ABC):
     """ Renderer interface for thermal problems """
     @abstractmethod
-    def update_volumetric_heat_source(self, material: Material, magnitude: Quantity) -> Any:
+    def update_volumetric_heat_source(
+        self, material: Material, magnitude: Quantity
+    ) -> Any:
         """ Updates a volumetric heat source within the simulation domain """
-    
+
     @abstractmethod
-    def update_conductor_heat_source(self, element: Quantity, magnitude: Quantity) -> Any:
+    def update_conductor_heat_source(
+        self, element: Quantity, magnitude: Quantity
+    ) -> Any:
         """ Updates a conductor heat source within the simulation domain"""
+
 
 class ElectricRenderer(BaseRenderer, ABC):
     """ Renderer interface for electric problems """

@@ -14,31 +14,31 @@ from pyfea.domain.circuits.builder import Circuit
 
 class CircuitOptions(Enum):
     """ Defines the different possible circuit output variables """
-    POWER           =   auto()
-    VOLTAGE         =   auto()
-    CURRENT         =   auto()
-    RESISTANCE      =   auto()
-    FLUX_LINKAGE    =   auto()
+    power           =   auto()
+    voltage         =   auto()
+    current         =   auto()
+    resistance      =   auto()
+    flux_linkage    =   auto()
 
 
 class MagneticOptions(Enum):
     """ Defines the different possible magnetic output variables """
-    VOLUME                  = auto()
-    CROSS_SECTION           = auto()
-    FORCE_LORENTZ           = auto()
-    TORQUE_LORENTZ          = auto()
-    FIELD_ENERGY            = auto()
-    B_FIELD                 = auto()
-    FORCE_STRESS_TENSOR     = auto()
-    TORQUE_STRESS_TENSOR    = auto()
+    volume                  = auto()
+    cross_section           = auto()
+    force_lorentz           = auto()
+    torque_lorentz          = auto()
+    field_energy            = auto()
+    b_field                 = auto()
+    force_stress_tensor     = auto()
+    torque_stress_tensor    = auto()
 
 class ThermalOptions(Enum):
     """ Defines the different possible thermal output variables """
-    VOLUME                  = auto()
-    CROSS_SECTION           = auto()
-    AVERAGE_TEMPERATURE     = auto()
-    FLUX_OVER_ELEMENT       = auto()
-    GRADIENT_OVER_ELEMENT   = auto()
+    volume                  = auto()
+    cross_section           = auto()
+    average_temperature     = auto()
+    flux_over_element       = auto()
+    gradient_over_element   = auto()
 
 
 class SolverOutputs:
@@ -77,33 +77,41 @@ class SolverOutputs:
 
 
 class SolverSolutions:
-    def __init__(self, data_dict: dict = None, **kwargs):
-        """ Dynamically adds solutions as attribute """
-        data = data_dict or {}
-        data.update(kwargs)
+    """ Loads solution from solver into class attributes """
+    def __init__(self, data: dict = None):
+        """ Dynamically adds solutions keyed by object reference """
+        self._store = data or {}
 
-        for key, val in data.items():
-            clean_key = key.lower().replace(" ", "_")
-            if isinstance(val, dict):
-                setattr(self, clean_key, SolverSolutions(val))
+    def __getitem__(self, key):
+        """ Returns solution for a given object reference """
+        if key not in self._store:
+            raise KeyError(f"No solution found for {key!r}")
+        val = self._store[key]
+        if isinstance(val, dict):
+            return SolverSolutions(val)
 
-            else:
-                setattr(self, clean_key, val)
-    
+        return val
+
+    def __contains__(self, key):
+        """ Checks if a solution exists for a given object reference """
+        return key in self._store
+
+    def __getattr__(self, key):
+        """ Gets values stored within the parent """
+        try:
+            return self._store[key]
+        except KeyError:
+            msg = f"No solution for {key!r}"
+            raise AttributeError(msg) from None
+
     @property
-    def _name(self):
-        """ Returns """
-        items = ", ".join([k for k in self.__dict__ if not k.startswith('_')])
+    def name(self):
+        """ Constructs the name based on state """
+        items = ", ".join([k.name if hasattr(k, 'name') else k for k in self._store])
         return f"<Solutions outputs: {items}>"
-    
+
     def __str__(self) -> str:
-        """ Returns the points name from self._name"""
-        return self._name
+        return self.name
 
     def __repr__(self) -> str:
-        """ Returns the points name from self._name """
-        return self._name
-
-
-# Default class initialized for user to required from
-RequestedOutputs = SolverOutputs()
+        return self.name

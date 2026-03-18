@@ -6,7 +6,6 @@ Description:
 """
 
 
-
 from pyfea import dimensionless, Quantity
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData

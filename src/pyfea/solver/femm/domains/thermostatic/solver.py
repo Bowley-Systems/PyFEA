@@ -8,35 +8,43 @@ Description:
     physics problems and than solves them with tolerance marching. 
 """
 
-import femm
-import logging
 
 from pathlib import Path
 from typing import Any
+
+import femm
+
 from pyfea.solver.solver_interface import ThermalSolver
 from pyfea.solver.femm.base_solver import FEMMSolver, SolverError
 from pyfea.solver.solver_outputs import (
     SolverOutputs, ThermalOptions, SolverSolutions
 )
 
-from pyfea.domain.units import Quantity, LENGTH, TIME, Material, meter, kelvin, watt
+from pyfea.domain.units import Quantity, TIME, Material, meter, kelvin, watt
 from pyfea.domain.geometry.domain import Domain
 
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.thermostatic.renderer import FEMMThermostaticRenderer
 
+
 class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
     """ Thermostatic Solver for FEMM (finite element magnetic methods) """
-    def _create_renderer(self, filename: str, tolerance: float) -> FEMMThermostaticRenderer:
+
+    def _create_renderer(
+        self, filename: str, tolerance: float
+    ) -> FEMMThermostaticRenderer:
+        """ Creates the renderer under specific conditions and file path"""
         femm_file = self.folder_path / f"{filename}.feh"
 
         self.filename = filename
-        return FEMMThermostaticRenderer(
-            femm_file, FEMMPhysicsTypes.thermostatic, tolerance
-        )
+        solver_type = FEMMPhysicsTypes.thermostatic
+        return FEMMThermostaticRenderer(femm_file, solver_type, tolerance)
 
     def setup(
-        self, simulation_domain: Domain, filename: str = "thermostatic", depth: Quantity = 0 * meter
+        self,
+        simulation_domain: Domain,
+        filename: str = "thermostatic",
+        depth: Quantity = 0 * meter
     ) -> SolverSolutions:
         """ Setups the problem in FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
@@ -44,26 +52,25 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         self.renderer = self._create_renderer(filename, self.tolerance)
         self.renderer.setup(coordinate_system, depth)
 
-        # Draws the domain to the FEMM suite 
+        # Draws the domain to the FEMM suite
         self.renderer.draw_domain(simulation_domain)
         self.problem_setup = True
 
     def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * TIME):
         """ Solves the problem constructed by the FEMMRenderer """
-        self._setup_check("solving")
+        self._setup_check("solving FEM problem")
+
         if time_step.value > 0:
             ans_path = Path(f"{self.filename}.anh")
-            self.renderer._suite_define(
+            self.renderer.suite_define(
                 self.renderer.problem_type,
                 self.renderer.depth,
                 time_step,
                 ans_path
             )
         else:
-            self.renderer._suite_define(
-                self.renderer.problem_type,
-                self.renderer.depth,
-                time_step,
+            self.renderer.suite_define(
+                self.renderer.problem_type, self.renderer.depth, time_step,
             )
 
         for attempt in range(0, self.max_attempts):
@@ -72,52 +79,40 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
                 self.renderer.check_active()
 
                 solution = self._domain_analyse(outputs)
-                msg = (
-                    f"Solved problem with tolerance {self.renderer.tolerance} "
-                    f"on attempt {attempt}"
-                )
-                # logging.info(msg)
 
                 self._clean_up()
                 return solution
 
             except Exception as err:
                 if (
-                    self.renderer.tolerance > self.max_tolerance or 
+                    self.renderer.tolerance > self.max_tolerance or
                     attempt == self.max_attempts
                 ):
                     msg = (
                         f"Solver failed after {attempt} attempts with tolerance "
                         f"{self.renderer.tolerance}: {err}"
                     )
-                    raise SolverError(msg)
+                    raise SolverError(msg) from err
 
                 # Increases the tolerance by a factor of 10
                 new_tolerance = self.renderer.tolerance * 10
 
-                # Log reentry attempt under lower tolerance 
-                msg = (
-                    f"Solver failed on attempt {attempt} with tolerance "
-                    f"{self.renderer.tolerance}: {err}. "
-                    f"Retrying with tolerance {new_tolerance}"
-                )
-                logging.info(msg)
-
+                # Log reentry attempt under lower tolerance
                 self._change_tolerance(new_tolerance, time_step)
 
     def _change_tolerance(self, tolerance: float, time_step: Quantity) -> None:
         """ Changes the required tolerance within FEMM problem """
         self.renderer.check_active()
-        
+
         try:
             if time_step:
                 ans_path = Path(f"{self.filename}.anh")
                 self.renderer.tolerance_march(tolerance, time_step, ans_path)
 
         except Exception as err:
-            msg = f"Failed change the tolerance of the FEMM problem due to {err}"
-            raise SolverError(msg)   
-    
+            msg = f"Failed to change the tolerance of the FEMM problem due to {err}"
+            raise SolverError(msg) from err
+
     def _domain_analyse(self, outputs: SolverOutputs):
         """ Solves the problem defined within the FEMM suite """
         femm.hi_analyse(1)   # Hidden FEMM window
@@ -138,47 +133,48 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
                 raise SolverError(msg)
 
         return SolverSolutions(results)
-    
+
     def move_element(self, element_id, magnitude, angles):
+        """ Moves an element within the simulation domain """
         self._setup_check("moving an element")
         self.renderer.move_element(element_id, magnitude, angles)
 
     def rotate_element(self, element_id, axis, angles):
+        """ Rotates a element around an axis in the simulation domain """
         self._setup_check("rotating an element")
         self.renderer.rotate_element(element_id, axis, angles)
-    
-    def update_heat_source(self, id: Quantity | Material, magnitude):
+
+    def update_heat_source(self, element: Quantity | Material, magnitude):
         """ Updates a heat source within the femm suite """
-        self._setup_check("updating a heat source")
- 
+        self._setup_check("updating a volumetric heat source")
+
         if isinstance(id, Quantity):
-            self.renderer.update_conductor_heat_source(id, magnitude)
+            self.renderer.update_conductor_heat_source(element, magnitude)
         elif isinstance(id, Material):
-            self.renderer.update_volumetric_heat_source(id, magnitude)
+            self.renderer.update_volumetric_heat_source(element, magnitude)
 
     def _operations(
         self, option: ThermalOptions, element: ThermalOptions
     ) -> Quantity:
         """ Gets the requested thermal output from the FEMM suite """
         match option:
-            case ThermalOptions.AVERAGE_TEMPERATURE:
+            case ThermalOptions.average_temperature:
                 return self._get_block_integral(element, 0)[0] * kelvin
-            case ThermalOptions.CROSS_SECTION: 
+            case ThermalOptions.cross_section:
                 return self._get_block_integral(element, 1)[0] * meter ** 2
-            case ThermalOptions.VOLUME: 
+            case ThermalOptions.volume:
                 return self._get_block_integral(element, 2)[0] * meter ** 3
-            case ThermalOptions.GRADIENT_OVER_ELEMENT:
+            case ThermalOptions.gradient_over_element:
                 return self._get_block_integral(element, 3) * (kelvin / meter)
-            case ThermalOptions.FLUX_OVER_ELEMENT:
+            case ThermalOptions.flux_over_element:
                 return self._get_block_integral(element, 4) * (watt / meter ** 2)
- 
+
             case _:
                 name = name = self.__class__.__name__
                 msg = f"{option!r} is an unknown or unsupported output for {name}"
                 print(msg)
                 raise SolverError(msg)
-    
-    
+
     def _get_block_integral(self, group: Quantity, integral_type: int) -> Any:
         """ Safely calculates a block integral on a specific group """
         try:
@@ -187,21 +183,13 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
             femm.ho_clearblock()
             return result
 
-        except Exception as e:
+        except Exception as err:
             msg = (
                 f"Failed to calculate block integral of type {integral_type} "
-                f"for element {group}: {e}"
+                f"for element {group}: {err}"
             )
-            raise SolverError(msg)
-        
+            raise SolverError(msg) from err
+
     def _clean_up(self) -> None:
         """ Closes FEMM and removes the .ans file """
-        self.renderer._clean_up()
-        
-        # ans_path = self.renderer.file_path.with_suffix(".anh")
-        # if ans_path.exists():
-        #     try:
-        #         ans_path.unlink()
-        #     except Exception as err:
-        #         msg = f"{self.__class__.__name__} could not delete .anh file: {err}"
-        #         logging.warning(msg)
+        self.renderer.clean_up()

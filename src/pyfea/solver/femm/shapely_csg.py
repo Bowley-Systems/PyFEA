@@ -1,5 +1,6 @@
 """
 Filename: shapely_csg.py
+
 Description:
     Shapely implementation to allow CSG/Vector inputs for FEMM
     (finite element magnetic methods) translate CSG/Vector to
@@ -42,9 +43,9 @@ class FEMMConstructSolidGeometry:
                            cls._strip_quantity(segment.p1.y, 1 * LENGTH)
                         )
                     )
-                
+
                 return ShapelyPolygon(coords)
-                    
+
             case PrimitivesShapes.ELLIPSOID:
                 ellipse: Ellipsoid = geometry.data
 
@@ -54,11 +55,11 @@ class FEMMConstructSolidGeometry:
                     cls._strip_quantity(ellipse.center.y, 1 * LENGTH)
                 )
                 radius = cls._strip_quantity(ellipse.radius, 1 * LENGTH)
-                
+
                 # Extracts x and y dilation
                 x_dilation = cls._strip_quantity(ellipse.x_dilation, 1 * DIMENSIONLESS)
                 y_dilation = cls._strip_quantity(ellipse.y_dilation, 1 * DIMENSIONLESS)
-                
+
                 # Creates a circle and than scales relative to p
                 circle = shapely_point.buffer(radius)
                 shapely_ellipse = scale(
@@ -67,11 +68,12 @@ class FEMMConstructSolidGeometry:
                     yfact=y_dilation,
                     origin=shapely_point
                 )
-                
+
                 return shapely_ellipse
 
             case _:
-                msg = f"{geometry.shape!r} is not supported by FEMMConstructSolidGeometry"
+                name = "FEMMConstructSolidGeometry"
+                msg = f"{geometry.shape!r} is not supported by {name}"
                 raise RendererError(msg)
 
     @classmethod
@@ -98,20 +100,20 @@ class FEMMConstructSolidGeometry:
 
             elif geometry.operation == CSOperation.SUBTRACT:
                 base_shape = shapes[0]
-                
+
                 for shape in shapes[1:]:
                     base_shape = base_shape.difference(shape)
-                    
+
                 return base_shape
-                
+
             elif geometry.operation == CSOperation.INTERSECT:
                 base_shape = shapes[0]
-                
+
                 for shape in shapes[1:]:
                     base_shape = base_shape.intersection(shape)
-                    
+
                 return base_shape
-                
+
             elif geometry.operation == CSOperation.FILLET:       
                 radius = cls._strip_quantity(geometry.params["radius"], LENGTH)
 
@@ -122,13 +124,14 @@ class FEMMConstructSolidGeometry:
                 buffer_dilation = shape.buffer(radius, join_style=1)
                 buffer_erosion = buffer_dilation.buffer(-2 * radius, join_style=1)
                 buffer_restoration = buffer_erosion.buffer(radius, join_style=1)
-                
+
                 return buffer_restoration
 
             else:
-                msg = f"{geometry.operation!r} not supported by FEMMConstructSolidGeometry"   
+                name = "FEMMConstructSolidGeometry"
+                msg = f"{geometry.operation!r} not supported by {name}"
                 raise RendererError(msg)
-        
+
         msg = f"{type(geometry)!r} is not supported by FEMMConstructSolidGeometry"
         raise RendererError(msg)
     

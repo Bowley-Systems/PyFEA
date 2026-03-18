@@ -1,12 +1,13 @@
 """
 Filename: vectors.py
+
 Description:
     Defines the dataclasses and enums for vector object
     and CSG system within the protocol
 """
 
 from __future__ import annotations
-from typing import Union, Any
+from typing import Any
 
 from abc import ABC
 from dataclasses import dataclass
@@ -14,9 +15,6 @@ from enum import Enum, auto
 
 from pyfea import meter, Quantity
 from pyfea.domain.geometry.definitions import GeometricPrimitives, GeometryDimensionError
-
-""" A geometric element can be either a leaf (geometry) or a branch (node)"""
-GeometryElement = Union["VectorGeometry", "CSGNode"]
 
 
 class PrimitivesShapes(Enum):
@@ -67,16 +65,19 @@ class CSOperation(Enum):
 class GeometryElement(ABC):
     """ Defines the construct solid geometry operations """
     def union(self, geometry_object: GeometryElement) -> CSGNode:
+        """ Preforms a union between different geometric elements """
         return CSGNode(CSOperation.UNION, operands=(self, geometry_object))
 
     def subtract(self, geometry_object: GeometryElement) -> CSGNode:
+        """ Preforms an subtraction between different geometric elements """
         return CSGNode(CSOperation.SUBTRACT, operands=(self, geometry_object))
 
     def intersect(self, geometry_object: GeometryElement) -> CSGNode:
+        """ Preforms an intersection between different geometric elements """
         return CSGNode(CSOperation.INTERSECT, operands=(self, geometry_object))
 
     def extrude(
-        self, 
+        self,
         height: Quantity,
         direction: Quantity = (0, 0, 1) * meter,
         manifold: bool = True
@@ -85,18 +86,18 @@ class GeometryElement(ABC):
         if not isinstance(height, Quantity) or not isinstance(direction, Quantity):
             msg = "3D geometry requires both height and direction to be quantities"
             raise GeometryDimensionError(self.__class__.__name__, msg)
-        
+
         if height.value == 0 or height.unit != meter:
             msg = f"3D geometry height cannot be zero and has to be type {meter}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
-        
+
         if direction.magnitude == 0 or direction.unit != meter:
             msg = (
                 f"3D geometry direction cannot have zero magnitude "
                 f"and has to be type {meter}"
             )
             raise GeometryDimensionError(self.__class__.__name__, msg)
-        
+
         return CSGNode(
             operation=CSOperation.EXTRUSION,
             operands=(self,),
@@ -106,23 +107,23 @@ class GeometryElement(ABC):
                 "manifold": manifold
             }
         )
-        
+
     def smoothing_fillets(self, radius: Quantity) -> GeometryElement:
         """ Full Smoothing of part for both convex and concave """
         if not isinstance(radius, Quantity):
-            msg = f"Smoothing fillet requires a radius to be a quantity"
-            raise GeometryDimensionError(msg)
+            msg = "Smoothing fillet requires a radius to be a quantity"
+            raise GeometryDimensionError(self.__class__.__name__, msg)
 
         if radius.unit != meter:
             msg = f"Radius must be a LENGTH quantity not {type(radius)}"
-            raise GeometryDimensionError(msg)
-        
+            raise GeometryDimensionError(self.__class__.__name__, msg)
+
         return CSGNode(
             operation=CSOperation.FILLET,
             operands=(self,),
             params={"radius": radius}
         )
-        
+
 
 @dataclass(slots=True)
 class CSGNode(GeometricPrimitives, GeometryElement):
@@ -147,7 +148,4 @@ class VectorGeometry(GeometricPrimitives, GeometryElement):
     @property
     def _name(self) -> str:
         """ Returns a clean, scannable string representation """
-
-        return (
-            f"<VectorGeometry: shape={self.shape.name}>"
-        )
+        return f"<VectorGeometry: shape={self.shape.name}>"

@@ -89,7 +89,9 @@ class MaterialManager:
             library = resources.files("library")
             materials_path = library / "materials.uiv"
 
-            self.material_library = MaterialParser.open(str(materials_path), loader_class=Material)
+            self.material_library = MaterialParser.open(
+                materials_path, loader_class=Material
+            )
 
         except Exception as err:
             msg = f"Failed to load library from package resources: {err}"

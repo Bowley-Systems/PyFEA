@@ -9,7 +9,6 @@ Description:
 from enum import Enum, auto
 from dataclasses import dataclass
 
-from pyfea.domain.units import Quantity
 from pyfea.domain.geometry.definitions import CoordinateSystem
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
@@ -20,16 +19,17 @@ class BoundaryType(Enum):
     """ Different boundary types available """
     DIRICHLET = auto()
     CONVECTION = auto()
-    
+
 
 @dataclass(slots=True)
 class Domain:
+    """ Simulation domain """
     parts: tuple[Part, ...]
     boundary_type: BoundaryType
     meta_data: MagneticData | ThermalData
-    coordinate_system: CoordinateSystem  
+    coordinate_system: CoordinateSystem 
     shape: VectorGeometry | CSGNode
-    
+
     @property
     def _name(self) -> str:
         """ Returns its name as the auto definition """
@@ -38,11 +38,11 @@ class Domain:
             f"boundary={self.boundary_type}, meta_data={self.meta_data}, "
             f"shape={self.shape}, Coordinate System={self.coordinate_system})>"
         )
-        
+
     def __str__(self) -> str:
         """ Returns self._name """
         return self._name
 
     def __repr__(self) -> str:
         """ Returns self._name """
-        return self._name     
+        return self._name

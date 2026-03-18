@@ -1,11 +1,13 @@
 """
 Filename: solver_interface.py
+
 Description:
     Abstract base class which defines the interface for solvers.
-
-    - BaseSolver: Core generic modules for all solvers
+    
+    - BaseSolver: Core generic methods for all solvers
+    - MagneticSolver: Magnetic-specific extensions
+    - ThermalSolver: Thermal-specific extensions
 """
-
 
 from abc import ABC, abstractmethod
 
@@ -50,34 +52,34 @@ class BaseSolver(ABC):
     @abstractmethod
     def solve(self,  outputs: SolverOutputs) -> SolverSolutions:
         """ Solves the problem defined by user during initialization """
-    
+
     @abstractmethod
     def _create_renderer(self, filename: str, tolerance: float) -> BaseRenderer:
         """ Subclasses instantiate their specific renderer """
-    
+
     @abstractmethod
     def _clean_up(self) -> None:
         """ Cleans up any temporary files and closes the solver. """
-    
+
     def move_element(
         self, element_id: Quantity, magnitude: Quantity, angles: Quantity
     ) -> None:
         """ Moves an element within the simulation domain """
         self.renderer.move_element(element_id, magnitude, angles)
-    
+
     def move_elements(
         self, element_ids: tuple[Quantity], magnitude: Quantity, angles: Quantity
     ) -> None:
         """ Moves a series of element within the simulation domain """
         for element in element_ids:
             self.move_element(element, magnitude, angles)
-    
+
     def rotate_element(
         self, element_id: Quantity, axis: Quantity, angles: Quantity
     ) -> None:
         """ Rotates a element around an axis in the simulation domain """
         self.renderer.rotate_element(element_id, axis, angles)
-    
+
     def rotate_elements(
         self, element_ids: tuple[Quantity], axis: Quantity, angles: Quantity
     ) -> None:
@@ -106,6 +108,5 @@ class MagneticSolver(BaseSolver):
 class ThermalSolver(BaseSolver):
     """ Solver interface for thermal problems """
     @abstractmethod
-    def update_heat_source(self, id: Quantity, magnitude: Quantity) -> Any:
+    def update_heat_source(self, element: Quantity, magnitude: Quantity) -> Any:
         """ Updates a volumetric heat source within the simulation domain """
-    

@@ -1,5 +1,6 @@
 """
 Filename: primitives.py
+
 Description:
     Defines dataclasses and enum's for geometric
     primitives within the protocol

@@ -8,6 +8,7 @@ Description:
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 
+
 class GeometryDimensionError(TypeError):
     """ Exception for geometry dimension error """
     def __init__(self, caller: str, error: str):
@@ -26,7 +27,6 @@ class PartError(TypeError):
 
 class GeometricPrimitives(ABC):
     """ Defines the behavior of geometry primitives when displayed """
-
     @property
     @abstractmethod
     def _name(self) -> str:
@@ -43,8 +43,12 @@ class GeometricPrimitives(ABC):
 
 
 class CoordinateSystem(Enum):
-    """
-    Types of coordinate systems.
-    """
+    """ Types of coordinate systems """
     AXI_SYMMETRIC = auto()
     PLANAR = auto()
+
+
+class BoundaryType(Enum):
+    """ Different boundary types available """
+    DIRICHLET = auto()
+    CONVECTION = auto()

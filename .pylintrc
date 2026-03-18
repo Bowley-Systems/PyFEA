@@ -6,6 +6,8 @@ disable=W0105,
         C0103,
         W0603,
         W0718,
+        C2401,
+        W0221
 
 [FORMAT]
 max-line-length=90 # Maximum number of characters on a single line.

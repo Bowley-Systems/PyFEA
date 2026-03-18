@@ -1,5 +1,6 @@
 """
 Filename: base_solver.py
+
 Description:
     Base Solver adaptor interface for FEMM (finite element magnetic methods)
     
@@ -12,9 +13,6 @@ import logging
 from pathlib import Path
 from typing import Any
 from abc import ABC, abstractmethod
-
-from pyfea.domain.units import Quantity, LENGTH
-from pyfea.domain.geometry.domain import Domain
 
 from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
 from pyfea.solver.solver_interface import BaseSolver, SolverError
@@ -35,10 +33,11 @@ class FEMMSolver(BaseSolver, ABC):
         """ Initializes the FEMM solver and FEMM renderer """  
         self._folder_path_exist(folder_path)
 
+        self.filename = ""
         self.tolerance = tolerance
         self.max_attempts = max_attempts
         self.max_tolerance = max_tolerance
-        
+
         # Overrides the FEMMRenderer on BaseRenderer
         self.renderer: FEMMRenderer = None
         self.problem_setup = False
@@ -50,7 +49,7 @@ class FEMMSolver(BaseSolver, ABC):
             try:
                 # Opens FEMM suite as a hidden window
                 self.renderer.check_active()
-                
+
                 solution = self._domain_analyse(outputs)
                 msg = (
                     f"Solved problem with tolerance {self.renderer.tolerance} "
@@ -60,7 +59,7 @@ class FEMMSolver(BaseSolver, ABC):
 
                 self._clean_up()
                 return solution
-            
+
             except Exception as err:
                 if (
                     self.renderer.tolerance > self.max_tolerance or 
@@ -70,21 +69,12 @@ class FEMMSolver(BaseSolver, ABC):
                         f"Solver failed after {attempt} attempts with tolerance "
                         f"{self.renderer.tolerance}: {err}"
                     )
-                    raise SolverError(msg)
+                    raise SolverError(msg) from None
 
-                # Increases the tolerance by a factor of 10
+                # reentry with lower tolerance; Increases the tolerance by a factor of 10
                 new_tolerance = self.renderer.tolerance * 10
-
-                # Log reentry attempt under lower tolerance 
-                msg = (
-                    f"Solver failed on attempt {attempt} with tolerance "
-                    f"{self.renderer.tolerance}: {err}. "
-                    f"Retrying with tolerance {new_tolerance}"
-                )
-                # logging.info(msg)
-                
                 self._change_tolerance(new_tolerance)
-   
+
     def _setup_check(self, method: str) -> None:
         """ Checks if the problem has be setup """
         if self.problem_setup:
@@ -97,13 +87,13 @@ class FEMMSolver(BaseSolver, ABC):
     def _change_tolerance(self, tolerance: float) -> None:
         """ Changes the required tolerance within FEMM problem """
         self.renderer.check_active()
-        
+
         try:
             self.renderer.tolerance_march(tolerance)
         except Exception as err:
             msg = f"Failed change the tolerance of the FEMM problem due to {err}"
-            raise SolverError(msg)   
-   
+            raise SolverError(msg) from None
+
     @classmethod
     def _add_result(
         cls, result: dict, name: Any, key: Any, data: Any
@@ -112,13 +102,13 @@ class FEMMSolver(BaseSolver, ABC):
         if name not in result:
             result[name] = {}
 
-        result[name][key.name] = data 
+        result[name][key.name] = data
         return result
 
     @abstractmethod
     def _create_renderer(self, filename: str, tolerance: float) -> FEMMRenderer:
         """ Overrides the BaseSolver abstractmethod to include tolerance """
-        
+
     @abstractmethod
     def _domain_analyse(self, outputs: SolverOutputs) -> SolverSolutions:
         """ Solves the problem defined within the FEMM suite """

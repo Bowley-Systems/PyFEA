@@ -3,14 +3,13 @@
 [version]
 format: 0.1.0
 
-[units]
-# Mechanics
+[Mechanics]
 N: kg*m*s^-2
 J: kg*m^2*s^-2
 W: kg*m^2*s^-3
 Pa: kg*m^-1*s^-2
 
-# Electricity
+[Electricity]
 C: A*s
 V: kg*m^2*s^-3*A^-1
 F: kg^-1*m^-2*s^4*A^2
@@ -20,8 +19,7 @@ Wb: kg*m^2*s^-2*A^-1
 T: kg*s^-2*A^-1
 H: kg*m^2*s^-2*A^-2
 
-# Other
-Hz: s^-1
+[Other]
 lm: cd
 lx: cd*m^-2
 Gy: m^2*s^-2
