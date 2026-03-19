@@ -8,8 +8,6 @@ Description:
     solves the problem with tolerance marching
 """
 
-import logging
-
 from pathlib import Path
 from typing import Any
 from abc import ABC, abstractmethod
@@ -28,14 +26,12 @@ class FEMMSolver(BaseSolver, ABC):
         folder_path: Path,
         tolerance: float = 1e-012,
         max_tolerance: float = 1e-04,
-        max_attempts: int = 8
     ) -> None:
         """ Initializes the FEMM solver and FEMM renderer """  
         self._folder_path_exist(folder_path)
 
         self.filename = ""
         self.tolerance = tolerance
-        self.max_attempts = max_attempts
         self.max_tolerance = max_tolerance
 
         # Overrides the FEMMRenderer on BaseRenderer
@@ -44,36 +40,18 @@ class FEMMSolver(BaseSolver, ABC):
 
     def solve(self, outputs: SolverOutputs):
         """ Solves the problem constructed by the FEMMRenderer """
-        self._setup_check("solving")
-        for attempt in range(0, self.max_attempts):
-            try:
-                # Opens FEMM suite as a hidden window
-                self.renderer.check_active()
+        try:
+            # Opens FEMM suite as a hidden window
+            self._setup_check("solving")
+            self.renderer.check_active()
 
-                solution = self._domain_analyse(outputs)
-                msg = (
-                    f"Solved problem with tolerance {self.renderer.tolerance} "
-                    f"on attempt {attempt}"
-                )
-                logging.info(msg)
+            solution = self._domain_analyse(outputs)
+            self._clean_up()
+            return solution
 
-                self._clean_up()
-                return solution
-
-            except Exception as err:
-                if (
-                    self.renderer.tolerance > self.max_tolerance or 
-                    attempt == self.max_attempts
-                ):
-                    msg = (
-                        f"Solver failed after {attempt} attempts with tolerance "
-                        f"{self.renderer.tolerance}: {err}"
-                    )
-                    raise SolverError(msg) from None
-
-                # reentry with lower tolerance; Increases the tolerance by a factor of 10
-                new_tolerance = self.renderer.tolerance * 10
-                self._change_tolerance(new_tolerance)
+        except Exception as err:
+            msg = f"FEMMSolver failed to solve problem due to {err}"
+            raise SolverError(msg) from err
 
     def _setup_check(self, method: str) -> None:
         """ Checks if the problem has be setup """

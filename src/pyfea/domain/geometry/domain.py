@@ -1,33 +1,27 @@
 """
 Filename: domain.py
+
 Description:
     Defines the dataclasses for the domain. 
     Which holds the boundary type, material
     and parts.
 """
 
-from enum import Enum, auto
 from dataclasses import dataclass
 
-from pyfea.domain.geometry.definitions import CoordinateSystem
+from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 
 
-class BoundaryType(Enum):
-    """ Different boundary types available """
-    DIRICHLET = auto()
-    CONVECTION = auto()
-
-
 @dataclass(slots=True)
 class Domain:
-    """ Simulation domain """
+    """ FEA simulation domain """
     parts: tuple[Part, ...]
     boundary_type: BoundaryType
     meta_data: MagneticData | ThermalData
-    coordinate_system: CoordinateSystem 
+    coordinate_system: CoordinateSystem
     shape: VectorGeometry | CSGNode
 
     @property

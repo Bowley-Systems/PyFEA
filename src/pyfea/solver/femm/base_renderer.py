@@ -118,10 +118,6 @@ class FEMMRenderer(BaseRenderer, ABC):
         """ Defines the suite problem definition """
 
     @abstractmethod
-    def tolerance_march(self, tolerance: float) -> None:
-        """ Defines the suite problem with new tolerance """
-
-    @abstractmethod
     def _save_changes(self) -> None:
         """ Saves changes to the femm suite to file """
 

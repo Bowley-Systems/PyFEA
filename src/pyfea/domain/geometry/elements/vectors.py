@@ -11,55 +11,11 @@ from typing import Any
 
 from abc import ABC
 from dataclasses import dataclass
-from enum import Enum, auto
 
 from pyfea import meter, Quantity
-from pyfea.domain.geometry.definitions import GeometricPrimitives, GeometryDimensionError
-
-
-class PrimitivesShapes(Enum):
-    """
-    Fundamental Shape, all connections within the shape rotates clockwise
-    """
-    POLYGON = auto()
-    ELLIPSOID = auto()
-    PATH = auto()
-    COMPOSITE = auto()
-
-    @property
-    def _name(self) -> str:
-        """ Returns its name as the auto definition """
-        return f"<PrimitiveShapes={self.name}>"
-
-    def __str__(self) -> str:
-        """ Returns the points name from PrimitivesShapes.type """
-        return self._name
-
-    def __repr__(self) -> str:
-        """ Returns the points name from PrimitivesShapes.type """
-        return self._name
-
-
-class CSOperation(Enum):
-    """ Different types of CSG operation """
-    UNION = auto()
-    SUBTRACT = auto()
-    INTERSECT = auto()
-    EXTRUSION = auto()
-    FILLET = auto()
-
-    @property
-    def _name(self) -> str:
-        """ Returns its name as the auto definition """
-        return f"<CSOperation={self.name}>"
-
-    def __str__(self) -> str:
-        """ Returns the points name from CSOperation.type """
-        return self._name
-
-    def __repr__(self) -> str:
-        """ Returns the points name from CSOperation.type """
-        return self._name
+from pyfea.domain.geometry.definitions import (
+    GeometricPrimitives, GeometryDimensionError, PrimitivesShapes, CSOperation
+)
 
 
 class GeometryElement(ABC):
@@ -134,6 +90,7 @@ class CSGNode(GeometricPrimitives, GeometryElement):
 
     @property
     def _name(self) -> str:
+        """ Returns a clean, scannable string representation """
         param_str = f", params={self.params}" if self.params else ""
         operand_str = ", ".join(str(o) for o in self.operands)
         return f"<CSGNode: {self.operation.name}({operand_str}{param_str})>"

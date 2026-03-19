@@ -10,6 +10,7 @@ Description:
 
 from math import cos, sin, radians
 
+from numpy import ndarray
 from shapely.geometry import (
     point as ShapelyPoint,
     Polygon as ShapelyPolygon,
@@ -50,18 +51,6 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         # Saves problem definitions for marching
         self.problem_type = problem_type
         self.depth = depth
-
-    def tolerance_march(self, tolerance: float) -> None:
-        """ Defines the suite problem with new tolerance """
-        femm.mi_probdef(
-            0,                          # Frequency (Not Used)
-            self.femm_unit,             # Default length unit in suite
-            self.problem_type,          # Problem type defined during setup
-            float(tolerance),           # New meshing tolerance
-            self.depth                  # Depth of problem defined during setup
-        )
-
-        self.tolerance = tolerance
 
     def draw_domain(self, domain: Domain):
         """ Defines the domain and than draws the elements within """
@@ -127,7 +116,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             angle = self._strip_quantity(angles, nullset)
 
             # Edge case: (yaw, pitch, roll is used) as input
-            if len(angle) > 1:
+            if isinstance(angle, ndarray | list | tuple):
                 angle = angle[0]
 
             rad_angle = radians(angle)
@@ -165,7 +154,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             angle = self._strip_quantity(angles, nullset)
 
             # Edge case: (yaw, pitch, roll is used) as input
-            if len(angle) > 1:
+            if isinstance(angle, ndarray | list | tuple):
                 angle = angle[0]
 
             x, y = axis
@@ -178,9 +167,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             msg = f"Failed to rotate element {element_id!r} due to {err}"
             raise RendererError(msg) from err
 
-    def update_current(
-        self, circuit: Circuit
-    ) -> None:
+    def update_current(self, circuit: Circuit) -> None:
         """ Changes the magnitude of the current flowing through a circuit """
         self.check_active()
 
@@ -350,9 +337,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
     def _create_circuit(self, circuit: Circuit):
         """ Adds a new circuit to the FEMM suite via circuit dataclass """
         femm_circuit_type = None
-        if circuit.configuration == Configuration.PARALLEL:
+        if circuit.configuration == Configuration.parallel:
             femm_circuit_type = 0
-        elif circuit.configuration == Configuration.SERIES:
+        elif circuit.configuration == Configuration.series:
             femm_circuit_type = 1
         else:
             msg = f"Circuit type {circuit.configuration!r} is not supported by FEMM"

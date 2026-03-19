@@ -6,9 +6,10 @@ Description:
 """
 
 
-from pyfea import dimensionless, Quantity
+from pyfea import Quantity as Q, nullset
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
+
 from pyfea.domain.geometry.elements.vectors import (
     VectorGeometry, PrimitivesShapes, GeometryElement
 )
@@ -20,10 +21,8 @@ class Builder:
     """ Builds geometry with vector objects and CSG system """
 
     @staticmethod
-    def create_rectangle(
-        bottom_left: tuple[Quantity, Quantity],
-        length: Quantity,
-        height: Quantity
+    def rectangle(
+        bottom_left: tuple[Q, Q], length: Q, height: Q
     ) -> VectorGeometry:
         """ Creates a square vector geometry """
         x, y = bottom_left
@@ -41,23 +40,19 @@ class Builder:
         return VectorGeometry(PrimitivesShapes.POLYGON, data)
 
     @staticmethod
-    def create_circle(
-        center: tuple[Quantity, Quantity],
-        radius: Quantity
+    def circle(
+        center: tuple[Q, Q], radius: Q
     ) -> VectorGeometry:
         """ Creates a circle from a center point and a radius """
         # Translates and validates the central point
         center = Point(center[0], center[1])
 
-        circle = Ellipsoid(
-            center, radius, 1 * dimensionless, 1 * dimensionless
-        )
+        circle = Ellipsoid(center, radius, 1 * nullset, 1 * nullset)
         return VectorGeometry(PrimitivesShapes.ELLIPSOID, circle)
 
     @staticmethod
     def promote_to_part(
-        element: GeometryElement,
-        metadata: MagneticData | ThermalData
+        element: GeometryElement, metadata: MagneticData | ThermalData
     ) -> Part:
         """ Promotes a CSNode or VectorGeometry class to a part """
         return Part(element, metadata)

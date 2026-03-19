@@ -18,7 +18,7 @@ from shapely.geometry import (
 from pyfea.domain.units import Material, Quantity
 from pyfea import (
     VOLUMETRIC_HEAT_CAPACITY, VOLUMETRIC_HEATING, THERMAL_CONDUCTIVITY,
-    nullset, W, M, K, s
+    nullset, W, K, s, meter as m
 )
 
 from pyfea.domain.geometry.definitions import BoundaryType
@@ -60,34 +60,6 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         # Saves problem definitions for marching
         self.problem_type = problem_type
         self.depth = depth
-
-    def tolerance_march(
-        self,
-        tolerance: float,
-        time_step: Quantity = None,
-        solution_file: str = None
-    ) -> None:
-        """ Defines the suite problem with new tolerance """
-        if time_step:
-            femm.hi_probdef(
-                self.femm_unit,             # Default length unit in suite
-                self.problem_type,          # Problem type defined during setup
-                float(tolerance),           # New meshing tolerance
-                self.depth,                 # Depth of problem defined during setup
-                30,
-                str(solution_file),
-                float(self._strip_quantity(time_step, s))
-            )
-
-        else:
-            femm.hi_probdef(
-                self.femm_unit,             # Default length unit in suite
-                self.problem_type,          # Planar or Axial Symmetric
-                float(tolerance),           # Meshing tolerance
-                self.depth,                 # Planar depth extrusion
-            )
-
-        self.tolerance = tolerance
 
     def draw_domain(self, domain: Domain):
         """ Defines the domain and than draws the elements within """
@@ -320,7 +292,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                 try:
                     temperature = self._strip_quantity(meta_data.temperature, K)
                     heat_transfer = self._strip_quantity(
-                        meta_data.convection_coefficient, W / (M **2 * K)
+                        meta_data.convection_coefficient, W / (m**2 * K)
                     )
 
                     boundary_name = str(f"{heat_transfer}_{temperature}")
@@ -330,6 +302,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                     return boundary_name
 
                 except Exception as err:
+                    print(boundary)
                     msg = f"Failed to create convection boundary condition: {err}"
                     raise RendererError(msg) from err
             case _:

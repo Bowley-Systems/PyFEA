@@ -2,7 +2,8 @@
 Filename: definitions.py
 Description:
     Defines the global geometry errors,
-    dataclasses and enums.
+    dataclasses and enums within the 
+    geometry modules.
 """
 
 from abc import ABC, abstractmethod
@@ -39,6 +40,51 @@ class GeometricPrimitives(ABC):
 
     def __repr__(self) -> str:
         """ Returns the points name from Point.name """
+        return self._name
+
+
+class PrimitivesShapes(Enum):
+    """
+    Fundamental Shape, all connections within the shape rotates clockwise
+    """
+    POLYGON = auto()
+    ELLIPSOID = auto()
+    PATH = auto()
+    COMPOSITE = auto()
+
+    @property
+    def _name(self) -> str:
+        """ Returns its name as the auto definition """
+        return f"<PrimitiveShapes={self.name}>"
+
+    def __str__(self) -> str:
+        """ Returns the points name from PrimitivesShapes.type """
+        return self._name
+
+    def __repr__(self) -> str:
+        """ Returns the points name from PrimitivesShapes.type """
+        return self._name
+
+
+class CSOperation(Enum):
+    """ Different types of CSG operation """
+    UNION = auto()
+    SUBTRACT = auto()
+    INTERSECT = auto()
+    EXTRUSION = auto()
+    FILLET = auto()
+
+    @property
+    def _name(self) -> str:
+        """ Returns its name as the auto definition """
+        return f"<CSOperation={self.name}>"
+
+    def __str__(self) -> str:
+        """ Returns the points name from CSOperation.type """
+        return self._name
+
+    def __repr__(self) -> str:
+        """ Returns the points name from CSOperation.type """
         return self._name
 
 

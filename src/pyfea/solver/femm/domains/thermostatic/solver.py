@@ -58,59 +58,31 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
 
     def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * TIME):
         """ Solves the problem constructed by the FEMMRenderer """
-        self._setup_check("solving FEM problem")
-
-        if time_step.value > 0:
-            ans_path = Path(f"{self.filename}.anh")
-            self.renderer.suite_define(
-                self.renderer.problem_type,
-                self.renderer.depth,
-                time_step,
-                ans_path
-            )
-        else:
-            self.renderer.suite_define(
-                self.renderer.problem_type, self.renderer.depth, time_step,
-            )
-
-        for attempt in range(0, self.max_attempts):
-            try:
-                # Opens FEMM suite as a hidden window
-                self.renderer.check_active()
-
-                solution = self._domain_analyse(outputs)
-
-                self._clean_up()
-                return solution
-
-            except Exception as err:
-                if (
-                    self.renderer.tolerance > self.max_tolerance or
-                    attempt == self.max_attempts
-                ):
-                    msg = (
-                        f"Solver failed after {attempt} attempts with tolerance "
-                        f"{self.renderer.tolerance}: {err}"
-                    )
-                    raise SolverError(msg) from err
-
-                # Increases the tolerance by a factor of 10
-                new_tolerance = self.renderer.tolerance * 10
-
-                # Log reentry attempt under lower tolerance
-                self._change_tolerance(new_tolerance, time_step)
-
-    def _change_tolerance(self, tolerance: float, time_step: Quantity) -> None:
-        """ Changes the required tolerance within FEMM problem """
-        self.renderer.check_active()
-
         try:
-            if time_step:
+            # Opens FEMM suite as a hidden window
+            self._setup_check("solving FEM problem")
+            self.renderer.check_active()
+
+            if time_step.value > 0:
                 ans_path = Path(f"{self.filename}.anh")
-                self.renderer.tolerance_march(tolerance, time_step, ans_path)
+                self.renderer.suite_define(
+                    self.renderer.problem_type,
+                    self.renderer.depth,
+                    time_step,
+                    ans_path
+                )
+            else:
+                self.renderer.suite_define(
+                    self.renderer.problem_type, self.renderer.depth, time_step,
+                )
+
+            solution = self._domain_analyse(outputs)
+
+            self._clean_up()
+            return solution
 
         except Exception as err:
-            msg = f"Failed to change the tolerance of the FEMM problem due to {err}"
+            msg = f"FEMMSolver failed to solve problem due to {err}"
             raise SolverError(msg) from err
 
     def _domain_analyse(self, outputs: SolverOutputs):
@@ -123,9 +95,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
 
             if isinstance(option, ThermalOptions):
                 data = self._operations(option, target)
-                results = self._add_result(
-                    results, f"element_{target.value}", option, data
-                )
+                results = self._add_result(results, target, option, data)
 
             else:
                 name = self.__class__.__name__

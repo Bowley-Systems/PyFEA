@@ -69,9 +69,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
 
             elif isinstance(option, MagneticOptions):
                 data = self._element_outputs(option, target)
-                results = self._add_result(
-                    results, f"element_{target.value}", option, data
-                )
+                results = self._add_result(results, target, option, data)
 
             else:
                 name = self.__class__.__name__
@@ -80,12 +78,23 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
 
         return SolverSolutions(results)
 
-    def move_element(self, element_id, magnitude, angles):
+    def move_element(
+        self, element_id: Quantity, magnitude: Quantity, angles: Quantity
+    ):
         """ Moves an element within the simulation domain """
         self._setup_check("moving an element")
         self.renderer.move_element(element_id, magnitude, angles)
 
-    def rotate_element(self, element_id, axis, angles):
+    def move_elements(
+        self, element_ids: tuple[Quantity], magnitude: Quantity, angles: Quantity
+    ) -> None:
+        """ Moves an element within the simulation domain """
+        self._setup_check("moving an element")
+        self.renderer.move_element(element_ids, magnitude, angles)
+
+    def rotate_element(
+        self, element_id: Quantity, axis: Quantity, angles: Quantity
+    ) -> None:
         """ Rotates a element around an axis in the simulation domain """
         self._setup_check("rotating an element")
         self.renderer.rotate_element(element_id, axis, angles)
@@ -154,7 +163,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 return (
                     self._get_block_integral(element_id, 11),
                     self._get_block_integral(element_id, 12)
-                ) * newton     
+                ) * newton
             case MagneticOptions.torque_lorentz:
                 return self._get_block_integral(element_id, 15) * (newton * meter)
             case MagneticOptions.force_stress_tensor:

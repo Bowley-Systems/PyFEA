@@ -54,8 +54,8 @@ class UnitError(TypeError):
         super().__init__(msg)
 
 
-def strip_quantity(quantity: Quantity, ref: Quantity) -> Any:
-    """ Strips quantity from value returns raw value """
+def check_quantity(quantity: Quantity, ref: Quantity) -> None:
+    """ Checks if the quantity has the correct reference unit """
     if not isinstance(quantity, Quantity):
         msg = f"{type(quantity)!r} is not a physical quantity object"
         raise UnitError(msg)
@@ -73,6 +73,11 @@ def strip_quantity(quantity: Quantity, ref: Quantity) -> Any:
         if quantity.unit != ref:
             msg = f"Expected {ref!r}, got {quantity.unit!r}"
             raise UnitError(msg)
+
+
+def strip_quantity(quantity: Quantity, reference: Quantity) -> Any:
+    """ Strips quantity from value returns raw value """
+    check_quantity(quantity, reference)
 
     return quantity.value
 
