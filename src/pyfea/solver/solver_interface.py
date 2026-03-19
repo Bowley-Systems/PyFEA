@@ -93,7 +93,7 @@ class BaseSolver(ABC):
         self.folder_path.mkdir(parents=True, exist_ok=True)
 
 
-class MagneticSolver(BaseSolver):
+class MagneticSolver(BaseSolver, ABC):
     """ Solver interface for magnetic problems """
     @abstractmethod
     def update_current(self, circuit: Circuit, current: Quantity) -> Any:
@@ -105,8 +105,15 @@ class MagneticSolver(BaseSolver):
     ) -> Any:
         """ Updates the materials based on temperature """
 
-class ThermalSolver(BaseSolver):
+
+class ThermalSolver(BaseSolver, ABC):
     """ Solver interface for thermal problems """
     @abstractmethod
     def update_heat_source(self, element: Quantity, magnitude: Quantity) -> Any:
         """ Updates a volumetric heat source within the simulation domain """
+
+
+class ElectricSolver(BaseSolver, ABC):
+    """ Renderer interface for electric problems """
+    # Placeholder for future electric-specific methods
+    # Setting electric circuits (conductors), changing voltage, etc

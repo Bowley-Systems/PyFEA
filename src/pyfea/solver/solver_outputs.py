@@ -10,11 +10,13 @@ Description:
 from typing import Any, Iterable
 from enum import Enum, auto
 
-from pyfea.domain.circuits.builder import Circuit
+from pyfea.domain.circuits.builder import Circuit, Component
 
 class CircuitOptions(Enum):
     """ Defines the different possible circuit output variables """
     power           =   auto()
+    gain            =   auto()
+    phase           =   auto()
     voltage         =   auto()
     current         =   auto()
     resistance      =   auto()
@@ -58,10 +60,10 @@ class SolverOutputs:
             self.registry[(entity, outputs)] = entity
 
     def add_circuit(
-        self, circuit: Circuit, output: CircuitOptions | list[CircuitOptions]
+        self, node: Circuit | Component, output: CircuitOptions | list[CircuitOptions]
     ) -> None:
         """" Requests a circuit output and the circuit to probe """
-        self._register(circuit, output)
+        self._register(node, output)
 
     def add_magnetic(
         self, element_id: Any, output: MagneticOptions | list[MagneticOptions]

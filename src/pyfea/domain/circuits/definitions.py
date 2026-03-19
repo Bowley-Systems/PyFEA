@@ -6,6 +6,8 @@ Description:
     circuit modules.
 """
 
+from typing import Any
+
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 
@@ -54,3 +56,13 @@ class ComponentTypes(Enum):
     def __repr__(self) -> str:
         """ Returns the points name from ComponentTypes.type """
         return self._name
+
+
+class Terminal:
+    """ Represents a terminal (connection point)"""
+    def __init__(self, name, parent: Any):
+        self.name = name
+        self.parent = parent
+
+    def __repr__(self):
+        return f"<Terminal {self.name}>"

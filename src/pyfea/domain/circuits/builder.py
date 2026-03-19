@@ -13,7 +13,7 @@ from pyfea import Quantity as Q, check_quantity, ohm, farad, volt, kelvin
 
 from pyfea.domain.circuits.domain import Domain
 from pyfea.domain.circuits.definitions import Configuration
-from pyfea.domain.circuits.nodes import Component, ComponentTypes, Branch
+from pyfea.domain.circuits.nodes import Component, ComponentTypes, Abstract, Device
 
 
 class Builder:
@@ -40,7 +40,8 @@ class Builder:
 
         # Constructs parameters as a series of value : units
         parameters = {"amplitude": amplitude}
-        return Component(ComponentTypes.SOURCE, parameters, False)
+        source = Component(ComponentTypes.SOURCE, parameters, False)
+        return Device(source)
 
     @staticmethod
     def resistor(resistance: Q) -> Component:
@@ -53,24 +54,19 @@ class Builder:
         return Component(ComponentTypes.RESISTOR, parameters)
 
     @staticmethod
-    def branch(config: Configuration, *components: Component | Branch) -> Branch:
-        """ Configures a series of components / branches into a larger branch """
-        return Branch(config, *components)
+    def abstract(config: Configuration, *components: Component | Abstract) -> Abstract:
+        """ Configures a series of components / Abstract into a larger Abstract """
+        return Abstract(config, *components)
 
     @staticmethod
-    def domain(
-        source: Component, branches: Branch, temperature: Q, nominal_temp: Q
+    def domain(temperature: Q, nominal_temp: Q
     ) -> Domain:
         """ Builds the lumped parameter domain """
         # Ensures units are correct before construction
         check_quantity(temperature, kelvin)
         check_quantity(nominal_temp, kelvin)
 
-        if source.Linkable:
-            msg = f"{source!r} is not a defined correctly must be non linkable"
-            raise TypeError(msg)
-
-        return Domain(source, branches, temperature, nominal_temp)
+        return Domain(temperature, nominal_temp)
 
 
 @dataclass
@@ -79,7 +75,7 @@ class Circuit:
     name: str
     current: Q
     configuration: Configuration
-    
+
     def __hash__(self):
         """ Hash based class attributes """
         return hash(

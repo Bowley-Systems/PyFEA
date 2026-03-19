@@ -18,28 +18,30 @@ from pyfea import volt, ohm, farad, k, u, K # , Hz, M
 from pyfea.domain.circuits import Configuration, Builder
 
 # from pyfea.solver.ngspice.solver import NGSpiceSolverAC
-# from pyfea.solver.solver_outputs import SolverOutputs, CircuitOptions
-
+from pyfea.solver.solver_outputs import SolverOutputs, CircuitOptions
 
 # Constructs components (source, capacitor, resistor)
-source = Builder.source(1 * volt)
+circuit = Builder.domain(298.15 * K, 298.15 * K)
+
 capacitor = Builder.capacitor(1 * u * farad, esr=0.1 * ohm)
 resistor = Builder.resistor(1 * k * ohm)
 
 # Construct geometric relations and circuit
-branch = Builder.branch(Configuration.series, capacitor, resistor)
-circuit = Builder.domain(source, branch, 298.15 * K, 298.15 * K)
+source = Builder.source(1 * volt)
+cr_block = Builder.abstract(Configuration.series, capacitor, resistor)
 
+circuit.link(cr_block.main, source.main)
+circuit.link(circuit.gnd, source.out, cr_block.main)
 
 print(circuit)
 
 # # Defines requested outputs
-# outputs = SolverOutputs()
-# outputs.add_circuit(capacitor, CircuitOptions.gain)
-# outputs.add_circuit(capacitor, CircuitOptions.phase)
+outputs = SolverOutputs()
+outputs.add_circuit(capacitor, CircuitOptions.gain)
+outputs.add_circuit(capacitor, CircuitOptions.phase)
 
 # # Solves configured circuit
-# solver = NGSpiceSolverAC.setup(1 * u * Hz, 10 * M * Hz, samples=1000)
+# solver = NGSpiceSolverAC.setup(circuit, 1 * u * Hz, 10 * M * Hz, samples=1000)
 # solution = solver.solve(outputs)
 
 # # Extract solution

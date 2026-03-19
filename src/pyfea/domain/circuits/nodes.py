@@ -12,11 +12,11 @@ from typing import Any
 from dataclasses import dataclass
 
 from pyfea.domain.circuits.definitions import (
-    NodalPrimitives, Configuration, ComponentTypes
+    NodalPrimitives, Configuration, ComponentTypes, Terminal
 )
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class Component(NodalPrimitives):
     """ Fundamental node that holds component details. (Primary; Non branching) """
     type: ComponentTypes
@@ -28,17 +28,44 @@ class Component(NodalPrimitives):
         """ Returns a clean, scannable string representation """
         return f"<Component={self.type}, properties={len(self.params)}>"
 
+    def __hash__(self):
+        """ Ensures that each component has different hashes"""
+        return hash(frozenset(self.params.items()))
 
-class Branch(NodalPrimitives):
-    """ 
-    Relational branch defines how component nodes and branches relate to each other
-    """
-    __slots__ = ('configuration', 'component')
 
+class Device(NodalPrimitives):
+    """ Abstract component that cannot have a internal configuration """
+    def __init__(
+        self,
+        component: Component,
+        terminals: list = ("main", "out")
+    ) -> None:
+        """ Initialize the device """
+        if not isinstance(component, (Component, Abstract)):
+            msg = f"item must be 'Component' or 'Branch' not {type(component).__name__}"
+            raise TypeError(msg)
+
+        self.component = component 
+
+        # Constructs connection terminals
+        self._terminals = {}
+        for name in terminals:
+            terminal = Terminal(name, self)
+            self._terminals[name] = terminal
+            setattr(self, name, terminal)
+
+    @property
+    def name(self) -> str:
+        return f"<Device=({self.component})>"
+
+
+class Abstract(NodalPrimitives):
+    """ Abstract component defines how component and/or Abstract components relate """
     def __init__(
         self,
         configuration: Configuration,
-        *components: Component | Branch
+        *components: Component | Abstract,
+        terminals: list = ("main", "out")
     ) -> None:
         """ Initialize the branch; Configuration enum and"""
         if not isinstance(configuration, Configuration):
@@ -46,22 +73,24 @@ class Branch(NodalPrimitives):
             raise TypeError(msg)
 
         for item in components:
-            if not isinstance(item, (Component, Branch)):
+            if not isinstance(item, (Component, Abstract)):
                 msg = f"item must be 'Component' or 'Branch' not {type(item).__name__}"
                 raise TypeError(msg)
-
-            if isinstance(item, Component):
-                if not item.Linkable:
-                    msg = f"{item!r} is a non-linkable component. It cannot be in a branch"
-                    raise TypeError(msg)
 
         self.components = components
         self.configuration = configuration
 
+        # Constructs connection terminals
+        self._terminals = {}
+        for name in terminals:
+            terminal = Terminal(name, self)
+            self._terminals[name] = terminal
+            setattr(self, name, terminal)
+
     @property
     def name(self) -> str:
         parts = ', '.join(
-            item.name if isinstance(item, Branch) else str(item.type)
+            item.name if isinstance(item, Abstract) else str(item.type)
             for item in self.components
         )
-        return f"<Branch={self.configuration}, components=({parts})>"
+        return f"<abstract={self.configuration}, components=({parts})>"
