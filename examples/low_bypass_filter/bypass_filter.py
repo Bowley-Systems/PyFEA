@@ -28,7 +28,7 @@ resistor = Builder.resistor(1 * k * ohm)
 
 # Construct geometric relations and circuit
 source = Builder.source(1 * volt)
-cr_block = Builder.abstract(Configuration.series, capacitor, resistor)
+cr_block = Builder.abstract(Configuration.series, resistor, capacitor)
 
 circuit.link(cr_block.main, source.main)
 circuit.link(circuit.gnd, source.out, cr_block.main)

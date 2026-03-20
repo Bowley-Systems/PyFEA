@@ -45,7 +45,7 @@ temp_dependence: [
 ] (K), (kg^-1*m^-3*s^3*A^2)
 
 [stc_air.thermal]
-volumetric_heat_capacity: 1.30e6 (kg*m^-1*s^-2*K^-1)
+volumetric_heat_capacity: 1.185 k(kg*m^-1*s^-2*K^-1)
 conductivity: [0.0261, 0.0261] (kg*m*s^-3*K^-1)
 temp_dependence: [
   [200.0, 0.0181],
