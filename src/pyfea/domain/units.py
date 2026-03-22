@@ -1,5 +1,6 @@
 """
 Filename: units.py
+
 Description:
     Defines unit notation for pyFEA 
     based on its 'SI Metric' unit frame

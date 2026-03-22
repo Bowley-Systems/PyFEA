@@ -1,5 +1,6 @@
 """
 Filename: definitions.py
+
 Description:
     Defines the global geometry errors,
     dataclasses and enums within the 

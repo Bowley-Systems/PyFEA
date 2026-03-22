@@ -4,28 +4,28 @@
 format: 0.1.0
 
 [Mechanics]
-N: kg*m*s^-2
-J: kg*m^2*s^-2
-W: kg*m^2*s^-3
-Pa: kg*m^-1*s^-2
+N:      kg*m*s^-2
+J:      kg*m^2*s^-2
+W:      kg*m^2*s^-3
+Pa:     kg*m^-1*s^-2
 
 [Electricity]
-V: kg*m^2*s^-3*A^-1
-F: kg^-1*m^-2*s^4*A^2
-Ω: kg*m^2*s^-3*A^-2
-S: kg^-1*m^-2*s^3*A^2
-Wb: kg*m^2*s^-2*A^-1
-T: kg*s^-2*A^-1
-H: kg*m^2*s^-2*A^-2
-S_m: kg^-1*m^-3*s^3*A^2
+V:      kg*m^2*s^-3*A^-1
+F:      kg^-1*m^-2*s^4*A^2
+Ω:      kg*m^2*s^-3*A^-2
+S:      kg^-1*m^-2*s^3*A^2
+Wb:     kg*m^2*s^-2*A^-1
+T:      kg*s^-2*A^-1
+H:      kg*m^2*s^-2*A^-2
+S_m:    kg^-1*m^-3*s^3*A^2
 
 [Heat]
-k: kg*m*s^-3*K^-1
-c: m^2*s^-2*K^-1
+k:      kg*m*s^-3*K^-1
+c:      m^2*s^-2*K^-1
 
 [Other]
-lm: cd
-lx: cd*m^-2
-Gy: m^2*s^-2
-Sv: m^2*s^-2
-kat: mol*s^-1
+lm:     cd
+lx:     cd*m^-2
+Gy:     m^2*s^-2
+Sv:     m^2*s^-2
+kat:    mol*s^-1

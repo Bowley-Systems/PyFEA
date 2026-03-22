@@ -1,5 +1,6 @@
 """
 Filename: solver.py
+
 Description:
     Solver adaptor interface for FEMM (finite element magnetic methods)
     thermostatic simulation domain. 

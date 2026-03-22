@@ -1,5 +1,6 @@
 """
 Filename: base_renderer.py
+
 Description:
     Renderer adaptor for FEMM (finite element magnetic methods)
     uses shapely to translate CSG (Construct Solid Geometry) to

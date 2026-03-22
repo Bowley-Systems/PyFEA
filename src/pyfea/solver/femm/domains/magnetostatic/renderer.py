@@ -1,5 +1,6 @@
 """
 Filename: renderer.py
+
 Description:
     Renderer adaptor interface for FEMM (finite element magnetic methods)
     magnetostatic simulation domain.

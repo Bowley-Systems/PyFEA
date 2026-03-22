@@ -134,14 +134,14 @@ class FEMMConstructSolidGeometry:
 
         msg = f"{type(geometry)!r} is not supported by FEMMConstructSolidGeometry"
         raise RendererError(msg)
-    
+
     @classmethod
     def polygon_solid_centroid(
         cls, polygon: ShapelyPolygon, tolerance: float
     ) -> ShapelyPoint:
         """ Returns a point guaranteed to be inside of the solid material of a polygon """
         return polylabel(polygon, tolerance)
-    
+
     @classmethod
     def part_complement(
         cls, parts: list[ShapelyPolygon], domain: ShapelyPolygon
@@ -149,7 +149,7 @@ class FEMMConstructSolidGeometry:
         """ Computes the complement of the part regions within domain set"""
         domain_union = unary_union(parts)
         return domain.difference(domain_union)
-    
+
     @classmethod
     def _strip_quantity(cls, quantity: Quantity, ref: Quantity) -> Any:
         """ Strips quantity from value returns raw value """

@@ -48,10 +48,10 @@ class Device(NodalPrimitives):
         self.component = component 
 
         # Constructs connection terminals
-        self._terminals = {}
+        self.terminals = {}
         for name in terminals:
             terminal = Terminal(name, self)
-            self._terminals[name] = terminal
+            self.terminals[name] = terminal
             setattr(self, name, terminal)
 
     @property
@@ -81,10 +81,10 @@ class Abstract(NodalPrimitives):
         self.configuration = configuration
 
         # Constructs connection terminals
-        self._terminals = {}
+        self.terminals = {}
         for name in terminals:
             terminal = Terminal(name, self)
-            self._terminals[name] = terminal
+            self.terminals[name] = terminal
             setattr(self, name, terminal)
 
     @property

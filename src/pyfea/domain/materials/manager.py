@@ -1,5 +1,6 @@
 """
 Filename: manager.py
+
 Description:
     Manages material request from the renderers
     and enforces specific parameters for material types.

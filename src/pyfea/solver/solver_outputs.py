@@ -1,5 +1,6 @@
 """
 Filename: solver_outputs.py
+
 Description:
     Defines the configuration enums and the 
     SolverOutput Class for requiring outputs.

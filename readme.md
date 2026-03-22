@@ -19,7 +19,7 @@ Sick of glue code and brittle pipelines? Annoyed by having to learn 10 different
 PyFea is designed to be used as a high-level API for multi-solver physics problems. It is built around abstract base functions, essentially contracts that all solvers have to meet. Implementing a solver consists of two parts: a renderer and the solver interface. The renderer understands how to translate PyFea's native vector geometry to a non-native geometry type. It can be thought of as a preloader for the solver. The solver interface simply communicates with the external solver while doing boundary unit checks to ensure dimensional consistency. 
 
 > [!NOTE]
-> [FEMM](https://www.femm.info/wiki/HomePage) and [PySpice](https://pyspicepyspice.fabrice-salvaire.f) are the only supported solvers currently; future releases will support additional solvers.
+> [FEMM](https://www.femm.info/wiki/HomePage) and [NGspice](https://pyspicepyspice.fabrice-salvaire.f) are the only supported solvers currently; future releases will support additional solvers.
 
 PyFea includes solver-generic model implementations and a unit-informed universal material library. The current model library includes:
 

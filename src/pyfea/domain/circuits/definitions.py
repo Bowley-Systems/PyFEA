@@ -1,5 +1,6 @@
 """
 Filename: definitions.py
+
 Description:
     Defines the global circuit errors,
     dataclasses and enums within the 
