@@ -18,7 +18,6 @@ from pyfea import volt, ohm, farad, k, u, K # , Hz, M
 from pyfea.domain.circuits import Configuration, Builder
 
 # from pyfea.solver.ngspice.solver import NGSpiceSolverAC
-from pyfea.solver.ngspice.interpreter import NGspiceInterpreter
 # from pyfea.solver.solver_outputs import SolverOutputs, CircuitOptions
 
 # Constructs components (source, capacitor, resistor)
@@ -34,6 +33,9 @@ cr_block = Builder.abstract(Configuration.series, resistor, capacitor)
 circuit.link(cr_block.main, source.main)
 circuit.link(circuit.gnd, source.out, cr_block.out)
 
+
+# testing
+from pyfea.solver.ngspice.interpreter import NGspiceInterpreter
 NGspiceInterpreter.transverse_tree(circuit)
 
 # # Defines requested outputs

@@ -62,6 +62,7 @@
     "PTFE",
     "nullset",
     "ngspice",
-    "pyspice"
+    "pyspice",
+    "matweb"
   ]
 }
