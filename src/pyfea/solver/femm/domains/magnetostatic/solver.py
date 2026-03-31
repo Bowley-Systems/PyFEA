@@ -22,10 +22,10 @@ from pyfea.solver.solver_outputs import (
 )
 
 from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.circuits.definitions import StaticCircuit
 from pyfea.solver.femm.base_solver import FEMMSolver, SolverError
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.magnetostatic.renderer import FEMMMagnetostaticRenderer
-from pyfea.domain.circuits.builder import Circuit
 
 
 class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
@@ -36,9 +36,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         femm_file = self.folder_path / f"{filename}.fem"
 
         self.filename = filename
-        return FEMMMagnetostaticRenderer(
-            femm_file, FEMMPhysicsTypes.magnetostatic, tolerance
-        )
+        return FEMMMagnetostaticRenderer(femm_file, FEMMPhysicsTypes.magnetostatic, tolerance)
 
     def setup(
         self,
@@ -55,6 +53,12 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         # Draws the domain to the FEMM suite
         self.renderer.draw_domain(simulation_domain)
         self.problem_setup = True
+
+        # Displays modelling assumptions to the user.
+        print("=== model assumptions ===")
+        for line in self.renderer.verbose:
+            print(f"  • {line}")
+        print("=========================")
 
     def _domain_analyse(self, outputs: SolverOutputs):
         """ Solves the problem defined within the FEMM suite """
@@ -100,7 +104,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         self._setup_check("rotating an element")
         self.renderer.rotate_element(element_id, axis, angles)
 
-    def update_current(self, circuit: Circuit) -> None:
+    def update_current(self, circuit: StaticCircuit) -> None:
         """ Updates the the current in a specific circuit """
         self._setup_check("updating currents")
         self.renderer.update_current(circuit)
@@ -115,7 +119,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
             self.renderer.update_temperature(mat, temperature)
 
     def _circuit_outputs(
-        self, option: CircuitOptions, circuit: Circuit
+        self, option: CircuitOptions, circuit: StaticCircuit
     ) -> Quantity:
         """ Gets the requested circuit output from the FEMM suite """
         circuit_properties = self._get_circuit_properties(circuit)
@@ -180,13 +184,13 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 msg = f"{option!r} is an unknown or unsupported output for {name}"
                 raise SolverError(msg)
 
-    def _get_circuit_properties(self, circuit: Circuit) -> tuple[Quantity]:
+    def _get_circuit_properties(self, circuit: StaticCircuit) -> tuple[Quantity]:
         """ Safely retrieves the properties of a specified circuit from FEMM suite """
         try:
             circuit_name = str(circuit.name)
             properties = femm.mo_getcircuitproperties(circuit_name)
             return (
-                properties[0] * ampere, 
+                properties[0] * ampere,
                 properties[1] * volt,
                 properties[2] * weber
             )

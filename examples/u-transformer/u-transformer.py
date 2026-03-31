@@ -13,11 +13,11 @@ Description:
 from math import pi
 from pathlib import Path
 
-from pyfea import A, Hz, H, mm, ohm, nullset
+from pyfea import A, Hz, H, K, mm, ohm, nullset
 from pyfea.domain.materials.manager import MaterialManager
 from pyfea.domain.geometry.builder import Builder, MagneticData
 from pyfea.domain.geometry.domain import Domain, BoundaryType, CoordinateSystem
-from pyfea.domain.circuits.builder import Circuit, Configuration
+from pyfea.domain.circuits.builder import StaticCircuit, Configuration
 
 from pyfea.solver.solver_outputs import SolverOutputs, CircuitOptions
 from pyfea.solver.femm.domains.magnetostatic.solver import FEMMMagnetostaticSolver
@@ -27,9 +27,10 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 # Pulls materials into the script from package library
 manager = MaterialManager()
-iron = manager.use_material("pure_iron")
-copper = manager.use_material("pure_copper")
-stc_air = manager.use_material("stc_air")
+iron = manager.use_material("iron")
+copper = manager.use_material("copper")
+stc_air = manager.use_material("air")
+
 
 # Builds the transformer core
 iron_square = Builder.rectangle((0 * mm, 0 * mm), 115 * mm, 110 * mm)
@@ -39,7 +40,7 @@ core = iron_square.subtract(iron_cutout)
 core = Builder.promote_to_part(core, MagneticData(1 * nullset, iron))
 
 # Positive coil slot
-phase_a = Circuit("Phase A", 1 * A, Configuration.series)
+phase_a = StaticCircuit("Phase A", 1 * A, Configuration.series)
 slot = MagneticData(2 * nullset, copper, phase_a, 100 * nullset, 0.1 * mm)
 
 positive_slot = Builder.rectangle((77.5 * mm, 40 * mm), 7.5 * mm, 20 * mm)
@@ -58,7 +59,8 @@ simulation_domain = Domain(
     boundary_type       =   BoundaryType.DIRICHLET,
     meta_data           =   MagneticData(3 * nullset, stc_air),
     coordinate_system   =   CoordinateSystem.PLANAR,
-    shape               =   domain_shape
+    shape               =   domain_shape,
+    temperature         =   297.15 * K
 )
 
 # Defines required outputs

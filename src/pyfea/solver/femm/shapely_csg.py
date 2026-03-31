@@ -148,7 +148,13 @@ class FEMMConstructSolidGeometry:
     ) -> ShapelyGeometry:
         """ Computes the complement of the part regions within domain set"""
         domain_union = unary_union(parts)
-        return domain.difference(domain_union)
+        complement = domain.difference(domain_union)
+
+        # Ensures the complement is not an empty set of geometry
+        if complement.is_empty:
+            raise RendererError("Environmental regions are empty; Check geometry")
+
+        return complement
 
     @classmethod
     def _strip_quantity(cls, quantity: Quantity, ref: Quantity) -> Any:

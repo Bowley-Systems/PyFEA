@@ -16,7 +16,7 @@ from pathlib import Path
 
 from pyfea.domain.units import Quantity, Material
 from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.circuits.builder import Circuit
+from pyfea.domain.circuits.builder import StaticCircuit
 
 from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
 from pyfea.solver.renderer_interface import BaseRenderer
@@ -33,10 +33,14 @@ class SolverError(Exception):
 class BaseSolver(ABC):
     """ Core interface for all solver renderers """
     @abstractmethod
-    def __init__(self, folder_path: Path) -> Any:
+    def __init__(
+        self, folder_path: Path, verbose: bool = True, tolerance: float = 1e-012
+    ) -> Any:
         """ Initializes the solver and renderers the geometry """
         # Renderer & folder path
         self._folder_path_exist(folder_path)
+        self.verbose = verbose
+
         self.tolerance = 1e-10
         self.renderer = None
 
@@ -96,7 +100,7 @@ class BaseSolver(ABC):
 class MagneticSolver(BaseSolver, ABC):
     """ Solver interface for magnetic problems """
     @abstractmethod
-    def update_current(self, circuit: Circuit, current: Quantity) -> Any:
+    def update_current(self, circuit: StaticCircuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
 
     @abstractmethod

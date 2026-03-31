@@ -10,7 +10,10 @@ Description:
 from typing import Any
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum, auto
+
+from pyfea.domain.units import Q
 
 
 class NodalPrimitives(ABC):
@@ -67,3 +70,15 @@ class Terminal:
 
     def __repr__(self):
         return f"<Terminal {self.name}>"
+
+
+@dataclass
+class StaticCircuit:
+    """ Static Circuit is not driven by solver. """
+    name: str
+    current: Q
+    configuration: Configuration
+
+    def __hash__(self):
+        """ Hash based class attributes """
+        return hash((self.name, self.current, self.configuration))

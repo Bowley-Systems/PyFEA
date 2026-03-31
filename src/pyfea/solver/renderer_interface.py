@@ -17,7 +17,7 @@ from pathlib import Path
 
 from pyfea.domain.units import Quantity, Material, strip_quantity
 from pyfea.domain.geometry.domain import Domain
-from pyfea.domain.circuits.builder import Circuit
+from pyfea.domain.circuits.builder import StaticCircuit
 
 
 class RendererError(Exception):
@@ -76,7 +76,7 @@ class BaseRenderer(ABC):
 class MagneticRenderer(BaseRenderer, ABC):
     """ Renderer interface for magnetic problems """
     @abstractmethod
-    def update_current(self, circuit: Circuit, current: Quantity) -> Any:
+    def update_current(self, circuit: StaticCircuit, current: Quantity) -> Any:
         """ Changes the current within a circuit element """
 
     @abstractmethod

@@ -9,15 +9,23 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea import Quantity as Q, check_quantity, ohm, farad, volt, kelvin
+from pyfea import Quantity as Q, check_quantity, ohm, farad, volt, kelvin, ampere
 
 from pyfea.domain.circuits.domain import Domain
-from pyfea.domain.circuits.definitions import Configuration
+from pyfea.domain.circuits.definitions import Configuration, StaticCircuit
 from pyfea.domain.circuits.nodes import Component, ComponentTypes, Abstract, Device
 
 
 class Builder:
     """ Builds circuit topology using groups and relative configurations """
+    @staticmethod
+    def feed_circuit(name: str, current: Q, config: Configuration):
+        """ Creates a feed circuit for FEA solvers """
+        # Ensures units are correct before constructing the feeder circuit
+        check_quantity(current, ampere)
+
+        return StaticCircuit(name, current, config)
+
     @staticmethod
     def capacitor(
         capacitance: Q, esr: Q = 0 * ohm, esl: Q = 0 * ohm,
@@ -67,17 +75,3 @@ class Builder:
         check_quantity(nominal_temp, kelvin)
 
         return Domain(temperature, nominal_temp)
-
-
-@dataclass
-class Circuit:
-    """ Temp. Class to not break FEA solver adaptors. """
-    name: str
-    current: Q
-    configuration: Configuration
-
-    def __hash__(self):
-        """ Hash based class attributes """
-        return hash(
-            (self.name, self.current, self.configuration)
-        )

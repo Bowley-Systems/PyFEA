@@ -13,13 +13,15 @@ from typing import Any
 from enum import Enum
 from abc import ABC, abstractmethod
 from pathlib import Path
+from shapely import Point, Polygon
 
 import femm
 
-from shapely.geometry import Point as ShapelyPoint
-from pyfea.domain.units import Quantity, LENGTH
+from pyfea.domain.units import Quantity, meter
 from pyfea.domain.geometry.definitions import CoordinateSystem
+from pyfea.domain.geometry.domain import Domain
 
+from pyfea.solver.femm.shapely_csg import FEMMConstructSolidGeometry as FEMMCSG
 from pyfea.solver.renderer_interface import RendererError, BaseRenderer
 
 
@@ -43,17 +45,19 @@ class FEMMRenderer(BaseRenderer, ABC):
 
         # Solver variables
         self.coordinate_system = None
-        self.problem_type = None
         self.femm_unit = "meters"
         self.suite_is_active = False
         self.tolerance = tolerance
-        self.junk_scale = 1e-12
-        self.depth = 1 * LENGTH
+        self.junk_scale = 1e-16
+
+        # Renderer variables
+        self.depth = 1 * meter
+        self.verbose: list[str] = []
 
         # Simulation variables
-        self.defined_area: list[ShapelyPoint] = []
-        self.boundary_name: str = ""
-        self.environmental_data: Any = ""
+        self.defined_area: list[Point] = []
+        self.boundary: str = ""
+        self.environmental_data: Domain = ""
         self.materials: list[str] = []
         self.circuits: list[str] = []
         self.boundaries: list[str] = {}
@@ -62,37 +66,25 @@ class FEMMRenderer(BaseRenderer, ABC):
     def setup(self, system: CoordinateSystem, depth: Quantity) -> None:
         """ Setup the rendering environment and simulation space """
         # Strips depth of quantity at boundary between femm
-        depth: float | int = self._strip_quantity(depth, LENGTH)
+        depth: float | int = self._strip_quantity(depth, meter)
 
-        problem_type = None
         if system == CoordinateSystem.AXI_SYMMETRIC:
             problem_type = "axi"
-
             if depth != 0:
-                msg = (
-                    "Axial symmetric simulation cannot have depth, "
-                    f"got {depth}; defaulting to depth = 0"
-                )
-                logging.warning(msg)
-                depth = 0
-
+                msg = f"Axial symmetric cannot have depth, got {depth}"
+                raise RendererError(msg)
         elif system == CoordinateSystem.PLANAR:
             problem_type = "planar"
-
             if depth <= 0:
-                msg = (
-                    "Planar simulation cannot have negative or zero depth, "
-                    f"got {depth}; defaulting to depth = 1"
-                )
-                logging.warning(msg)
-                depth = 1
+                msg = f"Planar cannot have negative or zero depth, got {depth}"
+                raise RendererError(msg)
+
         else:
             msg = f"{system!r} isn't supported by {self.__class__.__name__}"
             raise RendererError(msg)
 
         # Saves coordinate system for later (rotations and motions)
         self.coordinate_system = system
-
         try:
             # Ensures the users file path exist
             self._file_path_exist()
@@ -118,21 +110,13 @@ class FEMMRenderer(BaseRenderer, ABC):
     ) -> None:
         """ Defines the suite problem definition """
 
-    @abstractmethod
-    def _save_changes(self) -> None:
-        """ Saves changes to the femm suite to file """
-
-    @abstractmethod
-    def _add_material(self, metadata) -> None:
-        """ Adds a material to the FEMM suite using .UIV material """
-
     def check_active(self) -> None:
         """ Checks if the FEMM suite is active """
-        if self.suite_is_active:
-            return
+        if self.suite_is_active: return
 
         try:
-            femm.openfemm(1)       # Opens FEMM in a hidden window (1)
+            # Opens FEMM in a hidden window (1) & resolve/open file
+            femm.openfemm(1)
             femm.opendocument(str(self.file_path.resolve()))
             self.suite_is_active = True
 
@@ -150,3 +134,56 @@ class FEMMRenderer(BaseRenderer, ABC):
         except Exception as err:
             msg = f'{self.__class__.__name__} failed to perform cleanup due to {err}'
             logging.warning(msg)
+
+    def _is_already_defined(self, pt: Point) -> bool:
+        """Check if this point is close enough to any previously placed label"""
+        px, py = pt.x, pt.y
+
+        for existing in self.defined_area:
+            ex, ey = existing.x, existing.y
+            # rounded coordinate equality than checks (primary check)
+            if (round(px, 7) == round(ex, 7) and
+                round(py, 7) == round(ey, 7)):
+                return True
+
+            # Distance-based check (secondary check)
+            if ((px - ex)**2 + (py - ey)**2) < self.tolerance**2:
+                return True
+
+        return False
+
+    def _label_environmental_region(self, polygon: Polygon) -> None:
+        """ Adds environmental label to a single polygon region """
+        if polygon.is_empty or polygon.area < self.junk_scale:
+            return
+
+        # Early exit if we already have a label very close by (Assumes defined)
+        coordinates = FEMMCSG.polygon_solid_centroid(polygon, self.tolerance)
+        if self._is_already_defined(coordinates):
+            return
+
+        # If coordinate not known, we add properties and accept it as defined.
+        self.defined_area.append(coordinates)
+        self._add_properties(coordinates, self.environmental_data.meta_data)
+
+    @classmethod
+    def _pre_defined(cls, name: str, loaded: list[str]) -> str:
+        """ Checks to see if a material has already been loaded """
+        for loaded_material in loaded:
+            if loaded_material == name:
+                return loaded_material
+
+        msg = f"{name!r} is an uninitialized material, cannot edit"
+        raise RendererError(msg)
+
+    @abstractmethod
+    def _save_changes(self) -> None:
+        """ Saves changes to the femm suite to file """
+
+    @abstractmethod
+    def _add_material(self, metadata) -> None:
+        """ Adds a material to the FEMM suite using .UIV material """
+
+    @abstractmethod
+    def _add_properties(self, coordinates: Polygon, meta: Any) -> None:
+        """ Sets element properties via adding a block-label """

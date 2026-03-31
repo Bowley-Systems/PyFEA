@@ -53,7 +53,7 @@ class MaterialManager:
             msg = f"Cannot find material {name!r} in {self.path_name!r}"
             raise MaterialManagerError(msg)
 
-        material_tag = material.values().meta.tag
+        material_tag = material.values().meta.type
         match material_tag:
             case "magnet_material":
                 if "grade" not in params:

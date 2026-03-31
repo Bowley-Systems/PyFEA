@@ -11,7 +11,7 @@ Description:
 from typing import Any, Iterable
 from enum import Enum, auto
 
-from pyfea.domain.circuits.builder import Circuit, Component
+from pyfea.domain.circuits.builder import StaticCircuit, Component
 
 class CircuitOptions(Enum):
     """ Defines the different possible circuit output variables """
@@ -61,7 +61,7 @@ class SolverOutputs:
             self.registry[(entity, outputs)] = entity
 
     def add_circuit(
-        self, node: Circuit | Component, output: CircuitOptions | list[CircuitOptions]
+        self, node: StaticCircuit | Component, output: CircuitOptions | list[CircuitOptions]
     ) -> None:
         """" Requests a circuit output and the circuit to probe """
         self._register(node, output)

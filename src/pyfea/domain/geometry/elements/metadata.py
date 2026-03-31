@@ -11,7 +11,7 @@ from typing import Optional
 from dataclasses import dataclass, field
 
 from pyfea.domain.geometry.definitions import GeometryDimensionError
-from pyfea.domain.circuits.builder import Circuit
+from pyfea.domain.circuits.builder import StaticCircuit
 
 from pyfea import (
     Quantity as Q, Material, SystemBoundary, nullset, meter, watt, kelvin, h
@@ -21,12 +21,12 @@ from pyfea import (
 @dataclass(slots=True)
 class MagneticData(SystemBoundary):
     """ Defines magnetic properties for a geometry group """
-    group:          Q                   = field(metadata={Q: nullset})
+    group:          Q                       = field(metadata={Q: nullset})
     material:       Material
-    circuit:        Optional[Circuit]   = field(default=None, metadata={})
-    turns:          Optional[Q]         = field(default=None, metadata={Q: nullset})
-    diameter:       Optional[Q]         = field(default=None, metadata={Q: meter})
-    magnetization:  Optional[Q]         = field(default=None, metadata={Q: nullset})
+    circuit:        Optional[StaticCircuit] = field(default=None, metadata={})
+    turns:          Optional[Q]             = field(default=None, metadata={Q: nullset})
+    diameter:       Optional[Q]             = field(default=None, metadata={Q: meter})
+    magnetization:  Optional[Q]             = field(default=None, metadata={Q: nullset})
 
     def __post_init__(self) -> None:
         """ Validates that non-typed parameters are correct """
@@ -34,7 +34,7 @@ class MagneticData(SystemBoundary):
             msg = f"Material must be a Material, not {type(self.material)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
-        if self.circuit is not None and not isinstance(self.circuit, Circuit):
+        if self.circuit is not None and not isinstance(self.circuit, StaticCircuit):
             msg = f"Circuit must be a Circuit, not {type(self.circuit)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 

@@ -26,7 +26,8 @@ setup(
         'PyYAML',
         'pyfemm',
         'matplotlib',
-        'bayesian-optimization'
+        'bayesian-optimization',
+        'picounits'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

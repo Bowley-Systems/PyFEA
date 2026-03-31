@@ -55,6 +55,21 @@ class UnitError(TypeError):
         super().__init__(msg)
 
 
+def linear_interpolate(points: Q, value: Q) -> Q:
+    """ Linear interpolates a quantity list from a specific linked value """
+    if value <= points[0][0]: return points[0][1]
+    if value >= points[-1][0]: return points[-1][1]
+
+    # finds specific interval
+    for index in range(len(points) - 1):
+        x0, x1 = points[index][0], points[index + 1][0]
+        y0, y1 = points[index][1], points[index + 1][1]
+
+        if x0 <= value <= x1:
+            slope = (y1 - y0) / (x1 - x0)
+            return y0 + slope * (value - x0)
+
+
 """ =============== Base units (SI names) =============== """
 second          = s         = TIME
 meter           = m         = LENGTH
@@ -71,7 +86,7 @@ GIGA    = G  = PrefixScale.GIGA
 MEGA    = M  = PrefixScale.MEGA
 KILO    = k  = PrefixScale.KILO
 CENTI   = c  = PrefixScale.CENTI
-MILLI   = m  = PrefixScale.MILLI
+MILLI   = _  = PrefixScale.MILLI
 MICRO   = u  = PrefixScale.MICRO
 NANO    = n  = PrefixScale.NANO
 PICO    = p  = PrefixScale.PICO

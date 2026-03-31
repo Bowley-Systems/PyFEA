@@ -9,6 +9,7 @@ Description:
 
 from dataclasses import dataclass
 
+from pyfea.domain.units import Q
 from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
@@ -23,6 +24,7 @@ class Domain:
     meta_data: MagneticData | ThermalData
     coordinate_system: CoordinateSystem
     shape: VectorGeometry | CSGNode
+    temperature: Q
 
     @property
     def _name(self) -> str:

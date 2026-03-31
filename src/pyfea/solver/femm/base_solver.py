@@ -5,7 +5,7 @@ Description:
     Base Solver adaptor interface for FEMM (finite element magnetic methods)
     
     Orchestrates the problem creation through the FEMMRenderer and than 
-    solves the problem with tolerance marching
+    solves the problem and extracts variables.
 """
 
 from pathlib import Path
@@ -19,23 +19,22 @@ from pyfea.solver.femm.base_renderer import FEMMRenderer
 
 
 class FEMMSolver(BaseSolver, ABC):
-    """" Base solver for FEMM (finite element magnetic methods) """
-    
+    """" Base solver for FEMM (finite element magnetic methods) """ 
     def __init__(
         self,
         folder_path: Path,
+        verbose: bool = True,
         tolerance: float = 1e-012,
-        max_tolerance: float = 1e-04,
     ) -> None:
         """ Initializes the FEMM solver and FEMM renderer """  
         self._folder_path_exist(folder_path)
 
-        self.filename = ""
+        self.verbose = verbose
         self.tolerance = tolerance
-        self.max_tolerance = max_tolerance
+        self.filename: str = None
 
         # Overrides the FEMMRenderer on BaseRenderer
-        self.renderer: FEMMRenderer = None
+        self.renderer = None
         self.problem_setup = False
 
     def solve(self, outputs: SolverOutputs):
@@ -61,16 +60,6 @@ class FEMMSolver(BaseSolver, ABC):
         path = f"{self.__class__.__name__}.setup"
         msg = f"Problem has to be setup before {method}, run {path}"
         raise SolverError(msg)
-
-    def _change_tolerance(self, tolerance: float) -> None:
-        """ Changes the required tolerance within FEMM problem """
-        self.renderer.check_active()
-
-        try:
-            self.renderer.tolerance_march(tolerance)
-        except Exception as err:
-            msg = f"Failed change the tolerance of the FEMM problem due to {err}"
-            raise SolverError(msg) from None
 
     @classmethod
     def _add_result(
