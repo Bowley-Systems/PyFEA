@@ -18,7 +18,7 @@ from pyfea import (
 )
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, eq=False)
 class MagneticData(SystemBoundary):
     """ Defines magnetic properties for a geometry group """
     group:          Q                       = field(metadata={Q: nullset})
@@ -40,6 +40,30 @@ class MagneticData(SystemBoundary):
 
         self.validate_units()
 
+    def __eq__(self, other: object) -> bool:
+        """ Checks to see if both magnetic data are equivalent """
+        if not isinstance(other, MagneticData):
+            return NotImplemented
+        return (
+            self.group        == other.group
+            and self.material == other.material
+            and self.circuit  == other.circuit
+            and self.turns    == other.turns
+            and self.diameter == other.diameter
+            and self.magnetization == other.magnetization
+        )
+
+    def __hash__(self) -> int:
+        """ Hashes the metadata for use in lookup tables """
+        return hash((
+            self.group,
+            self.material,
+            self.circuit,
+            self.turns,
+            self.diameter,
+            self.magnetization,
+        ))
+
     @property
     def _name(self) -> str:
         return (
@@ -48,7 +72,7 @@ class MagneticData(SystemBoundary):
         )
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, eq=False)
 class ThermalData(SystemBoundary):
     """ Defines thermal properties and heat sources for a geometry group """
     group:                  Q           = field(metadata={Q: nullset})
@@ -66,6 +90,34 @@ class ThermalData(SystemBoundary):
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
         self.validate_units()
+
+    def __eq__(self, other: object) -> bool:
+        """ Hashes the metadata for use in lookup tables """
+        if not isinstance(other, ThermalData):
+            return NotImplemented
+        return (
+            self.group                  == other.group
+            and self.material           == other.material
+            and self.heating_index      == other.heating_index
+            and self.temperature        == other.temperature
+            and self.heat_flow_value    == other.heat_flow_value
+            and self.volumetric_heating == other.volumetric_heating
+            and self.convection_coefficient == other.convection_coefficient
+            and self.ambient_temperature    == other.ambient_temperature
+        )
+
+    def __hash__(self) -> int:
+        """ Hashes the metadata for use in lookup tables """
+        return hash((
+            self.group,
+            self.material,
+            self.heating_index,
+            self.temperature,
+            self.heat_flow_value,
+            self.volumetric_heating,
+            self.convection_coefficient,
+            self.ambient_temperature,
+        ))
 
     @property
     def _name(self) -> str:

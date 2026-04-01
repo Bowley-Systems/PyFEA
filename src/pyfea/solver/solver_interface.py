@@ -14,12 +14,12 @@ from abc import ABC, abstractmethod
 from typing import Any
 from pathlib import Path
 
-from pyfea.domain.units import Quantity, Material
-from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.units import Quantity
+from pyfea.domain.geometry.domain import Domain, Part
 from pyfea.domain.circuits.builder import StaticCircuit
 
 from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
-from pyfea.solver.renderer_interface import BaseRenderer
+from pyfea.solver.renderer_interface import BaseRenderer, MagneticRenderer
 
 
 class SolverError(Exception):
@@ -66,30 +66,30 @@ class BaseSolver(ABC):
         """ Cleans up any temporary files and closes the solver. """
 
     def move_element(
-        self, element_id: Quantity, magnitude: Quantity, angles: Quantity
+        self, part: Part, magnitude: Quantity, angles: Quantity
     ) -> None:
-        """ Moves an element within the simulation domain """
-        self.renderer.move_element(element_id, magnitude, angles)
+        """ Moves an part within the simulation domain """
+        self.renderer.move_element(part, magnitude, angles)
 
     def move_elements(
-        self, element_ids: tuple[Quantity], magnitude: Quantity, angles: Quantity
+        self, parts: tuple[Part], magnitude: Quantity, angles: Quantity
     ) -> None:
-        """ Moves a series of element within the simulation domain """
-        for element in element_ids:
-            self.move_element(element, magnitude, angles)
+        """ Moves a series of part within the simulation domain """
+        for part in parts:
+            self.move_element(part, magnitude, angles)
 
     def rotate_element(
-        self, element_id: Quantity, axis: Quantity, angles: Quantity
+        self, part: Part, axis: Quantity, angles: Quantity
     ) -> None:
-        """ Rotates a element around an axis in the simulation domain """
-        self.renderer.rotate_element(element_id, axis, angles)
+        """ Rotates a part around an axis in the simulation domain """
+        self.renderer.rotate_element(part, axis, angles)
 
     def rotate_elements(
-        self, element_ids: tuple[Quantity], axis: Quantity, angles: Quantity
+        self, parts: tuple[Part], axis: Quantity, angles: Quantity
     ) -> None:
-        """ Rotates a series of element around an axis in the simulation domain """
-        for element in element_ids:
-            self.rotate_element(element, axis, angles)
+        """ Rotates a series of part around an axis in the simulation domain """
+        for part in parts:
+            self.rotate_element(part, axis, angles)
 
     def _folder_path_exist(self, path: Path) -> None:
         """ Check if the folder path exist if not creates the path """
@@ -100,15 +100,30 @@ class BaseSolver(ABC):
 class MagneticSolver(BaseSolver, ABC):
     """ Solver interface for magnetic problems """
     @abstractmethod
-    def update_current(self, circuit: StaticCircuit, current: Quantity) -> Any:
-        """ Changes the current within a circuit element """
+    def __init__(
+        self, folder_path: Path, verbose: bool = True, tolerance: float = 1e-012
+    ) -> Any:
+        """ Initializes the solver and renderers the geometry """
+        # Renderer & folder path
+        self._folder_path_exist(folder_path)
+        self.verbose = verbose
 
-    @abstractmethod
+        self.tolerance = 1e-10
+        self.renderer: MagneticRenderer = None
+
+    def update_current(self, circuit: StaticCircuit) -> Any:
+        """ Changes the current within a circuit element """
+        self.renderer.update_current(circuit)
+
     def update_temperature(
-        self, material: Material | list[Material], temperature: Quantity
+        self, parts: list[Part] | Part, temperature: Quantity
     ) -> Any:
         """ Updates the materials based on temperature """
+        if not isinstance(parts, (list, tuple)):
+            self.renderer.update_temperature(parts, temperature)
 
+        for part in parts:
+            self.renderer.update_temperature(part, temperature)
 
 class ThermalSolver(BaseSolver, ABC):
     """ Solver interface for thermal problems """

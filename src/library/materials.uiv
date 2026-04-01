@@ -241,7 +241,7 @@ N55: [0.923, 1.47]   M(A_m), (T)
 [NdFeB.thermal]
 specific_heat: 460 (c)
 max_working_tem: 353.15 (K)
-
+reference_temperature: 298.15 (K)
 # Refer: https://www.arnoldmagnetics.com/wp-content/uploads/2017/10/Catalog-151021.pdf
 # Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 7.6 (k)
 temperature_conductivity: [

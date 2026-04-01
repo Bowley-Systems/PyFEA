@@ -15,7 +15,7 @@ from typing import Any
 
 import femm
 
-from pyfea.domain.units import Quantity, Material, ampere, volt, weber, newton, meter, tesla
+from pyfea.domain.units import Quantity, ampere, volt, weber, newton, meter, tesla
 from pyfea.solver.solver_interface import MagneticSolver
 from pyfea.solver.solver_outputs import (
     SolverOutputs, CircuitOptions, MagneticOptions, SolverSolutions
@@ -67,13 +67,12 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
 
         results = {}
         for (target, option), _ in outputs.registry.items():
-
             if isinstance(option, CircuitOptions):
                 data = self._circuit_outputs(option, target)
                 results = self._add_result(results, target, option, data)
 
             elif isinstance(option, MagneticOptions):
-                data = self._element_outputs(option, target)
+                data = self._element_outputs(option, target.metadata.group)
                 results = self._add_result(results, target, option, data)
 
             else:
@@ -82,41 +81,6 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 raise SolverError(msg)
 
         return SolverSolutions(results)
-
-    def move_element(
-        self, element_id: Quantity, magnitude: Quantity, angles: Quantity
-    ):
-        """ Moves an element within the simulation domain """
-        self._setup_check("moving an element")
-        self.renderer.move_element(element_id, magnitude, angles)
-
-    def move_elements(
-        self, element_ids: tuple[Quantity], magnitude: Quantity, angles: Quantity
-    ) -> None:
-        """ Moves an element within the simulation domain """
-        self._setup_check("moving an element")
-        self.renderer.move_element(element_ids, magnitude, angles)
-
-    def rotate_element(
-        self, element_id: Quantity, axis: Quantity, angles: Quantity
-    ) -> None:
-        """ Rotates a element around an axis in the simulation domain """
-        self._setup_check("rotating an element")
-        self.renderer.rotate_element(element_id, axis, angles)
-
-    def update_current(self, circuit: StaticCircuit) -> None:
-        """ Updates the the current in a specific circuit """
-        self._setup_check("updating currents")
-        self.renderer.update_current(circuit)
-
-    def update_temperature(self, material: list[Material] | Material, temperature):
-        """ Update temperature of materials within FEMM suite """
-        if not isinstance(material, (list, tuple)):
-            material = [material]
-
-        self._setup_check("updating temperature")
-        for mat in material:
-            self.renderer.update_temperature(mat, temperature)
 
     def _circuit_outputs(
         self, option: CircuitOptions, circuit: StaticCircuit

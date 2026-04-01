@@ -81,7 +81,7 @@ class GeometryElement(ABC):
         )
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, eq=False)
 class CSGNode(GeometricPrimitives, GeometryElement):
     """Construct solid geometry node with optional parameters"""
     operation: CSOperation
@@ -96,7 +96,7 @@ class CSGNode(GeometricPrimitives, GeometryElement):
         return f"<CSGNode: {self.operation.name}({operand_str}{param_str})>"
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, eq=False)
 class VectorGeometry(GeometricPrimitives, GeometryElement):
     """ Representation of a vector geometry element """
     shape: PrimitivesShapes

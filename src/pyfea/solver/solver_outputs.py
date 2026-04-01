@@ -11,6 +11,7 @@ Description:
 from typing import Any, Iterable
 from enum import Enum, auto
 
+from pyfea.domain.geometry.domain import Part
 from pyfea.domain.circuits.builder import StaticCircuit, Component
 
 class CircuitOptions(Enum):
@@ -49,7 +50,7 @@ class SolverOutputs:
     def __init__(self):
         """ Initializes the internal map for reference """
         # Tuple storage as key ensures that each combination is unique
-        self.registry: dict[tuple[Any, Any], Any] = {}
+        self.registry: dict[tuple[Any, Part | StaticCircuit | Component]] = {}
 
     def _register(self, entity: Any, outputs: Any | Iterable[Any]) -> None:
         """Handles both single output objects and lists/tuples of outputs."""
@@ -61,20 +62,16 @@ class SolverOutputs:
             self.registry[(entity, outputs)] = entity
 
     def add_circuit(
-        self, node: StaticCircuit | Component, output: CircuitOptions | list[CircuitOptions]
+        self, node: StaticCircuit | Component, output: CircuitOptions
     ) -> None:
         """" Requests a circuit output and the circuit to probe """
         self._register(node, output)
 
-    def add_magnetic(
-        self, element_id: Any, output: MagneticOptions | list[MagneticOptions]
-    ) -> None:
+    def add_magnetic(self, part: Part, output: MagneticOptions)-> None:
         """ Requests a magnetic output and the element to probe """
-        self._register(element_id, output)
+        self._register(part, output)
 
-    def add_thermal(
-        self, element_id: Any, output: ThermalOptions | list[ThermalOptions]
-    ) -> None:
+    def add_thermal(self, element_id: Any, output: ThermalOptions) -> None:
         """ Requests a thermal output and the element to probe """
         self._register(element_id, output)
 

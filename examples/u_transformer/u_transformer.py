@@ -1,5 +1,5 @@
 """
-Filename: u-transformer.py
+Filename: u_transformer.py
 
 Description:
     Magnetostatic u-transformer simulation using 
@@ -23,7 +23,7 @@ from pyfea.solver.solver_outputs import SolverOutputs, CircuitOptions
 from pyfea.solver.femm.domains.magnetostatic.solver import FEMMMagnetostaticSolver
 
 # FEA file output
-BASE_DIR = Path(__file__).parent.parent.parent
+BASE_DIR = Path(__file__).parent
 
 # Pulls materials into the script from package library
 manager = MaterialManager()
@@ -70,7 +70,7 @@ outputs.add_circuit(phase_a, CircuitOptions.flux_linkage)
 outputs.add_circuit(phase_a, CircuitOptions.current)
 outputs.add_circuit(phase_a, CircuitOptions.voltage)
 
-solver = FEMMMagnetostaticSolver(BASE_DIR / "examples/u-transformer/")
+solver = FEMMMagnetostaticSolver(BASE_DIR)
 solver.setup(simulation_domain, "iron-core_u_transformer", depth=20 * mm)
 
 flux_linkage = []

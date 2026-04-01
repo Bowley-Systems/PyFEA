@@ -10,24 +10,26 @@ Description:
 """
 
 import femm
+from numpy import ndarray, radians, sin, cos
 from shapely.geometry import Polygon, MultiPolygon, Point
 
 
 from pyfea import meter, ampere, tesla, nullset, siemens
-from pyfea.domain.units import Q, Material, linear_interpolate
-from pyfea.domain.geometry.domain import Domain, BoundaryType, MagneticData
+from pyfea.domain.units import Q, linear_interpolate
+
+from pyfea.domain.geometry.definitions import CoordinateSystem
+from pyfea.domain.geometry.domain import Domain, BoundaryType, MagneticData, Part
 from pyfea.domain.circuits.definitions import StaticCircuit, Configuration
+
+from pyfea.solver.femm.base_renderer import FEMMRenderer
 
 from pyfea.solver.femm.shapely_csg import FEMMConstructSolidGeometry as FEMMCSG
 from pyfea.solver.renderer_interface import MagneticRenderer, RendererError
-from pyfea.solver.femm.base_renderer import FEMMRenderer, FEMMPhysicsTypes
 
 
 class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
     """ Magnetostatic renderer for FEMM (finite element magnetic methods) """
-    def suite_define(
-        self, problem_type: FEMMPhysicsTypes, depth: Q, time_step = None
-    ) -> None:
+    def suite_define(self, problem_type: str, depth: Q, time_step = None) -> None:
         """ Defines the suite problem as magnetostatic """
         del time_step
 
@@ -38,6 +40,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             self.tolerance,     # Meshing tolerance for problem
             depth
         )
+        self.verbose.append(f"Coordinates={problem_type}, depth={depth * meter:.3f}")
         self.verbose.append("Frequency=0Hz, asymptotic field conditions")
 
     def draw_domain(self, domain: Domain) -> None:
@@ -98,17 +101,102 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             msg = f"Failed to update current within circuit {circuit.name!r}: {err}"
             raise RendererError(msg) from err
 
-    def move_element(self, element_id: Q, magnitude: Q, angles: Q) -> None:
-        """ Moves an element within the simulation domain """
-        return
 
-    def rotate_element(self, element_id: Q, axis: Q, angles: Q) -> None:
-        """ Rotates an element around an axis in the simulation domain """
-        return
+    def move_element(self, part: Part, magnitude: Q, angles: Q) -> None:
+        """ Moves an part within the simulation domain """
+        group = self._strip_quantity(part.metadata.group, nullset)
+        magnitude = self._strip_quantity(magnitude, meter)
+        angle = self._strip_quantity(angles, nullset)
 
-    def update_temperature(self, material: Material, temperature: Q) -> None:
-        """ Updates the materials based on temperature """
-        return
+        # Yaw, pitch, roll is inputted as standard
+        if isinstance(angle, ndarray):
+            angle = angle[0]
+
+        rad_angle = radians(angle)
+        dx, dy = magnitude * cos(rad_angle), magnitude * sin(rad_angle)
+
+        try:
+            femm.mi_selectgroup(str(group))
+            femm.mi_movetranslate(float(dx), float(dy))
+
+            femm.mi_clearselected()
+            self._save_changes()
+        except Exception as err:
+            msg = f"Failed to move part in {group!r} due to {err}"
+            raise RendererError(msg) from err
+
+    def rotate_element(self, part: Part, axis: Q, angles: Q) -> None:
+        """ Rotates an part around an axis in the simulation domain """
+        if self.coordinate_system == CoordinateSystem.AXI_SYMMETRIC:
+            msg = "Part cannot be rotated in axially symmetrical models"
+            raise RendererError(msg)
+
+        group = self._strip_quantity(part.metadata.group, nullset)
+        axis = self._strip_quantity(axis, meter)
+        angle = self._strip_quantity(angles, nullset)
+
+        # Yaw, pitch, roll is inputted as standard
+        if isinstance(angle, ndarray):
+            angle = angle[0]
+
+        try:
+            x, y = axis
+            femm.mi_selectgroup(str(group))
+            femm.mi_moverotate(float(x), float(y), float(angle))
+
+            femm.mi_clearselected()
+            self._save_changes()
+
+        except Exception as err:
+            msg = f"Failed to move part in {group!r} due to {err}"
+            raise RendererError(msg) from err
+
+
+    def update_temperature(self, part: Part, temperature: Q) -> None:
+        """ Updates a material definition to reflect a change in temperature """
+        self.check_active()
+
+        # Extract material properties and metadata
+        material = part.metadata.material
+        name, qualities = material.keys(), material.values()
+
+        # Update name if part has turns & checks if defined
+        if part.metadata.diameter: name = f"{name}_{part.metadata.diameter:.3f}"
+        name = self._pre_defined(name, self.materials)
+
+        # Calculates electrical conductivity
+        conductivity = getattr(qualities.electrical, 'temperature_conductivity', None)
+        if conductivity is None:
+            msg = f"{name} must have a temperature electrical conductivity table"
+            raise RendererError(msg)
+
+        conductivity = linear_interpolate(conductivity, temperature)
+        conductivity = self._strip_quantity(conductivity, siemens / meter)
+
+        # Calculates coercivity if part is a magnet
+        hc = 0.0
+        if getattr(qualities, 'grades', None):
+            ref_co = qualities.magnetic.coercivity
+            ref_temp = qualities.thermal.reference_temperature
+
+            beta_co = qualities.magnetic.beta_coercivity
+            max_temp = qualities.thermal.max_working_tem
+
+            if temperature < max_temp:
+                hc = ref_co * (1 + (beta_co/100) * (temperature - ref_temp))
+                hc = self._strip_quantity(hc, ampere / meter)
+            else:
+                hc = 0.0
+
+        try:
+            femm.mi_modifymaterial(str(name), 3, hc)
+            femm.mi_modifymaterial(str(name), 5, conductivity / 1e6)   # Femm requires MS/m
+
+            self._save_changes()
+
+        except Exception as err:
+            msg = f"Failed to update {name!r} within femm: {err}"
+            raise RendererError(msg) from err
 
     def _create_boundary(self, boundary: BoundaryType) -> None:
         """ Adds boundary property to the outer domain boundary """
@@ -208,18 +296,17 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             raise RendererError(msg)
 
         # Extracts the material data, name and diameter from metadata
-        material = metadata.material
-        material_name, qualities = material.keys(), material.values()
+        name, qualities = metadata.material.keys(), metadata.material.values()
         wire_diameter, number_of_strands, material_lamination = 0 * meter, 0, 0
 
         if metadata.diameter:
             wire_diameter = metadata.diameter
             material_lamination, number_of_strands = 3, 1
-            material_name = f"{material_name}_{wire_diameter:.3f}"
+            name = f"{name}_{wire_diameter:.3f}"
 
         # Bypasses already loaded materials from being reloaded
         for loaded_material in self.materials:
-            if loaded_material == material_name:
+            if loaded_material == name:
                 return loaded_material
 
         # Extracts materials
@@ -230,22 +317,31 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
 
         # Fails if missing materials and updates assumptions for sort missing comm
         if conductivity is None:
-            msg = f"{material} must have a temperature electrical conductivity table"
+            msg = f"{name} must have a temperature electrical conductivity table"
             raise RendererError(msg)
 
         if rel_perm is None:
             rel_perm = [1, 1] * nullset
             if hysteresis is None:
                 self.verbose.append(
-                    f"{material_name} relative permeability assumed to be [1, 1]"
+                    f"{name} relative permeability assumed to be [1, 1]"
                 )
 
         if coercivity is None:
             coercivity = 0 * ampere / meter
-            self.verbose.append(f"{material_name} coercivity assumed to be {coercivity}")
+            self.verbose.append(f"{name} coercivity assumed to be {coercivity}")
 
         # Calculates the electrical conductivity at domain temperature
+        self.verbose.append(f"{name} used linear interpolate to calculate conductivity")
         conductivity = linear_interpolate(conductivity, self.environmental_data.temperature)
+
+        # If material is a gas conductivity must be 0 to ensure correct domain
+        if qualities.meta.type == "gas":
+            conductivity = 0 * siemens / meter
+            self.verbose.append(
+                f"{name} conductivity set to {conductivity} to ensure "
+                "correct domain behavior (gases only)"
+            )
 
         # Extracts value from value:unit pairs
         relative_permeability = self._strip_quantity(rel_perm, nullset)
@@ -254,7 +350,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         wire_diameter = self._strip_quantity(wire_diameter, meter)
         try:
             femm.mi_addmaterial(
-                str(material_name),
+                str(name),
                 float(relative_permeability[0]),
                 float(relative_permeability[1]),
                 float(coercivity),
@@ -271,19 +367,19 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             )
 
             if hysteresis:
-                self.verbose.append(f"{material_name} is using magnetic hysteresis curve")
+                self.verbose.append(f"{name} is using magnetic hysteresis curve")
                 for row in hysteresis:
                     b_value = self._strip_quantity(row[0], tesla)
                     h_value = self._strip_quantity(row[1], ampere / meter)
 
-                    femm.mi_addbhpoint(material_name, float(b_value), float(h_value))
+                    femm.mi_addbhpoint(name, float(b_value), float(h_value))
 
             self._save_changes()
-            self.materials.append(material_name)
-            return material_name
+            self.materials.append(name)
+            return name
 
         except Exception as err:
-            msg = f"Failed to add {material_name} as material within femm: {err!r}"
+            msg = f"Failed to add {name} as material within femm: {err!r}"
             raise RendererError(msg) from err
 
     def _create_circuit(self, circuit: StaticCircuit) -> str:
@@ -323,4 +419,4 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         self.check_active()
 
         resolve_path_str = str(self.file_path.resolve())
-        femm.mi_saveas(resolve_path_str)    
+        femm.mi_saveas(resolve_path_str)

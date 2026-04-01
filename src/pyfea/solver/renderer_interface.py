@@ -15,8 +15,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 from pathlib import Path
 
-from pyfea.domain.units import Quantity, Material, strip_quantity
-from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.units import Quantity, strip_quantity
+from pyfea.domain.geometry.domain import Domain, Part
 from pyfea.domain.circuits.builder import StaticCircuit
 
 
@@ -41,16 +41,12 @@ class BaseRenderer(ABC):
         """ Defines the domain and than draws the elements within """
 
     @abstractmethod
-    def move_element(
-        self, element_id: Quantity, magnitude: Quantity, angles: Quantity
-    ) -> None:
-        """ Moves an element within the simulation domain """
+    def move_element(self, part: Part, magnitude: Quantity, angles: Quantity) -> None:
+        """ Moves an part within the simulation domain """
 
     @abstractmethod
-    def rotate_element(
-        self, element_id: Quantity, axis: Quantity, angles: Quantity
-    ) -> None:
-        """ Rotates an element around an axis in the simulation domain """
+    def rotate_element(self, part: Part, axis: Quantity, angles: Quantity) -> None:
+        """ Rotates an part around an axis in the simulation domain """
 
     @abstractmethod
     def clean_up(self) -> None:
@@ -76,28 +72,22 @@ class BaseRenderer(ABC):
 class MagneticRenderer(BaseRenderer, ABC):
     """ Renderer interface for magnetic problems """
     @abstractmethod
-    def update_current(self, circuit: StaticCircuit, current: Quantity) -> Any:
+    def update_current(self, circuit: StaticCircuit) -> Any:
         """ Changes the current within a circuit element """
 
     @abstractmethod
-    def update_temperature(
-        self, material: Material, temperature: Quantity
-    ) -> Any:
+    def update_temperature(self, part: Part, temperature: Quantity) -> Any:
         """ Updates the materials based on temperature """
 
 
 class ThermalRenderer(BaseRenderer, ABC):
     """ Renderer interface for thermal problems """
     @abstractmethod
-    def update_volumetric_heat_source(
-        self, material: Material, magnitude: Quantity
-    ) -> Any:
+    def update_volumetric_heat_source(self, part: Part, magnitude: Quantity) -> Any:
         """ Updates a volumetric heat source within the simulation domain """
 
     @abstractmethod
-    def update_conductor_heat_source(
-        self, element: Quantity, magnitude: Quantity
-    ) -> Any:
+    def update_conductor_heat_source(self, part: Part, magnitude: Quantity) -> Any:
         """ Updates a conductor heat source within the simulation domain"""
 
 

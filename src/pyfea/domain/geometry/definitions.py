@@ -1,12 +1,10 @@
 """
 Filename: definitions.py
-
 Description:
     Defines the global geometry errors,
     dataclasses and enums within the 
     geometry modules.
 """
-
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 
@@ -43,14 +41,24 @@ class GeometricPrimitives(ABC):
         """ Returns the points name from Point.name """
         return self._name
 
+    def __eq__(self, other: object) -> bool:
+        """ Checks equality by comparing string representations """
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self._name == other._name
+
+    def __hash__(self) -> int:
+        """ Hashes the primitive by its string representation """
+        return hash(self._name)
+
 
 class PrimitivesShapes(Enum):
     """
     Fundamental Shape, all connections within the shape rotates clockwise
     """
-    POLYGON = auto()
+    POLYGON   = auto()
     ELLIPSOID = auto()
-    PATH = auto()
+    PATH      = auto()
     COMPOSITE = auto()
 
     @property
@@ -69,11 +77,11 @@ class PrimitivesShapes(Enum):
 
 class CSOperation(Enum):
     """ Different types of CSG operation """
-    UNION = auto()
-    SUBTRACT = auto()
+    UNION     = auto()
+    SUBTRACT  = auto()
     INTERSECT = auto()
     EXTRUSION = auto()
-    FILLET = auto()
+    FILLET    = auto()
 
     @property
     def _name(self) -> str:
@@ -92,10 +100,10 @@ class CSOperation(Enum):
 class CoordinateSystem(Enum):
     """ Types of coordinate systems """
     AXI_SYMMETRIC = auto()
-    PLANAR = auto()
+    PLANAR        = auto()
 
 
 class BoundaryType(Enum):
     """ Different boundary types available """
-    DIRICHLET = auto()
+    DIRICHLET  = auto()
     CONVECTION = auto()

@@ -13,7 +13,7 @@ from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 from pyfea.domain.geometry.definitions import PartError
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, eq=False)
 class Part:
     """ Defines a physical part with physical metadata"""
     geometry: VectorGeometry | CSGNode
@@ -34,6 +34,14 @@ class Part:
                 f"{type(self.metadata)}"
             )
             raise PartError(self.__class__.__name__, msg)
+
+    def __eq__(self, other: object) -> bool:
+        """ Checks to see if both part are equivalent """
+        if not isinstance(other, Part):
+            return NotImplemented
+        return self.geometry == other.geometry and self.metadata == other.metadata
+
+    def __hash__(self) -> int: return hash((self.geometry, self.metadata))
 
     @property
     def _name(self) -> str:

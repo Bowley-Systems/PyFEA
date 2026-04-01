@@ -14,7 +14,7 @@ from pyfea.domain.geometry.definitions import (
 )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, eq=True)
 class Point(GeometricPrimitives):
     """ Representation of a point within the cartesian coordinate system """
     x: Quantity
@@ -42,7 +42,7 @@ class Point(GeometricPrimitives):
         return f"<Point=({self.x}, {self.y})>"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, eq=True)
 class LineSegment(GeometricPrimitives):
     """ Representation of a direct line segment using the Point dataclass """
     p1: Point
@@ -65,7 +65,7 @@ class LineSegment(GeometricPrimitives):
         return f"<LineSegment=({self.p1}, {self.p2})>"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, eq=True)
 class ArcSegment(GeometricPrimitives):
     """
     Representation of a arc segment using the point dataclass
@@ -100,7 +100,7 @@ class ArcSegment(GeometricPrimitives):
         return f"<ArcSegment=(({self.p1}, {self.p2}), Angle={self.angle})>"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, eq=True)
 class Ellipsoid(GeometricPrimitives):
     """
     Representation of a Ellipsoid using the ellipsoid formula

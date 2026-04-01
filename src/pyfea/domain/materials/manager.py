@@ -78,7 +78,7 @@ class MaterialManager:
                     material.find_and_add(f"{name}.magnetic.coercivity", coercivity)
 
                 except:
-                    msg = f"'{name!r}' is required to have a valid magnetic grades entry."
+                    msg = f"'{name!r}' is required to have a valid magnet entry."
                     raise MaterialManagerError(msg) from None
 
         self.materials[name] = material

@@ -49,7 +49,6 @@ class NGspiceInterpreter:
         if len(terminals) == 0:
             return
 
-        name = "NGspiceInterpreter"
         msg = f"Not all terminals are connected, {terminals!r} needs to be connected"
         raise RendererError(msg)
 
