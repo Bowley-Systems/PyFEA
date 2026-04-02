@@ -34,7 +34,7 @@ plate = Builder.promote_to_part(plate, MagneticData(1 * nullset, iron))
 
 magnet = Builder.rectangle((30 * mm, 45 * mm), 40 * mm, 10 * mm)
 magnet = Builder.promote_to_part(
-    magnet, MagneticData(2 * nullset, NdFeB_45)
+    magnet, MagneticData(2 * nullset, NdFeB_45, magnetization=90 * nullset)
 )
 
 # Defines problem domain

@@ -11,6 +11,45 @@ note: "Standard lab conditions - unless overwritten by material"
 
 
 
+[vacuum.meta]
+type: "empty_space"
+
+[vacuum.physical]
+density: 0 (kg/m^3)
+absolute_viscosity: 0 (Pa*s)
+
+[vacuum.chemical]
+molar_mass: 0 (kg/mol)
+
+[vacuum.electrical]
+relative_permittivity: [1, 1]
+
+# High vacuum (200uPa): https://en.wikipedia.org/wiki/Dielectric_strength
+dielectric_breakdown: 30 M(V/m)
+
+temperature_conductivity: [
+  [200.0, 0],
+  [700.0, 0],
+  [1200.0, 0],
+  [1700.0, 0],
+] (K), (S_m)
+
+[vacuum.magnetic]
+relative_permeability: [1.0, 1.0]
+
+[vacuum.thermal]
+specific_heat: 0 (c)
+temperature_conductivity: [
+  [200.0, 0],
+  [800.0, 0],
+  [1600.0, 0],
+  [2000.0, 0]
+] (K), (k)
+
+
+
+
+
 [air.meta]
 type: "gas"
 mixture: "Homogeneous"
@@ -242,6 +281,7 @@ N55: [0.923, 1.47]   M(A_m), (T)
 specific_heat: 460 (c)
 max_working_tem: 353.15 (K)
 reference_temperature: 298.15 (K)
+
 # Refer: https://www.arnoldmagnetics.com/wp-content/uploads/2017/10/Catalog-151021.pdf
 # Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 7.6 (k)
 temperature_conductivity: [
@@ -249,4 +289,106 @@ temperature_conductivity: [
   [293.0, 7.60],
   [323.0, 7.14],
   [373.0, 6.38],
+] (K), (k)
+
+
+
+
+[silica.meta]
+type: "ceramic"
+composition: "96% Silica Consolidated Reconstructed Glass"
+note: "matweb.com: `96% Silica Consolidated Reconstructed Glass`"
+
+[silica.physical]
+density: 2180 (kg/m^3)
+
+poisson_ratio: 0.19
+shear_modulus: 28.0 G(Pa)
+yield_strength: 48.0 M(Pa)
+tensile_strength: 48.0 M(Pa)
+youngs_modulus: 68.0 G(Pa)
+
+# Calculated bulk modulus: K = E / (3 * (1-2v)) = 68.0 / (3 * 0.62)
+bulk_modulus: 36.6 G(Pa)
+
+[silica.chemical]
+# Si02 + B203 -> 96% Si02 + 4% B203 ~= 60g/mol
+molar_mass: 60 m(kg/mol)
+
+[silica.electrical]
+relative_permittivity: [3.8, 3.8]
+dielectric_breakdown: 25.0 M(V/m)
+ 
+# https://www.sqp.co.jp/e/catalog/images/QuartzGlass_for_Optics_e.pdf
+temperature_conductivity: [
+  [293.15, 1.0e-18],
+  [673.15, 4.0e-8],
+  [1073.15, 1.6e-5],
+  [1473.15, 7.7e-4],
+] (K), (S_m)
+
+[silica.magnetic]
+relative_permeability: [1.0, 1.0]
+
+[silica.thermal]
+specific_heat: 750.0 (c)
+
+# https://www.sqp.co.jp/e/catalog/images/QuartzGlass_for_Optics_e.pdf
+temperature_conductivity: [
+  [273.15, 1.38],
+  [373.15, 1.47],
+  [473.15, 1.55],
+  [673.15, 1.84],
+  [1223.15, 2.68]
+] (K), (k)
+
+
+
+
+[nichrome_70_30.meta]
+type: "alloy"
+composition: "68Ni-30Cr-1Mn-1Si"
+note: "matweb.com: `Nichrome 70-30 Medium Temperature Resistor Material`"
+
+[nichrome_70_30.physical]
+density:            8100 (kg/m^3)
+
+# https://simulatentoast.wordpress.com/wp-content/uploads/2013/03/nichrome.pdf
+poisson_ratio:      0.30
+
+shear_modulus:      75 G(Pa)
+yield_strength:     425.0 M(Pa)
+tensile_strength:   810.0 M(Pa)
+
+bulk_modulus: 175 G(Pa)
+
+[nichrome_70_30.chemical]
+# 68% Ni + 30% Cr + 0.1% Mn + 0.1% Si => ~ 56.34 g/mol
+molar_mass: 56.34 m(kg/mol)
+
+[nichrome_70_30.electrical]
+relative_permittivity: [1,1]
+
+ # Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 0.87e6 S/m
+temperature_conductivity: [
+  [293.15, 0.87],
+  [373.15, 0.85],
+  [673.15, 0.69],
+  [1073.15, 0.53],
+  [1473.15, 0.42]
+] (K), M(S_m)
+
+[nichrome_70_30.magnetic]
+relative_permeability: [1.0, 1.0]
+
+[nichrome_70_30.thermal]
+# https://simulatentoast.wordpress.com/wp-content/uploads/2013/03/nichrome.pdf
+specific_heat: 440 (c)
+
+# Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 13.5 (k)
+temperature_conductivity: [
+  [293.15, 13.5],
+  [373.15, 14.5],
+  [673.15, 17.0],
+  [1073.15, 20.0],
 ] (K), (k)

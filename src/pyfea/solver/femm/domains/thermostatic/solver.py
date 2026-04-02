@@ -21,7 +21,7 @@ from pyfea.solver.solver_outputs import (
     SolverOutputs, ThermalOptions, SolverSolutions
 )
 
-from pyfea.domain.units import Quantity, TIME, Material, meter, kelvin, watt
+from pyfea.domain.units import Quantity, second, meter, kelvin, watt
 from pyfea.domain.geometry.domain import Domain
 
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
@@ -57,7 +57,13 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         self.renderer.draw_domain(simulation_domain)
         self.problem_setup = True
 
-    def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * TIME):
+        # Displays modelling assumptions to the user.
+        print("=== model assumptions ===")
+        for line in self.renderer.verbose:
+            print(f"  • {line}")
+        print("=========================")
+
+    def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * second) -> Any:
         """ Solves the problem constructed by the FEMMRenderer """
         try:
             # Opens FEMM suite as a hidden window
@@ -86,7 +92,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
             msg = f"FEMMSolver failed to solve problem due to {err}"
             raise SolverError(msg) from err
 
-    def _domain_analyse(self, outputs: SolverOutputs):
+    def _domain_analyse(self, outputs: SolverOutputs) -> Any:
         """ Solves the problem defined within the FEMM suite """
         femm.hi_analyse(1)   # Hidden FEMM window
         femm.hi_loadsolution()
@@ -104,25 +110,6 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
                 raise SolverError(msg)
 
         return SolverSolutions(results)
-
-    def move_element(self, element_id, magnitude, angles):
-        """ Moves an element within the simulation domain """
-        self._setup_check("moving an element")
-        self.renderer.move_element(element_id, magnitude, angles)
-
-    def rotate_element(self, element_id, axis, angles):
-        """ Rotates a element around an axis in the simulation domain """
-        self._setup_check("rotating an element")
-        self.renderer.rotate_element(element_id, axis, angles)
-
-    def update_heat_source(self, element: Quantity | Material, magnitude):
-        """ Updates a heat source within the femm suite """
-        self._setup_check("updating a volumetric heat source")
-
-        if isinstance(id, Quantity):
-            self.renderer.update_conductor_heat_source(element, magnitude)
-        elif isinstance(id, Material):
-            self.renderer.update_volumetric_heat_source(element, magnitude)
 
     def _operations(
         self, option: ThermalOptions, element: ThermalOptions

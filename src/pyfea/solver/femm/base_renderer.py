@@ -42,6 +42,7 @@ class FEMMRenderer(BaseRenderer, ABC):
         """ Initializes the renderer under the file_path and physics_type"""
         self.file_path = Path(file_path)
         self.physics_type = physics_type
+        self.problem_type = None
 
         # Solver variables
         self.coordinate_system = None

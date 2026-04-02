@@ -32,7 +32,7 @@ cr_block = Builder.abstract(Configuration.series, resistor, capacitor)
 
 circuit.link(cr_block.main, source.main)
 circuit.link(circuit.gnd, source.out, cr_block.out)
-
+print(circuit)
 
 # testing
 from pyfea.solver.ngspice.interpreter import NGspiceInterpreter

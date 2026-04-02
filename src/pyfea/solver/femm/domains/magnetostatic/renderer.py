@@ -18,7 +18,7 @@ from pyfea import meter, ampere, tesla, nullset, siemens
 from pyfea.domain.units import Q, linear_interpolate
 
 from pyfea.domain.geometry.definitions import CoordinateSystem
-from pyfea.domain.geometry.domain import Domain, BoundaryType, MagneticData, Part
+from pyfea.domain.geometry.domain import Domain, Part, MagneticData, BoundaryType
 from pyfea.domain.circuits.definitions import StaticCircuit, Configuration
 
 from pyfea.solver.femm.base_renderer import FEMMRenderer
@@ -40,6 +40,8 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             self.tolerance,     # Meshing tolerance for problem
             depth
         )
+        self.problem_type = problem_type
+
         self.verbose.append(f"Coordinates={problem_type}, depth={depth * meter:.3f}")
         self.verbose.append("Frequency=0Hz, asymptotic field conditions")
 
@@ -213,7 +215,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
                     raise RendererError(msg)
 
         except Exception as err:
-            msg = f"Failed to create dirichlet boundary condition: {err}"
+            msg = f"Failed to create boundary condition: {err}"
             raise RendererError(msg) from err
 
     def _draw_polygon(
@@ -306,8 +308,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
 
         # Bypasses already loaded materials from being reloaded
         for loaded_material in self.materials:
-            if loaded_material == name:
-                return loaded_material
+            if loaded_material == name: return loaded_material
 
         # Extracts materials
         conductivity = getattr(qualities.electrical, 'temperature_conductivity', None)
@@ -349,6 +350,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         coercivity = self._strip_quantity(coercivity, ampere / meter)
         wire_diameter = self._strip_quantity(wire_diameter, meter)
         try:
+            self.check_active()
             femm.mi_addmaterial(
                 str(name),
                 float(relative_permeability[0]),
