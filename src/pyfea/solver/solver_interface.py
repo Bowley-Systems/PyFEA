@@ -139,7 +139,6 @@ class ThermalSolver(BaseSolver, ABC):
         self.tolerance = 1e-10
         self.renderer: ThermalRenderer = None
 
-    @abstractmethod
     def update_heat_source(self, part: Part, magnitude: Quantity) -> None:
         """ Updates a volumetric heat source within the femm suite """
         self.renderer.update_volumetric_heat_source(part, magnitude)

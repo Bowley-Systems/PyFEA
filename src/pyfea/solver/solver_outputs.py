@@ -50,7 +50,7 @@ class SolverOutputs:
     def __init__(self):
         """ Initializes the internal map for reference """
         # Tuple storage as key ensures that each combination is unique
-        self.registry: dict[tuple[Any, Part | StaticCircuit | Component]] = {}
+        self.registry: dict[tuple[Part | StaticCircuit | Component, Any]] = {}
 
     def _register(self, entity: Any, outputs: Any | Iterable[Any]) -> None:
         """Handles both single output objects and lists/tuples of outputs."""
@@ -71,9 +71,9 @@ class SolverOutputs:
         """ Requests a magnetic output and the element to probe """
         self._register(part, output)
 
-    def add_thermal(self, element_id: Any, output: ThermalOptions) -> None:
+    def add_thermal(self, part: Part, output: ThermalOptions) -> None:
         """ Requests a thermal output and the element to probe """
-        self._register(element_id, output)
+        self._register(part, output)
 
 
 class SolverSolutions:

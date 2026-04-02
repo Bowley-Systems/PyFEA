@@ -369,7 +369,7 @@ molar_mass: 56.34 m(kg/mol)
 [nichrome_70_30.electrical]
 relative_permittivity: [1,1]
 
- # Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 0.87e6 S/m
+# Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 0.87e6 S/m
 temperature_conductivity: [
   [293.15, 0.87],
   [373.15, 0.85],
@@ -391,4 +391,58 @@ temperature_conductivity: [
   [373.15, 14.5],
   [673.15, 17.0],
   [1073.15, 20.0],
+] (K), (k)
+
+
+
+
+[alumina_96.meta]
+type: "ceramic"
+composition: "96% Al2O3 4% SiO2"
+note: "matweb.com: `Overview - Alumina, 96%, Al2O3`"
+
+[alumina_96.physical]
+density:            3800 (kg/m^3)
+
+# https://www.syalons.com/wp-content/uploads/2023/01/Aloxalon-96-Datasheet.pdf
+poisson_ratio:      0.22
+
+shear_modulus:      130 G(Pa)
+youngs_modulus:     300 G(Pa)
+
+yield_strength:     320 M(Pa)
+tensile_strength:   200 M(Pa)
+
+# Bulk Modulus Calculation: K = E / (3 * (1 - 2v)) = 300 / 1.68
+bulk_modulus:       178.6 G(Pa)
+
+[alumina_96.chemical]
+# 96% Al2O3 4% SiO2 => ~ 100.28 g/mol
+molar_mass: 100.2 m(kg/mol)
+
+[alumina_96.electrical]
+# Measured at 25c 1MHz
+relative_permittivity: [9,9]
+dielectric_breakdown: 17.0 M(V/m)
+
+# Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 1e-13 S/m
+temperature_conductivity: [
+  [573.15, 1.4e-11],
+  [873.15, 2.9e-8],
+  [1173.15, 4.4e-5]
+] (K), (S_m)
+
+[alumina_96.magnetic]
+relative_permeability: [1.0, 1.0]
+
+[alumina_96.thermal]
+specific_heat: 880 (c)
+
+# Constructed table via p(t) = p_o * (1 + a * (t-to)); p_o = 25 (k)
+temperature_conductivity: [
+  [298.15, 25.0],
+  [573.15, 20.9],
+  [873.15, 16.4],
+  [1173.15, 11.9],
+  [1473.15, 7.4]
 ] (K), (k)

@@ -30,6 +30,22 @@ from pyfea.solver.femm.domains.thermostatic.renderer import FEMMThermostaticRend
 
 class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
     """ Thermostatic Solver for FEMM (finite element magnetic methods) """
+    def __init__(
+        self,
+        folder_path: Path,
+        verbose: bool = True,
+        tolerance: float = 1e-012,
+    ) -> None:
+        """ Initializes the FEMM solver and FEMM renderer """  
+        self._folder_path_exist(folder_path)
+
+        self.verbose = verbose
+        self.tolerance = tolerance
+        self.filename: str = None
+
+        # Overrides the FEMMRenderer on BaseRenderer
+        self.renderer: FEMMThermostaticRenderer = None
+        self.problem_setup = False
 
     def _create_renderer(
         self, filename: str, tolerance: float
@@ -45,7 +61,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         self,
         simulation_domain: Domain,
         filename: str = "thermostatic",
-        depth: Quantity = 0 * meter
+        depth: Quantity = 0 * meter,
     ) -> SolverSolutions:
         """ Setups the problem in FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
@@ -99,9 +115,8 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
 
         results = {}
         for (target, option), _ in outputs.registry.items():
-
             if isinstance(option, ThermalOptions):
-                data = self._operations(option, target)
+                data = self._operations(option, target.metadata.group)
                 results = self._add_result(results, target, option, data)
 
             else:

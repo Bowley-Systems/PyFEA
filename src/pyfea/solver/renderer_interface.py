@@ -86,9 +86,9 @@ class ThermalRenderer(BaseRenderer, ABC):
     def update_volumetric_heat_source(self, part: Part, magnitude: Quantity) -> Any:
         """ Updates a volumetric heat source within the simulation domain """
 
-    @abstractmethod
-    def update_conductor_heat_source(self, part: Part, magnitude: Quantity) -> Any:
-        """ Updates a conductor heat source within the simulation domain"""
+    # @abstractmethod
+    # def update_conductor_heat_source(self, part: Part, magnitude: Quantity) -> Any:
+    #     """ Updates a conductor heat source within the simulation domain"""
 
 
 class ElectricRenderer(BaseRenderer, ABC):

@@ -12,7 +12,7 @@ Description:
 import femm
 from shapely.geometry import Polygon, MultiPolygon, Point
 
-from pyfea import meter, kelvin, watt, joule, kilogram, nullset
+from pyfea import meter, kelvin, watt, joule, kilogram, nullset, second
 from pyfea.domain.units import Q, linear_interpolate
 
 from pyfea.domain.geometry.domain import Domain, Part, ThermalData, BoundaryType
@@ -24,10 +24,11 @@ from pyfea.solver.renderer_interface import ThermalRenderer, RendererError
 class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
     """ Thermostatic renderer for FEMM (finite element magnetic methods) """
     def suite_define(
-        self, problem_type: str, depth: float, time_step: float, solution_file: str = None
+        self, problem_type: str, depth: float, time_step: Q, solution_file: str = None
     ) -> None:
         """ Defines the suite problem as magnetostatic """
         self.verbose.append(f"Coordinates={problem_type}, depth={depth * meter:.3f}")
+        time_step = self._strip_quantity(time_step, second)
         if time_step > 0:
             femm.hi_probdef(
                 self.femm_unit,             # Default length unit in suite
@@ -153,12 +154,13 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
             match boundary:
                 case BoundaryType.DIRICHLET:
                     temperature = self._strip_quantity(meta.temperature, kelvin)
-                    femm.hi_addboundprop("Fixed Temperature", 0, temperature, 0, 0, 0, 0)
+
+                    boundary_name = f"{str(temperature)}_Fixed_Temperature"
+                    femm.hi_addboundprop(boundary_name, 0, temperature, 0, 0, 0, 0)
                     self.verbose.append(
                         f"Dirichlet Boundary, Fixed temp = {temperature:.3f} K"
                     )
-
-                    return str(temperature)
+                    return boundary_name
 
                 case BoundaryType.CONVECTION:
                     temperature = self._strip_quantity(meta.temperature, kelvin)
@@ -233,8 +235,6 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
             # Adds or retrieve the material name and converts element id
             element_id = self._strip_quantity(meta.group, nullset)
             name = self._add_material(meta)
-            if meta.volumetric_heating:
-                name = f"source_{meta.group.stripped}_{name}"
 
             femm.hi_setblockprop(
                 str(name),          # Material name to assign
@@ -274,12 +274,14 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
             self.verbose.append(
                 f"{name} is a volumetric heat source at {volumetric_heating:.3f}"
             )
+        else:
+            volumetric_heating = 0.0 * watt / meter ** 3
 
-        if cond_table is None:
+        if not cond_table:
             msg = f"{name} must have a temperature thermal conductivity table"
             raise RendererError(msg)
 
-        if heat_capacity is None:
+        if not heat_capacity:
             msg = f"{name} must have a heat capacity value for transient sims; Assuming=0"
             self.verbose.append(msg)
 
@@ -287,7 +289,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
         conductivity = linear_interpolate(cond_table, self.environmental_data.temperature)
 
         # Extracts value from value:unit pairs
-        conductivity = self._strip_quantity(conductivity, watt / (meter ** 2 * kelvin))
+        conductivity = self._strip_quantity(conductivity, watt / (meter * kelvin))
         heat_capacity = self._strip_quantity(heat_capacity, joule / (kilogram * kelvin))
         volumetric_heating = self._strip_quantity(volumetric_heating, watt / meter ** 3)
 
@@ -300,7 +302,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                 float(heat_capacity) /  1e6                     # Volume heat generation
             )
 
-            conductivity = watt / (meter ** 2 * kelvin)
+            conductivity = watt / (meter * kelvin)
             for row in cond_table:
                 t_val = self._strip_quantity(row[0], kelvin)
                 k_val = self._strip_quantity(row[1], conductivity)

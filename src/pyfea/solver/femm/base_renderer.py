@@ -17,7 +17,7 @@ from shapely import Point, Polygon
 
 import femm
 
-from pyfea.domain.units import Quantity, meter
+from pyfea.domain.units import Q, meter, second
 from pyfea.domain.geometry.definitions import CoordinateSystem
 from pyfea.domain.geometry.domain import Domain
 
@@ -64,7 +64,9 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.boundaries: list[str] = {}
         self.conductor: list[str]= {}
 
-    def setup(self, system: CoordinateSystem, depth: Quantity) -> None:
+    def setup(
+        self, system: CoordinateSystem, depth: Q, time_step: Q = 0 * second
+    ) -> None:
         """ Setup the rendering environment and simulation space """
         # Strips depth of quantity at boundary between femm
         depth: float | int = self._strip_quantity(depth, meter)
@@ -95,7 +97,7 @@ class FEMMRenderer(BaseRenderer, ABC):
             femm.newdocument(int(self.physics_type.value))
 
             # Defines the problem within the FEMM suite
-            self.suite_define(problem_type, depth)
+            self.suite_define(problem_type, depth, time_step)
 
             # Change the activation state and save changes
             self.suite_is_active = True
