@@ -169,6 +169,14 @@ class FEMMRenderer(BaseRenderer, ABC):
         self.defined_area.append(coordinates)
         self._add_properties(coordinates, self.environmental_data.meta_data)
 
+    def is_on_axis(self, x1: float, x2: float) -> bool:
+        """ Helper function to check if a segment lies on the axis of symmetry """
+        return (
+            abs(x1) < 1e-7 and
+            abs(x2) < 1e-7 and
+            self.problem_type == "axi"
+        )
+
     @classmethod
     def _pre_defined(cls, name: str, loaded: list[str]) -> str:
         """ Checks to see if a material has already been loaded """

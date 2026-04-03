@@ -8,10 +8,7 @@ Description:
     This example shows how pyfea can be used to model
     thermo-electric problems without a GUI.
     
-    NOTE: This is a test; need to improve boundary configurations.
-    NOTE:
-    THIS MEANS THAT THIS IS NOT CURRENTLY ACCURATE DUE TO BOUNDARY
-    CONDITION ON THE AXIAL. DO NOT USE THIS AS A REAL MODEL CURRENTLY. 
+    NOTE: This example needs to be cleaned up. Was just a test before.
 """
 
 from math import pi

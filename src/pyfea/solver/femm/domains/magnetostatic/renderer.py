@@ -227,6 +227,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         # Draws exterior boundary
         for (x1, y1), (x2, y2) in zip(exterior, exterior[1:]):
             femm.mi_drawline(x1, y1, x2, y2)
+            
+            if self.is_on_axis(x1, x2): continue
+
             if boundary and metadata:
                 # Add boundary conditions to segment
                 femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
@@ -244,6 +247,8 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             hole_coords = list(interior.coords)
             for (x1, y1), (x2, y2) in zip(hole_coords, hole_coords[1:]):
                 femm.mi_drawline(x1, y1, x2, y2)
+                if self.is_on_axis(x1, x2): continue
+
                 if boundary and metadata:
                     # Add boundary conditions to segment
                     femm.mi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)

@@ -154,6 +154,10 @@ class FEMMConstructSolidGeometry:
         if complement.is_empty:
             raise RendererError("Environmental regions are empty; Check geometry")
 
+        # Ensures an tiny artifacts are cleaned up
+        if not complement.is_valid:
+                complement = complement.buffer(0)
+
         return complement
 
     @classmethod

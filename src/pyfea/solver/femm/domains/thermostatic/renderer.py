@@ -198,6 +198,8 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                 # Adds polygon to domain
                 femm.hi_drawline(x1, y1, x2, y2)
 
+            if self.is_on_axis(x1, x2): continue
+
             if boundary and metadata:
                 # Add boundary conditions to segment
                 femm.hi_selectsegment((x1 + x2) / 2, (y1 + y2) / 2)
@@ -219,6 +221,8 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
                 if draw:
                     # Adds polygon to domain
                     femm.hi_drawline(x1, y1, x2, y2)
+
+                if self.is_on_axis(x1, x2): continue
 
                 if boundary and metadata:
                     # Add boundary conditions to segment
