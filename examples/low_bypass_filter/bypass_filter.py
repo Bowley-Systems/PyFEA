@@ -30,13 +30,16 @@ resistor = Builder.resistor(1 * k * ohm)
 source = Builder.source(1 * volt)
 cr_block = Builder.abstract(Configuration.series, resistor, capacitor)
 
-circuit.link(cr_block.main, source.main)
-circuit.link(circuit.gnd, source.out, cr_block.out)
-print(circuit)
+circuit.link(cr_block.in_, source.out)
+circuit.link(circuit.gnd, source.gnd, cr_block.out)
 
 # testing
 from pyfea.solver.ngspice.interpreter import NGspiceInterpreter
-NGspiceInterpreter.transverse_tree(circuit)
+interpreter = NGspiceInterpreter(circuit)
+
+# spice = NGspiceInterpreter.transverse_tree(circuit)
+# print(spice)
+
 
 # # Defines requested outputs
 # outputs = SolverOutputs()

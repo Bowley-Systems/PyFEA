@@ -49,7 +49,7 @@ class Builder:
         # Constructs parameters as a series of value : units
         parameters = {"amplitude": amplitude}
         source = Component(ComponentTypes.SOURCE, parameters, False)
-        return Device(source)
+        return Device(source, ("out", "gnd"))
 
     @staticmethod
     def resistor(resistance: Q) -> Component:

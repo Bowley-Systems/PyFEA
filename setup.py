@@ -20,14 +20,15 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     package_data={
-        "pyfea": ["library/*.ut", "library/*.uiv"],
+        "pyfea": ["library/*.ut", "library/*.uiv", "bin/*"],
     },
     install_requires=[
         'PyYAML',
         'pyfemm',
         'matplotlib',
         'bayesian-optimization',
-        'picounits'
+        'picounits',
+        'spicelib'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

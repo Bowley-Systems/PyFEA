@@ -5,3 +5,7 @@
 *.ans
 *.feh
 *.anh
+
+
+examples/low_bypass_filter/pyspice_filter.py
+src/bin/ngspice.exe

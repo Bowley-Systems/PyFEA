@@ -38,7 +38,7 @@ class Device(NodalPrimitives):
     def __init__(
         self,
         component: Component,
-        terminals: list = ("main", "out")
+        terminals: list = ("in_", "out")
     ) -> None:
         """ Initialize the device """
         if not isinstance(component, (Component, Abstract)):
@@ -65,7 +65,7 @@ class Abstract(NodalPrimitives):
         self,
         configuration: Configuration,
         *components: Component | Abstract,
-        terminals: list = ("main", "out")
+        terminals: list = ("in_", "out")
     ) -> None:
         """ Initialize the branch; Configuration enum and"""
         if not isinstance(configuration, Configuration):

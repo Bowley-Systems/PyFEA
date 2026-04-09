@@ -95,7 +95,7 @@ avg /= len(magnetic_force)
 
 
 print("===== NdFeB_45 Performance =====")
-print(f"Temperature range: {min(temperature)}-{max(temperature)}")
+print(f"Temperature range: {min(temperature)} to {max(temperature)}")
 print(f"Gradient | force/temperature: {dF_DT:.3f}")
 print(f"Average Pulling force: {avg:.3f}")
 print("=====================================")
