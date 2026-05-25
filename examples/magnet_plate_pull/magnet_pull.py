@@ -27,7 +27,7 @@ manager = MaterialManager()
 iron = manager.use_material("iron")
 NdFeB_45 = manager.use_material("NdFeB", grade="N45")
 stc_air = manager.use_material("air")
-
+print(NdFeB_45.tree())
 # Builds the magnet and iron plate
 plate = Builder.rectangle((0 * mm, 0 * mm), 100 * mm, 5 * mm)
 plate = Builder.promote_to_part(plate, MagneticData(1 * nullset, iron))

@@ -115,7 +115,6 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         self, option: MagneticOptions, element_id: Quantity
     ) -> Quantity:
         """ Gets the requested magnetic output from the FEMM suite """
-        """NOTE: Might have to add a raise for axi; given axi torque might not work"""
         match option:
             case MagneticOptions.field_energy:
                 return self._get_block_integral(element_id, 2) * (newton * meter)

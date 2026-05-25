@@ -45,7 +45,7 @@ class FEMMSolver(BaseSolver, ABC):
             self.renderer.check_active()
 
             solution = self._domain_analyse(outputs)
-            self._clean_up()
+            # self._clean_up()
             return solution
 
         except Exception as err:

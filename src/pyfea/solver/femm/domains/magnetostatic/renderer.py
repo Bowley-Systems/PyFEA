@@ -67,7 +67,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             processed_parts.append(csg_part)
 
             # Draws part geometry to FEMM suite & set properties to part
-            self._draw_polygon(csg_part, metadata=domain.meta_data)
+            self._draw_polygon(csg_part, metadata=part.metadata)
 
             element_coord = FEMMCSG.polygon_solid_centroid(csg_part, self.tolerance)
             self._add_properties(element_coord, part.metadata)
@@ -227,8 +227,9 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         # Draws exterior boundary
         for (x1, y1), (x2, y2) in zip(exterior, exterior[1:]):
             femm.mi_drawline(x1, y1, x2, y2)
-            
-            if self.is_on_axis(x1, x2): continue
+
+            if self.is_on_axis(x1, x2):
+                continue
 
             if boundary and metadata:
                 # Add boundary conditions to segment
