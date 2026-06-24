@@ -55,10 +55,11 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         self.problem_setup = True
 
         # Displays modelling assumptions to the user.
-        print("=== model assumptions ===")
-        for line in self.renderer.verbose:
-            print(f"  • {line}")
-        print("=========================")
+        if self.verbose is True:
+            print("=== model assumptions ===")
+            for line in self.renderer.verbose:
+                print(f"  • {line}")
+            print("=========================")
 
     def _domain_analyse(self, outputs: SolverOutputs):
         """ Solves the problem defined within the FEMM suite """

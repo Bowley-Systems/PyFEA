@@ -6,6 +6,7 @@ from os import getcwd
 
 # --- ensure derived units are loaded globally ---
 from importlib import resources
+from picounits import unit_validator
 from picounits.configuration.config import get_derived_units
 from pyfea.domain.units import *
 

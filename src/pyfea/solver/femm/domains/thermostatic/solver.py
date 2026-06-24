@@ -74,10 +74,11 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         self.problem_setup = True
 
         # Displays modelling assumptions to the user.
-        print("=== model assumptions ===")
-        for line in self.renderer.verbose:
-            print(f"  • {line}")
-        print("=========================")
+        if self.verbose is True:
+            print("=== model assumptions ===")
+            for line in self.renderer.verbose:
+                print(f"  • {line}")
+            print("=========================")
 
     def solve(self, outputs: SolverOutputs, time_step: Quantity = 0 * second) -> Any:
         """ Solves the problem constructed by the FEMMRenderer """
