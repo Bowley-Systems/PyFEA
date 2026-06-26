@@ -18,10 +18,10 @@ import femm
 from pyfea.domain.units import Quantity, ampere, volt, weber, newton, meter, tesla
 from pyfea.solver.solver_interface import MagneticSolver
 from pyfea.solver.solver_outputs import (
-    SolverOutputs, CircuitOptions, MagneticOptions, SolverSolutions
+    SolverOutputs, CircuitOptions, MagneticOptions, ImageOptions, SolverSolutions
 )
 
-from pyfea.domain.geometry.domain import Domain
+from pyfea.domain.geometry.domain import Domain, Part
 from pyfea.domain.circuits.definitions import StaticCircuit
 from pyfea.solver.femm.base_solver import FEMMSolver, SolverError
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
@@ -47,6 +47,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
         """ Setups the problem in FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
         coordinate_system = simulation_domain.coordinate_system
+        self.simulation_domain = simulation_domain
         self.renderer = self._create_renderer(filename, self.tolerance)
         self.renderer.setup(coordinate_system, depth)
 
@@ -63,7 +64,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
 
     def _domain_analyse(self, outputs: SolverOutputs):
         """ Solves the problem defined within the FEMM suite """
-        femm.mi_analyse(1)   # Hidden FEMM window
+        femm.mi_analyse(0)   # Hidden FEMM window
         femm.mi_loadsolution()
 
         results = {}
@@ -75,13 +76,61 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
             elif isinstance(option, MagneticOptions):
                 data = self._element_outputs(option, target.metadata.group)
                 results = self._add_result(results, target, option, data)
-
+            elif isinstance(option, ImageOptions):
+                self._image_outputs(option, target)
             else:
                 name = self.__class__.__name__
-                msg = f"{type(option)!r} category is not supported by {name}"
+                msg = f"{option} category is not supported by {name}"
                 raise SolverError(msg)
 
         return SolverSolutions(results)
+
+    def _get_field_max(self) -> float:
+        """Get the maximum value of a field type across the domain."""
+        max_val = 0.0
+        descaling = 1
+
+        # Get number of elements
+        num_elements = femm.mo_numelements()
+        for i in range(int(num_elements/descaling)):
+            # Get element centroid
+            elem = femm.mo_getelement(i)
+
+            if len(elem) == 0:
+                continue
+
+            x, y = elem[3], elem[4]
+
+            b = femm.mo_getb(x, y)
+            val = (b[0]**2 + b[1]**2)**0.5
+
+            if val > max_val:
+                max_val = val
+
+        if max_val == 0:
+            # Secondary case: -> Fails to find any reference points
+            max_val = 1.0
+
+        return max_val
+
+    def _image_outputs(self, option: ImageOptions, part: Part | None) -> None:
+        """ Gets the request image output from the FEMM suite and return in output folder """
+        _ = option
+        femm.mo_resize(2160, 2160)
+
+        if part is None:
+            x1, y1, x2, y2 = self.zoon_cal(self.simulation_domain.shape)
+            femm.mo_zoom(x1, y1, x2, y2)
+        else:
+            x1, y1, x2, y2 = self.zoon_cal(part.geometry)
+            femm.mo_zoom(x1, y1, x2, y2)
+
+        femm.mo_showvectorplot(0, 0)
+        upper_scale = self._get_field_max()
+        femm.mo_showdensityplot(1, 0, upper_scale, 0, "bmag")
+        filename = self.folder_path / f"{self.filename}_b_contour.bmp"
+        femm.mo_savebitmap(str(filename))
+        return
 
     def _circuit_outputs(
         self, option: CircuitOptions, circuit: StaticCircuit
@@ -111,7 +160,7 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
                 name = name = self.__class__.__name__
                 msg = f"{option!r} is an unknown or unsupported output for {name}"
                 raise SolverError(msg)
-
+    
     def _element_outputs(
         self, option: MagneticOptions, element_id: Quantity
     ) -> Quantity:
@@ -177,6 +226,6 @@ class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
             )
             raise SolverError(msg) from err
 
-    def _clean_up(self) -> None:
+    def clean_up(self) -> None:
         """ Closes FEMM and removes the .ans file """
         self.renderer.clean_up()

@@ -43,6 +43,7 @@ class BaseSolver(ABC):
 
         self.tolerance = 1e-10
         self.renderer = None
+        self.simulation_domain = None
 
     @abstractmethod
     def setup(
@@ -51,6 +52,7 @@ class BaseSolver(ABC):
         filename: str
     ) -> None:
         """ Setups the solver problem via the renderer """
+        self.simulation_domain = simulation_domain
         self.renderer: BaseRenderer = self._create_renderer(filename, self.tolerance)
 
     @abstractmethod
@@ -62,7 +64,7 @@ class BaseSolver(ABC):
         """ Subclasses instantiate their specific renderer """
 
     @abstractmethod
-    def _clean_up(self) -> None:
+    def clean_up(self) -> None:
         """ Cleans up any temporary files and closes the solver. """
 
     def move_element(

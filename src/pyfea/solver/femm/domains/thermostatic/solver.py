@@ -66,6 +66,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
         """ Setups the problem in FEMMRenderer """
         # Sets up the FEMM suite under the users coordinate system
         coordinate_system = simulation_domain.coordinate_system
+        self.simulation_domain = simulation_domain
         self.renderer = self._create_renderer(filename, self.tolerance)
         self.renderer.setup(coordinate_system, depth)
 

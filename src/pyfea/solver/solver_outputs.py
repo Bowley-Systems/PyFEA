@@ -14,6 +14,15 @@ from enum import Enum, auto
 from pyfea.domain.geometry.domain import Part
 from pyfea.domain.circuits.builder import StaticCircuit, Component
 
+
+class ImageOptions(Enum):
+    """Defines the different possible image outputs"""
+    field_contour = auto()
+    field_heatmap = auto()
+    vector_field = auto()
+    streamline = auto()
+
+
 class CircuitOptions(Enum):
     """ Defines the different possible circuit output variables """
     power           =   auto()
@@ -36,13 +45,13 @@ class MagneticOptions(Enum):
     force_stress_tensor     = auto()
     torque_stress_tensor    = auto()
 
+
 class ThermalOptions(Enum):
     """ Defines the different possible thermal output variables """
-    volume                  = auto()
-    cross_section           = auto()
-    average_temperature     = auto()
-    flux_over_element       = auto()
-    gradient_over_element   = auto()
+    volume                      = auto()
+    cross_section               = auto()
+    average_temperature         = auto()
+    flux_over_element           = auto()
 
 
 class SolverOutputs:
@@ -73,6 +82,10 @@ class SolverOutputs:
 
     def add_thermal(self, part: Part, output: ThermalOptions) -> None:
         """ Requests a thermal output and the element to probe """
+        self._register(part, output)
+
+    def add_image(self, output: ImageOptions, part: Part | None = None) -> None:
+        """ Requests an image of the field effects across the simulation. """
         self._register(part, output)
 
 
