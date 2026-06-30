@@ -16,8 +16,6 @@ from pyfea.solver.solver_outputs import SolverOutputs, SolverSolutions
 from pyfea.solver.solver_interface import BaseSolver, SolverError
 
 from pyfea.solver.femm.base_renderer import FEMMRenderer
-from pyfea.domain.geometry.domain import VectorGeometry
-from pyfea.solver.femm.shapely_csg import FEMMConstructSolidGeometry as FEMMCSG
 
 
 class FEMMSolver(BaseSolver, ABC):
@@ -61,13 +59,6 @@ class FEMMSolver(BaseSolver, ABC):
         path = f"{self.__class__.__name__}.setup"
         msg = f"Problem has to be setup before {method}, run {path}"
         raise SolverError(msg)
-
-    def zoon_cal(self, shape: VectorGeometry) -> list[float]:
-        """ Calculates the length and height of a shape using shapely_csg """
-        shape = FEMMCSG.evaluate_csg_tree(shape)
-
-        min_x, min_y, max_x, max_y = shape.bounds
-        return min_x, min_y, max_x, max_y
 
     @classmethod
     def _add_result(
