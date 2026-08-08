@@ -26,7 +26,7 @@ from pyfea.domain.circuits.definitions import StaticCircuit
 from pyfea.solver.femm.base_solver import FEMMSolver, SolverError
 from pyfea.solver.femm.base_renderer import FEMMPhysicsTypes
 from pyfea.solver.femm.domains.magnetostatic.renderer import FEMMMagnetostaticRenderer
-
+from pyfea.domain.geometry.domain import Domain
 
 class FEMMMagnetostaticSolver(FEMMSolver, MagneticSolver):
     """ Magnetostatic Solver for FEMM (finite element magnetic methods) """

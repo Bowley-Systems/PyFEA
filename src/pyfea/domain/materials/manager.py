@@ -11,7 +11,8 @@ from typing import Optional, Any
 from pathlib import Path
 from importlib import resources
 
-from pyfea.domain.units import Material, MaterialParser
+from pyfea import DynamicLoader
+from pyfea.domain.units import MaterialParser
 
 
 class MaterialManagerError(TypeError):
@@ -34,26 +35,27 @@ class MaterialManager:
     """
     def __init__(self, library_path: Optional[str] = None) -> None:
         """ Initialization of the material manager """
-        self.material_library: Material = None
-        self.materials: dict[str, Material] = {}
+        self.material_library: DynamicLoader = None
+        self.materials: dict[str, DynamicLoader] = {}
         self.path_name = "library/material.uiv"
 
         if library_path is None:
             self._load_from_package()
+
         else:
             self._load_from_path(Path(library_path))
             self.path_name = library_path
 
 
-    def use_material(self, name: str, **params: Any) -> Material:
+    def use_material(self, name: str, **params: Any) -> DynamicLoader:
         """ Retrieve a material by name and apply required parameters """
         material = self.material_library.find(name)
 
-        if not material.occupied:
+        if not material:
             msg = f"Cannot find material {name!r} in {self.path_name!r}"
             raise MaterialManagerError(msg)
 
-        material_tag = material.values().meta.type
+        material_tag = material.meta.type
         match material_tag:
             case "magnet_material":
                 if "grade" not in params:
@@ -66,19 +68,18 @@ class MaterialManager:
                     raise MaterialManagerError(msg)
 
                 try:
-                    coercivity = 0
-                    remanence = 0
+                    grade = material.grades.find(grade_value)
+                    if grade is None:
+                        msg = "Grade not found within material library"
+                        raise MaterialManagerError(msg) from None
 
-                    grades = material.values().grades
-                    for grade, values in zip(grades.keys(), grades.values()):
-                        if grade == grade_value:
-                            coercivity, remanence = values[0], values[1]
+                    coercivity, remanence = grade[0], grade[1]
 
-                    material.find_and_add(f"{name}.magnetic.remanence", remanence)
-                    material.find_and_add(f"{name}.magnetic.coercivity", coercivity)
+                    material.magnetic.remanence = remanence
+                    material.magnetic.coercivity = coercivity
 
-                except:
-                    msg = f"'{name!r}' is required to have a valid magnet entry."
+                except Exception:
+                    msg = "Failed to extract grade values for magnetic material"
                     raise MaterialManagerError(msg) from None
 
         self.materials[name] = material
@@ -90,9 +91,7 @@ class MaterialManager:
             library = resources.files("library")
             materials_path = library / "materials.uiv"
 
-            self.material_library = MaterialParser.open(
-                materials_path, loader_class=Material
-            )
+            self.material_library = MaterialParser.open(materials_path)
 
         except Exception as err:
             msg = f"Failed to load library from package resources: {err}"
@@ -101,7 +100,7 @@ class MaterialManager:
     def _load_from_path(self, file_path: Path) -> None:
         """ Loads the user material library from path """
         try:
-            self.material_library = MaterialParser.open(file_path, loader_class=Material)
+            self.material_library = MaterialParser.open(file_path)
 
         except Exception as err:
             msg = f"""Failed to load library from {file_path!r}: {err}"""

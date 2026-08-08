@@ -103,7 +103,7 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
 
             solution = self._domain_analyse(outputs)
 
-            self._clean_up()
+            self.clean_up()
             return solution
 
         except Exception as err:
@@ -165,6 +165,6 @@ class FEMMThermostaticSolver(FEMMSolver, ThermalSolver):
             )
             raise SolverError(msg) from err
 
-    def _clean_up(self) -> None:
+    def clean_up(self) -> None:
         """ Closes FEMM and removes the .ans file """
         self.renderer.clean_up()

@@ -261,7 +261,7 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
             raise RendererError(msg)
 
         # Extracts the material data, name and diameter from metadata
-        name, qualities = metadata.material.keys(), metadata.material.values()
+        name, material = metadata.material._name, metadata.material
 
         # Bypasses already loaded materials from being reloaded
         for loaded_material in self.materials:
@@ -269,8 +269,8 @@ class FEMMThermostaticRenderer(FEMMRenderer, ThermalRenderer):
 
         # Extracts materials
         volumetric_heating = metadata.volumetric_heating
-        heat_capacity = getattr(qualities.thermal, 'specific_heat', None)
-        cond_table = getattr(qualities.thermal, 'temperature_conductivity', None)
+        heat_capacity = getattr(material.thermal, 'specific_heat', None)
+        cond_table = getattr(material.thermal, 'temperature_conductivity', None)
 
         # Fails if missing materials and updates assumptions for sort missing comm
         if volumetric_heating:

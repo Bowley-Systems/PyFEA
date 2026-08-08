@@ -71,7 +71,7 @@ turns = int(effective_area / wire_area)
 avg_radius = (tube_radius + heater_radius) / 2
 length = (2 * pi * avg_radius) * turns
 
-conductivity = heater_material.values().electrical.temperature_conductivity
+conductivity = heater_material.electrical.temperature_conductivity
 conductivity = linear_interpolate(conductivity, param.problem.temperature)
 r_linear = 1 / (conductivity * wire_area)
 

@@ -160,14 +160,14 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
 
         # Extract material properties and metadata
         material = part.metadata.material
-        name, qualities = material.keys(), material.values()
+        name = material._name
 
         # Update name if part has turns & checks if defined
         if part.metadata.diameter: name = f"{name}_{part.metadata.diameter:.3f}"
         name = self._pre_defined(name, self.materials)
 
         # Calculates electrical conductivity
-        conductivity = getattr(qualities.electrical, 'temperature_conductivity', None)
+        conductivity = getattr(material.electrical, 'temperature_conductivity', None)
         if conductivity is None:
             msg = f"{name} must have a temperature electrical conductivity table"
             raise RendererError(msg)
@@ -177,12 +177,12 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
 
         # Calculates coercivity if part is a magnet
         hc = 0.0
-        if getattr(qualities, 'grades', None):
-            ref_co = qualities.magnetic.coercivity
-            ref_temp = qualities.thermal.reference_temperature
+        if getattr(material, 'grades', None):
+            ref_co = material.magnetic.coercivity
+            ref_temp = material.thermal.reference_temperature
 
-            beta_co = qualities.magnetic.beta_coercivity
-            max_temp = qualities.thermal.max_working_tem
+            beta_co = material.magnetic.beta_coercivity
+            max_temp = material.thermal.max_working_tem
 
             if temperature < max_temp:
                 hc = ref_co * (1 + (beta_co/100) * (temperature - ref_temp))
@@ -304,7 +304,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             raise RendererError(msg)
 
         # Extracts the material data, name and diameter from metadata
-        name, qualities = metadata.material.keys(), metadata.material.values()
+        material, name, = metadata.material, metadata.material._name
         wire_diameter, number_of_strands, material_lamination = 0 * meter, 0, 0
 
         if metadata.diameter:
@@ -317,10 +317,10 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
             if loaded_material == name: return loaded_material
 
         # Extracts materials
-        conductivity = getattr(qualities.electrical, 'temperature_conductivity', None)
-        rel_perm = getattr(qualities.magnetic, 'relative_permeability', None)
-        hysteresis = getattr(qualities.magnetic, "magnetic_hysteresis", None)
-        coercivity = getattr(qualities.magnetic, 'coercivity', None)
+        conductivity = getattr(material.electrical, 'temperature_conductivity', None)
+        rel_perm = getattr(material.magnetic, 'relative_permeability', None)
+        hysteresis = getattr(material.magnetic, "magnetic_hysteresis", None)
+        coercivity = getattr(material.magnetic, 'coercivity', None)
 
         # Fails if missing materials and updates assumptions for sort missing comm
         if conductivity is None:
@@ -343,7 +343,7 @@ class FEMMMagnetostaticRenderer(FEMMRenderer, MagneticRenderer):
         conductivity = linear_interpolate(conductivity, self.environmental_data.temperature)
 
         # If material is a gas conductivity must be 0 to ensure correct domain
-        if qualities.meta.type == "gas":
+        if material.meta.type == "gas":
             conductivity = 0 * siemens / meter
             self.verbose.append(
                 f"{name} conductivity set to {conductivity} to ensure "

@@ -14,7 +14,7 @@ from pyfea.domain.geometry.definitions import GeometryDimensionError
 from pyfea.domain.circuits.builder import StaticCircuit
 
 from pyfea import (
-    Quantity as Q, Material, SystemBoundary, nullset, meter, watt, kelvin, h
+    Quantity as Q, DynamicLoader, SystemBoundary, nullset, meter, watt, kelvin, h
 )
 
 
@@ -22,7 +22,7 @@ from pyfea import (
 class MagneticData(SystemBoundary):
     """ Defines magnetic properties for a geometry group """
     group:          Q                       = field(metadata={Q: nullset})
-    material:       Material
+    material:       DynamicLoader
     circuit:        Optional[StaticCircuit] = field(default=None, metadata={})
     turns:          Optional[Q]             = field(default=None, metadata={Q: nullset})
     diameter:       Optional[Q]             = field(default=None, metadata={Q: meter})
@@ -30,7 +30,7 @@ class MagneticData(SystemBoundary):
 
     def __post_init__(self) -> None:
         """ Validates that non-typed parameters are correct """
-        if not isinstance(self.material, Material):
+        if not isinstance(self.material, DynamicLoader):
             msg = f"Material must be a Material, not {type(self.material)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
@@ -76,7 +76,7 @@ class MagneticData(SystemBoundary):
 class ThermalData(SystemBoundary):
     """ Defines thermal properties and heat sources for a geometry group """
     group:                  Q           = field(metadata={Q: nullset})
-    material:               Material
+    material:               DynamicLoader
     heating_index:          Optional[Q] = field(default=None, metadata={})
     temperature:            Optional[Q] = field(default=None, metadata={Q: kelvin})
     heat_flow_value:        Optional[Q] = field(default=None, metadata={Q: watt})
@@ -85,7 +85,7 @@ class ThermalData(SystemBoundary):
     ambient_temperature:    Optional[Q] = field(default=None, metadata={Q: kelvin})
 
     def __post_init__(self) -> None:
-        if not isinstance(self.material, Material):
+        if not isinstance(self.material, DynamicLoader):
             msg = f"Material must be a Material, not {type(self.material)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 

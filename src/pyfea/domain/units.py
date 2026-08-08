@@ -13,24 +13,8 @@ from picounits.extensions.loader import DynamicLoader
 from picounits import Q, Quantity, strip_quantity, check_quantity
 
 
-from picounits.blueprints.boundary_class import ValidBoundary
-
 # Reference for material manager to use without leaking picounits abstraction
 MaterialParser = Parser
-SystemBoundary = ValidBoundary
-
-class Material(DynamicLoader):
-    """ Class for materials using the dynamic loader from picounits """
-    @property
-    def _name(self) -> str:
-        """ Returns the material direct members """
-        keys = self.keys()
-        items = ', '.join(keys) if isinstance(keys, list) else keys
-        return f'Material({items})'
-
-    def __repr__(self):
-        """ Returns the material name """
-        return self._name
 
 
 class Configuration(DynamicLoader):
