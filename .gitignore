@@ -7,6 +7,4 @@
 *.feh
 *.anh
 *.femm
-
-/blueshark.egg-info
-/build
+*.egg-info

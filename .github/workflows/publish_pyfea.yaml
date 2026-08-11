@@ -1,4 +1,4 @@
-name: Publish PyFEA
+name: Publish pyfea
 
 on:
   push:
