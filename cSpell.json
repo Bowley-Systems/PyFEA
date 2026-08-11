@@ -4,6 +4,11 @@
   "words": [
     "pyFEA",
     "bowley",
-    "femm"
+    "femm",
+    "PicoUnits",
+    "PicoMaterials",
+    "axisymmetric",
+    "Astrospheric",
+    "magnetostatic"
   ]
 }
