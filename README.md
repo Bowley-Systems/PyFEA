@@ -56,13 +56,16 @@ SPICE Circuit Solver
 3D Magnetostatic Solver
         ↓
 Mechanical Integrator
-         ↺
+         ↺ (Feeds back over time state)
 ```
+
+> [!note]
+> `↺` signifies that the Mechanical Integrator feeds back into the Circuit Solver at each time step.
 
 This is much easier than writing one large solver for `axial flux motors`. However, this isn't the only benefit. 
 The main benefit is that a new arbitrary problem becomes a single custom adaptor away from solving.
 
-For example, if you wanted to simulate an `Astrospheric ion engine`, it would require a 3D electromagnetic solver and a 3D fluid dynamics solver. 
+For example, if you wanted to simulate an `Atmospheric ion engine`, it would require a 3D electromagnetic solver and a 3D fluid dynamics solver. 
 But what about ionization? This is where a custom solver-adaptor comes in — you can write your own ionization solver and the pipeline is complete.
 
 ```
