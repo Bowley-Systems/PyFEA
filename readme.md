@@ -88,3 +88,10 @@ Until release, this only installs the overview page and related files:
 ```bash
 pip install pyfea
 ```
+
+## Documentation
+
+> [!important]
+> `Internal Documentation` refers to engineering logs, problem-solving notes, and unpolished application notes. For polished documentation, refer to `External Documentation`.
+
+All internal documentation can be found within this repo's [issues](https://github.com/Bowley-Systems/PyFEA/issues).
