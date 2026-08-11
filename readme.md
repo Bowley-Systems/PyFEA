@@ -7,7 +7,7 @@ Pretty standard stuff - William Bowley 2026
 -->
 
 <p align="center">
-  <img src="media/banner.png" alt="pyFea" style="max-width:600px;"> 
+  <img src="media/logo.png" alt="pyFea" style="max-width:600px;"> 
 </p>
 <p align="center">An intermediate representation system for multi-physics problems.</p>
 <p align="center">
