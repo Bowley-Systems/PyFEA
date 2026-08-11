@@ -73,7 +73,7 @@ Custom Ionization Solver
 PyFEA has a series of foundational dependencies that allow the engine itself to stay streamlined.
 
 ```
-UIV (DSL) → PicoUnits (Runtime Analysis) → PicoMaterials (Material Library) → PyFEA (Solver-Adaptors)
+UIV/UT (DSL) → PicoUnits (Runtime Analysis) → PicoMaterials (Material Library) → PyFEA (Solver-Adaptors)
 ```
 
 
