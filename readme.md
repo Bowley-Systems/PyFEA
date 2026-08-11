@@ -3,7 +3,13 @@ Color palette:
 #219EBC -> cool, mid-tone cerulean blue 
 #ffb703 -> warm, golden-amber yellow 
 
-Pretty Standard Stuff - William Bowley 11th of August, 2026
+Might seem crazy, but it's because I am building the engine 
+for which the next 10–20 years of hardware research for
+myself will sit upon.
+
+- William Bowley 11th of August, 2026
+
+P.S: Thanks for downloading the PyFEA repository `▽`ʃ♡
 -->
 
 <p align="center">
