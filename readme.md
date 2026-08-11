@@ -1,35 +1,103 @@
+<!--
+Color palette:
+#219EBC -> cool, mid-tone cerulean blue 
+#ffb703 -> warm, golden-amber yellow 
+
+Might seem crazy, but it's because I am building the engine 
+for which the next 10–20 years of hardware research for
+myself will sit upon.
+
+- William Bowley 11th of August, 2026
+
+P.S: Thanks for downloading the PyFEA repository `▽`ʃ♡
+-->
+
 <p align="center">
-  <img src="media/banner.png" alt="pyFea" style="max-width:600px;">
+  <img src="media/logo.png" alt="pyFea" style="max-width:600px;"> 
+</p>
+<p align="center">An intermediate representation system for multi-physics problems.</p>
+<p align="center">
+  Define Topology, Attach Metadata, Solve.
   <br>
-  <em>A Solver-Adaptor Engine for Multi-Physics Simulation & Optimization
-   – Built with headaches by <a href="https://github.com/wgbowley">William Bowley</a></em>
+  Keep consistent representation across physics.
 </p>
 
+--- 
+
+![License](https://img.shields.io/badge/License-MIT-219EBC?style=flat-square)
+![Python Version](https://img.shields.io/badge/Python-3.10%2B-ffb703?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Active-219EBC?style=flat-square)
+
+> [!IMPORTANT]
+> This README contains the architectural and conceptual vision of `PyFEA`. Version `0.1` is intended to be released on `December 11, 2026`.
 
 ## Overview
-Sick of glue code and brittle pipelines? Annoyed by having to learn 10 different APIs? What if we could have a single high-level API handle all translation, leaving us to focus on what we're good at? PyFea is a solver-adaptor engine that functions as a single high-level API for finite element and lumped parameter multi-physics problems. PyFea leverages (unit informed values) DSL and runtime checking for configuration files and material libraries. Currently, PyFea supports these physics domains: thermal, magnetic, electric, and electric circuits.
 
-## Where to go next
+PyFEA is a solver-adaptor engine that functions as an intermediate representation system for computational engineering. 
+It creates a consistent representation across domains because continuous problems should use continuous tooling. 
 
-**Current status (March 2026)**  
-> The active, and installable version of pyfea is on the **`release`** branch.  
-> All the code, examples, documentation, packaging files (`setup.py`), and full README are there.
+> [!IMPORTANT]
+> Objectives:
+> - Allow for the same methodology across domains: define, attach, and solve. 
+> - Allow for solver-adaptors across `planar`, `axisymmetric`, and `full 3D` solutions using `CSG`.
+> - Support integration with solvers across finite element, lumped parameters, and SPICE models.
+> - Restrict all inputs and outputs to dimensionally consistent units.
+
+## What is a Solver Adaptor?
+
+An abstract boundary between a solver and `PyFEA`, it allows `PyFEA` to orchestrate the problem while the solver computes the solution.
+
+For example, if you wanted to simulate an axial flux motor, it would require a 3D magnetostatic solver and perhaps a 
+circuit solver for the `triple half-bridge` driver.
+
+```
+SPICE Circuit Solver
+        ↓
+3D Magnetostatic Solver
+        ↓
+Mechanical Integrator
+         ↺
+```
+
+This is much easier than writing one large solver for `axial flux motors`. However, this isn't the only benefit. 
+The main benefit is that a new arbitrary problem becomes a single custom adaptor away from solving.
+
+For example, if you wanted to simulate an `Astrospheric ion engine`, it would require a 3D electromagnetic solver and a 3D fluid dynamics solver. 
+But what about ionization? This is where a custom solver-adaptor comes in — you can write your own ionization solver and the pipeline is complete.
+
+```
+3D Electromagnetic Solver
+          ↓
+3D Fluid Dynamics Solver
+          ↓
+Custom Ionization Solver
+          ↺
+```
+
+## High-Level Architecture
+
+PyFEA has a series of foundational dependencies that allow the engine itself to stay streamlined.
+
+```
+UIV/UT (DSL) → PicoUnits (Runtime Analysis) → PicoMaterials (Material Library) → PyFEA (Solver-Adaptors)
+```
 
 
-Jump to the **release branch** for everything: <a href="https://github.com/wgbowley/PyFEA/tree/release">pyfea/release</a>
+Unit-Informed Values (`.uiv`) is the custom domain-specific language for parameter and material files. PicoUnits interprets the `.uiv` 
+file format and performs runtime dimensional analysis. Using `.uiv` and PicoUnits, PicoMaterials stores material data and passes material 
+assumptions to PyFEA, which orchestrates the solver adaptors to solve the problem and returns the assumption tree.
 
-- Full README with usage examples, features, and philosophy  
-- Source code in `src/pyfea/`  
-- Practical examples in `examples/`  
-- Docs in `docs/` 
-- Ready-to-install setup files  
+## Installation
 
-> [!NOTE]
-> PyPI is currently not the supported install path. Use manual installation via setup.py from the release branch instead. (No official release yet.)
+Until release, this only installs the overview page and related files:
 
-(Once stabilized, this main branch will be updated with the merged/final code.)
+```bash
+pip install pyfea
+```
 
-## Sneak Peak
-This example is of a tubular linear motor using quasi-transient modelling across multiple physics domains and took about 400 time steps.
+## Documentation
 
-<img src="media/Figure_12.png" alt="pyFea" >
+> [!important]
+> `Internal Documentation` refers to engineering logs, problem-solving notes, and unpolished application notes. For polished documentation, refer to `External Documentation`.
+
+All internal documentation can be found within this repo's [issues](https://github.com/Bowley-Systems/PyFEA/issues).

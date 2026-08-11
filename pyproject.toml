@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "PyFEA"
+version = "0.0.0"
+description = "An intermediate representation system for multi-physics problems."
+
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+keywords = ["finite element", "physics", "solver", "IR"]
+
+authors = [
+  { name = "William Bowley", email = "wgrantbowley@gmail.com" },
+]
+maintainers = [
+  { name = "William Bowley", email = "wgrantbowley@gmail.com" },
+]
+
+dependencies = ["picounits", "numpy"]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Bowley-Systems/PyFEA"
+"Bug Tracker" = "https://github.com/Bowley-Systems/PyFEA/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyfea"]
