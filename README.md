@@ -13,7 +13,7 @@ P.S: Thanks for downloading the PyFEA repository `▽`ʃ♡
 -->
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Bowley-Systems/PyFEA/refs/heads/main/media/logo.png" alt="pyFea" style="max-width:600px;"> 
+  <img src="https://raw.githubusercontent.com/Bowley-Systems/PyFEA/refs/heads/main/media/logo.png" alt="pyFea" style="width:100%; max-width:100%; display:block;">> 
 </p>
 <p align="center">An intermediate representation system for multi-physics problems.</p>
 <p align="center">
