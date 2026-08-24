@@ -12,8 +12,9 @@ myself will sit upon.
 P.S: Thanks for downloading the PyFEA repository `▽`ʃ♡
 -->
 
+<!-- Need a higher DPI image for the logo before release - William Bowley 24-08-2026 -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Bowley-Systems/PyFEA/refs/heads/main/media/logo.png" alt="pyFea" style="width:100%; max-width:100%; display:block;">> 
+  <img src="https://raw.githubusercontent.com/Bowley-Systems/PyFEA/refs/heads/main/media/logo.png" alt="pyFea" style="width:100%; max-width:100%; display:block;">
 </p>
 <p align="center">An intermediate representation system for multi-physics problems.</p>
 <p align="center">
