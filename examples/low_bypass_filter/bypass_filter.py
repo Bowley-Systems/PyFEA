@@ -5,14 +5,10 @@ Description:
     Lumped parameter low bypass filter simulation
     using ngspice via pyspice to calculate the
     frequency response.
-    
-    This example shows how pyfea can be used to 
-    construct circuit without touching net-lists.
-    
+
     NOTE:
     This is a concept file. Not runnable.
 """
-
 
 from pyfea import volt, ohm, farad, k, u, K # , Hz, M
 from pyfea.domain.circuits import Configuration, Builder
@@ -34,8 +30,8 @@ circuit.link(cr_block.in_, source.out)
 circuit.link(circuit.gnd, source.gnd, cr_block.out)
 
 # testing
-from pyfea.solver.ngspice.interpreter import NGspiceInterpreter
-interpreter = NGspiceInterpreter(circuit)
+# from pyfea.solver.ngspice.interpreter import NGspiceInterpreter
+# interpreter = NGspiceInterpreter(circuit)
 
 # spice = NGspiceInterpreter.transverse_tree(circuit)
 # print(spice)

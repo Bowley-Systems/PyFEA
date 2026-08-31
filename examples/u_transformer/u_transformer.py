@@ -5,9 +5,6 @@ Description:
     Magnetostatic u-transformer simulation using 
     FEMM solver to calculate the inductance and 
     approximate impedance at 50Hz.
-    
-    This example shows how pyfea can be used to 
-    construct geometry without touching primitives
 """
 
 from math import pi

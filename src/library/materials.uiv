@@ -3,13 +3,14 @@ format: 0.1.0
 unit_frame: si_metric.ut
 note: "Standard library for PyFea useful for standard multi-physics problems"
 
+# ---------------------------------------------------------------------------
+
 [standards]
 temperature:    298.15 (K)
 pressure:       101.32 k(Pa)
 note: "Standard lab conditions - unless overwritten by material"
 
-
-
+# ---------------------------------------------------------------------------
 
 [vacuum.meta]
 type: "empty_space"
@@ -46,9 +47,7 @@ temperature_conductivity: [
   [2000.0, 0]
 ] (K), (k)
 
-
-
-
+# ---------------------------------------------------------------------------
 
 [air.meta]
 type: "gas"
@@ -100,7 +99,7 @@ temperature_conductivity: [
 ] (K), m(k)
 
 
-
+# ---------------------------------------------------------------------------
 
 [copper.meta]
 type: "material"
@@ -145,8 +144,7 @@ temperature_conductivity: [
   [1273.0, 336.0]
 ] (K), (k)
 
-
-
+# ---------------------------------------------------------------------------
 
 [iron.meta]
 type: "material"
@@ -217,8 +215,7 @@ temperature_conductivity: [
   [1273.0, 30.0]
 ] (K), (k)
 
-
-
+# -------------------------------------------------------------------------------------------
 
 [NdFeB.meta]
 type: "magnet_material"
@@ -264,18 +261,49 @@ curie_temperature: 583.15 (K)
 alpha_remanence: -0.12 (K^-1)
 beta_coercivity: -0.6 (K^-1)
 
-[NdFeB.grades]
-N30: [0.836, 1.10]  M(A_m), (T)
-N33: [0.879, 1.14]  M(A_m), (T)
-N35: [0.906, 1.17]  M(A_m), (T)
-N38: [0.945, 1.22]  M(A_m), (T)
-N40: [0.970, 1.25]  M(A_m), (T)
-N42: [0.995, 1.28]  M(A_m), (T)
-N45: [1.030, 1.32]  M(A_m), (T)
-N48: [1.015, 1.37]  M(A_m), (T)
-N50: [0.988, 1.40]  M(A_m), (T)
-N52: [0.956, 1.43]  M(A_m), (T)
-N55: [0.923, 1.47]  M(A_m), (T)
+[NdFeB.grades.N30]
+remanence: 1.10 (T)
+coercivity: 0.836 M(A_m)
+
+[NdFeB.grades.N33]
+remanence: 1.14 (T)
+coercivity: 0.879 M(A_m)
+
+[NdFeB.grades.N35]
+remanence: 1.17 (T)
+coercivity: 0.906 M(A_m)
+
+[NdFeB.grades.N38]
+remanence: 1.22 (T)
+coercivity: 0.945 M(A_m)
+
+[NdFeB.grades.N40]
+remanence: 1.25 (T)
+coercivity: 0.970 M(A_m)
+
+[NdFeB.grades.N42]
+remanence: 1.28 (T)
+coercivity: 0.995 M(A_m)
+
+[NdFeB.grades.N45]
+remanence: 1.32 (T)
+coercivity: 1.030 M(A_m)
+
+[NdFeB.grades.N48]
+remanence: 1.37 (T)
+coercivity: 1.015 M(A_m)
+
+[NdFeB.grades.N50]
+remanence: 1.40 (T)
+coercivity: 0.988 M(A_m)
+
+[NdFeB.grades.N52]
+remanence: 1.43 (T)
+coercivity: 0.956 M(A_m)
+
+[NdFeB.grades.N55]
+remanence: 1.47 (T)
+coercivity: 0.923 M(A_m)
 
 [NdFeB.thermal]
 specific_heat: 460 (c)
@@ -291,8 +319,7 @@ temperature_conductivity: [
   [373.0, 6.38],
 ] (K), (k)
 
-
-
+# -------------------------------------------------------------------------------------------
 
 [silica.meta]
 type: "ceramic"
@@ -342,8 +369,7 @@ temperature_conductivity: [
   [1223.15, 2.68]
 ] (K), (k)
 
-
-
+# ----------------------------------------------------------------------------
 
 [nichrome_70_30.meta]
 type: "alloy"
@@ -393,8 +419,7 @@ temperature_conductivity: [
   [1073.15, 20.0],
 ] (K), (k)
 
-
-
+# ----------------------------------------------------------------------------
 
 [alumina_96.meta]
 type: "ceramic"
@@ -446,3 +471,5 @@ temperature_conductivity: [
   [1173.15, 11.9],
   [1473.15, 7.4]
 ] (K), (k)
+
+# ----------------------------------------------------------------------------

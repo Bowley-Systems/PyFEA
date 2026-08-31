@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyfea"
+version = "0.0.0"
+description = "Solver-Adaptor Engine for Multi-Physics Problems"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+keywords = ["finite element", "physics", "solver", "IR", "multi-physics"]
+
+authors = [
+  { name = "William Bowley", email = "wgrantbowley@gmail.com" },
+]
+maintainers = [
+  { name = "William Bowley", email = "wgrantbowley@gmail.com" },
+]
+
+dependencies = [
+    "PyYAML",
+    "pyfemm",
+    "matplotlib",
+    "bayesian-optimization",
+    "picounits",
+    "spicelib"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Bowley-Systems/PyFEA"
+"Bug Tracker" = "https://github.com/Bowley-Systems/PyFEA/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyfea"]
+include = [
+    "src/library/**/*",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/library",
+]

@@ -65,5 +65,7 @@
     "pyspice",
     "matweb",
     "picounits",
+    "matplotlib",
+    "spicelib"
   ]
 }

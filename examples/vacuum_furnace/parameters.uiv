@@ -1,12 +1,13 @@
 [version]
 format: 0.1.0
 
+# ------------------------------------------------------------------------------
+
 [notes]
 # This configuration file describes a vacuum-insulated tube furnace based on the
 # GSL1100X8S axial measurements with custom radial measurements and materials.
-#
-# The heater is purely resistive being run with a constant current source until
-# the voltage starts to sag at the supply limit 
+
+# ------------------------------------------------------------------------------
 
 [problem]
 environmental:      "air"
@@ -17,15 +18,21 @@ convection:         10 (W*m^-2*K^-1)
 supply_limit:       240 (V)
 constant_current:   10 (A)
 
+# ----------------------------------------
+
 [sample]
 material:           "air"
 axial_length:       1000 m(m)
 radial_length:      15 m(m)
 
+# ----------------------------------------
+
 [tube]
 material:           "silica"
 axial_length:       1000 m(m)
 radial_thickness:   2.5 m(m)
+
+# ----------------------------------------
 
 [heater]
 material:           "nichrome_70_30"
@@ -36,7 +43,11 @@ radial_thickness:   2.0 m(m)
 wire_diameter:      1.45 m(m)
 fill_factor:        0.7
 
+# ----------------------------------------
+
 [insulation]
 material:           "alumina_96"
 axial_length:       1000 m(m)
 radial_thickness:   60 m(m)
+
+# ----------------------------------------

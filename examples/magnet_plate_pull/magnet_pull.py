@@ -5,8 +5,6 @@ Description:
     Magnetostatic magnet attraction force simulation using 
     FEMM solver to get force vs temperature curve due to 
     the magnet losing coercivity. 
-    
-    This example shows a simple usage of pyfea for analysis.
 """
 
 from pathlib import Path
@@ -63,6 +61,7 @@ max_temperature = 350 * K
 temperature = []
 magnetic_force = []
 
+
 print("========== Temperature Response ==========")
 while domain_temperature < max_temperature:
     solver.update_temperature((plate, magnet), domain_temperature)
@@ -80,6 +79,7 @@ while domain_temperature < max_temperature:
 
     domain_temperature += temperature_step
 
+
 # Calculates the N/K gradient across the simulated range
 dF_DT = 0.0 * (N / K)
 for i in range(1, len(temperature)):
@@ -87,12 +87,12 @@ for i in range(1, len(temperature)):
 
 dF_DT /= len(temperature) - 1
 
+
 # Calculates the average force over the operational range
 avg = 0.0 * N
 for i in magnetic_force:
     avg += i
 avg /= len(magnetic_force)
-
 
 print("===== NdFeB_45 Performance =====")
 print(f"Temperature range: {min(temperature)} to {max(temperature)}")
