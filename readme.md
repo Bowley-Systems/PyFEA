@@ -16,7 +16,7 @@
 ![License](https://img.shields.io/badge/License-MIT-219EBC?style=flat-square)
 ![Python Version](https://img.shields.io/badge/Python-3.10%2B-ffb703?style=flat-square)
 
-This branch contains the original `prototype` for the `PyFEA` solver-adaptor engine. 
+This branch contains the original `prototype` for the `PyFEA` solver-adaptor engine. <br>
 This implementation is not supported and merely serves as a reference of pass development.
 
 ---
