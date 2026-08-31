@@ -87,15 +87,15 @@ class MaterialManager:
 
     def _load_from_package(self) -> None:
         """ Loads the default material library """
-        # try:
-        library = resources.files("library")
-        materials_path = library / "materials.uiv"
+        try:
+            library = resources.files("library")
+            materials_path = library / "materials.uiv"
 
-        self.material_library = MaterialParser.open(materials_path)
+            self.material_library = MaterialParser.open(materials_path)
 
-        # except Exception as err:
-        #     msg = f"Failed to load library from package resources: {err}"
-        #     raise MaterialManagerError(msg) from None
+        except Exception as err:
+            msg = f"Failed to load library from package resources: {err}"
+            raise MaterialManagerError(msg) from None
 
     def _load_from_path(self, file_path: Path) -> None:
         """ Loads the user material library from path """
