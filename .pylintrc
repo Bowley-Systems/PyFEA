@@ -14,6 +14,7 @@ disable=W0105,                      # pointless-string-statement - String statem
         W0221,                      # signature-differs - Method signature differs from parent
         C0321,                      # multiple-statements - Multiple statements on one line
         R0903,                      # too-few-public-methods - Too few public methods (<2)
+        R1710,                      # Inconsistent-return-statements
 
 [FORMAT]
 max-line-length=95                  # Maximum number of characters on a single line

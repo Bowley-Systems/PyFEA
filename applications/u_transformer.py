@@ -11,4 +11,3 @@ from pyfea.domain.materials.manager import MaterialManager
 
 
 manager = MaterialManager()
-manager.display_materials()

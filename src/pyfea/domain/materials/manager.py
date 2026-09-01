@@ -9,18 +9,8 @@ Description:
 from typing import Any
 from importlib import resources
 
-from pyfea import DynamicLoader
-from pyfea.domain.units import MaterialParser
-
-
-_ = Any
-
-class MaterialManagerError(TypeError):
-    """ Exception for Material Loader Error """
-    def __init__(self, error: str):
-        """ Returns a custom error message """
-        msg = f"raised error: {error}. "
-        super().__init__(msg)
+from pyfea.domain.units import Parser, DynamicLoader
+from pyfea.utilities.errors import MaterialError
 
 
 class MaterialManager:
@@ -28,14 +18,22 @@ class MaterialManager:
     def __init__(self) -> None:
         """ Initialization of the material manager """
         self.material_library: DynamicLoader = None
-        self.materials: dict[str, DynamicLoader] = {}
 
         # Loads the package library
         self._load_from_package()
 
     def display_materials(self) -> None:
         """ Displays the materials tree to the user. """
-        self.material_library.info()
+        if isinstance(self.material_library, DynamicLoader):
+            self.material_library.info()
+
+        msg = "Failed to display material tree due to loading error."
+        raise MaterialError("MaterialManager", msg)
+
+    def use_material(self, name: str, **params: Any) -> DynamicLoader:
+        """ Retrieve a material by name and applies required parameters """
+        _, _ = name, params
+        return
 
     def _load_from_package(self) -> None:
         """ Loads the default material library """
@@ -43,8 +41,8 @@ class MaterialManager:
             library = resources.files("library")
             materials_path = library / "materials.uiv"
 
-            self.material_library = MaterialParser.open(materials_path)
+            self.material_library = Parser.open(materials_path)
 
         except Exception as err:
             msg = f"Failed to load library from package resources: {err}"
-            raise MaterialManagerError(msg) from None
+            raise MaterialError("MaterialManager", msg) from err

@@ -4,41 +4,34 @@
 import logging
 from pathlib import Path
 from os import getcwd
+from importlib import resources
 
 from abc import ABC, abstractmethod
 from dataclasses import fields
 
-from picounits import Quantity as Q, UnitError
-
-# --- ensure derived units are loaded globally ---
-
-from importlib import resources
-from picounits import expects, Parser
 from pyfea.domain.units import *
 
-# References for API
-_ = expects
 
 try:
+    # Attempts to inject the unit frame & imports derived units
     library = resources.files("library")
-    derived_path = library / "si_metric.ut"
 
-    _ = Parser.import_derived(derived_path)
+    inject_unit_frame(library / ".picounits")
+    Parser.import_derived(library / "si_metric.ut")
+
 except Exception as e:
     print(f"Warning: failed to load derived units: {e}")
-
-# ---------------------------------------------------
 
 
 def _setup_logging(path: Path = None) -> None:
     """ Sets up logging configuration for the package """
-
-    if path is None:
+    if path is None: 
+        # Adds `pyfea.log` to working directory
         path = Path(getcwd()) / "pyfea.log"
 
     root_logger = logging.getLogger()
-
     if not root_logger.handlers:
+        # Handles non-configured root logging
         logging.basicConfig(
             filename=path,
             level=logging.INFO,
@@ -49,6 +42,7 @@ def _setup_logging(path: Path = None) -> None:
         root_logger.info("Logging has been configured at %s", path)
 
 
+# Unit boundary class "Validate Boundary"
 class SystemBoundary(ABC):
     """ Unit boundary checking for dataclass construction""" 
     def validate_units(self) -> None:
@@ -88,4 +82,5 @@ class SystemBoundary(ABC):
         return self._name
 
 
+# Begins logging to `pyfea.log`
 _setup_logging()

@@ -6,40 +6,18 @@ Description:
     based on its 'SI Metric' unit frame
 """
 
-
 from picounits.constants import *
 from picounits.extensions.parser import Parser
 from picounits.extensions.loader import DynamicLoader
-from picounits import Q, Quantity, strip_quantity, check_quantity
-
+from picounits.configuration.management import inject_unit_frame
+from picounits import Q, Quantity, UnitError, strip_quantity, check_quantity
 
 # References different picounits primitives
-_, _, _ = Quantity, strip_quantity, check_quantity
+_, _ = Quantity, UnitError
+_, _, _ = strip_quantity, check_quantity, inject_unit_frame
 
-# Reference for material manager to use without leaking picounits abstraction
-MaterialParser = Parser
-
-
-class Configuration(DynamicLoader):
-    """ Class for configuration files using the dynamic loader from picounits """
-    @property
-    def _name(self) -> str:
-        """ Returns the configuration direct members """
-        keys = self.keys()
-        items = ', '.join(keys) if isinstance(keys, list) else keys
-        return f'Configuration({items})'
-
-    def __repr__(self):
-        """ Returns the configuration name """
-        return self._name
-
-
-class UnitError(TypeError):
-    """ Exception for Unit Error """
-    def __init__(self, error: str):
-        """ Returns a custom error message """
-        msg = f"raised error: {error}. "
-        super().__init__(msg)
+# Reference the parser & dynamic loader
+_, _ = Parser, DynamicLoader
 
 
 def linear_interpolate(points: Q, value: Q) -> Q:
