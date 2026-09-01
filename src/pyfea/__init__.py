@@ -1,3 +1,4 @@
+# pylint: skip-file
 # pyfea/__init__.py
 
 import logging
@@ -10,10 +11,13 @@ from dataclasses import fields
 from picounits import Quantity as Q, UnitError
 
 # --- ensure derived units are loaded globally ---
+
 from importlib import resources
 from picounits import expects, Parser
 from pyfea.domain.units import *
 
+# References for API
+_ = expects
 
 try:
     library = resources.files("library")
@@ -22,8 +26,9 @@ try:
     _ = Parser.import_derived(derived_path)
 except Exception as e:
     print(f"Warning: failed to load derived units: {e}")
-    
+
 # ---------------------------------------------------
+
 
 def _setup_logging(path: Path = None) -> None:
     """ Sets up logging configuration for the package """

@@ -13,6 +13,9 @@ from picounits.extensions.loader import DynamicLoader
 from picounits import Q, Quantity, strip_quantity, check_quantity
 
 
+# References different picounits primitives
+_, _, _ = Quantity, strip_quantity, check_quantity
+
 # Reference for material manager to use without leaking picounits abstraction
 MaterialParser = Parser
 
@@ -54,7 +57,8 @@ def linear_interpolate(points: Q, value: Q) -> Q:
             return y0 + slope * (value - x0)
 
 
-""" =============== Base units (SI names) =============== """
+# =============== Base units (SI names) ===============
+
 second          = s         = TIME
 meter           = m         = LENGTH
 kilogram        = kg        = MASS
@@ -65,7 +69,8 @@ candela         = cd        = LUMINOSITY
 dimensionless   = nullset   = DIMENSIONLESS
 
 
-""" =============== Predefined scales for quantities =============== """
+# =============== Predefined scales for quantities ===============
+
 GIGA    = G  = PrefixScale.GIGA
 MEGA    = M  = PrefixScale.MEGA
 KILO    = k  = PrefixScale.KILO
@@ -76,7 +81,8 @@ NANO    = n  = PrefixScale.NANO
 PICO    = p  = PrefixScale.PICO
 
 
-""" =============== Scaled length units =============== """
+# =============== Scaled length units ===============
+
 kilometer   = km = 1 * KILO  * meter
 centimeter  = cm = 1 * CENTI * meter
 millimeter  = mm = 1 * MILLI * meter
@@ -85,18 +91,21 @@ nanometer   = nm = 1 * NANO  * meter
 picometer   = pm = 1 * PICO  * meter
 
 
-""" =============== Scaled time units =============== """
+# =============== Scaled time units ===============
+
 millisecond = ms = 1 * MILLI * second
 microsecond = us = 1 * MICRO * second
 nanosecond  = ns = 1 * NANO  * second
 
 
-""" =============== Mass units =============== """
+# =============== Mass units ===============
+
 gram        = g  = 1 * MILLI * kilogram
 milligram   = mg = 1 * MICRO * kilogram
 
 
-""" =============== Derived named units =============== """
+# =============== Derived named units ===============
+
 newton          = N     = FORCE
 joule           = J     = ENERGY
 watt            = W     = POWER
@@ -111,7 +120,10 @@ tesla           = T     = MAGNETIC_FIELD
 weber           = Wb    = MAGNETIC_FLUX
 siemens         = S     = CONDUCTANCE
 
-""" =============== Heat transfer units =============== """
+# =============== Heat transfer units ===============
+
 volumetric_capacity     = VOLUMETRIC_HEAT_CAPACITY
 volumetric_heating      = VOLUMETRIC_HEATING
 convection_coefficient  = h = watt/(meter ** 2 * kelvin)
+
+# ===================================================

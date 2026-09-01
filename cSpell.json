@@ -66,6 +66,8 @@
     "matweb",
     "picounits",
     "matplotlib",
-    "spicelib"
+    "spicelib",
+    "pylintrc",
+    "pylint"
   ]
 }
