@@ -23,6 +23,8 @@ This implementation is not supported and merely serves as a reference for past d
 
 ### Modelling Example
 
+Why use arbitrary models when you can parametrically model and compile every time?
+
 ```py
 # Builds the core geometry using construct solid geometry (CSG)
 core_bulk = GBuilder.rectangle((0 * mm, 0 * mm), 115 * mm, 110 * mm)
@@ -46,6 +48,8 @@ negative_slot = GBuilder.promote_to_part(negative_slot, slot)
 
 slots = GBuilder.promote_to_component((negative_slot, positive_slot))
 ```
+
+> Example is of a u-inductor with a ferromagnetic core material.
 
 ---
 
