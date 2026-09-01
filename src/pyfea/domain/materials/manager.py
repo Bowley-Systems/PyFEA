@@ -33,6 +33,10 @@ class MaterialManager:
         # Loads the package library
         self._load_from_package()
 
+    def display_materials(self) -> None:
+        """ Displays the materials tree to the user. """
+        self.material_library.info()
+
     def _load_from_package(self) -> None:
         """ Loads the default material library """
         try:
