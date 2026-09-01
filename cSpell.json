@@ -68,6 +68,7 @@
     "matplotlib",
     "spicelib",
     "pylintrc",
-    "pylint"
+    "pylint",
+    "Cbuilder"
   ]
 }

@@ -10,7 +10,7 @@ Description:
 from typing import Any
 from importlib import resources
 
-from pyfea.domain.units import Parser, DynamicLoader
+from pyfea.domain.units import Parser, DynamicLoader, inject_unit_frame
 from pyfea.utilities.errors import MaterialError
 
 
@@ -62,6 +62,9 @@ class _MaterialManager:
         try:
             library = resources.files("library")
             materials_path = library / "materials.uiv"
+
+            inject_unit_frame(library / ".picounits")
+            Parser.import_derived(library / "si_metric.ut")
 
             self._library = Parser.open(materials_path)
 

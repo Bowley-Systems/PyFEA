@@ -10,22 +10,21 @@ Description:
 from typing import Optional
 from dataclasses import dataclass, field
 
-from pyfea.domain.circuits.builder import StaticCircuit
+from pyfea.domain.circuits.builder import MockCircuit
 from pyfea.utilities.errors import GeometryDimensionError
 
-from pyfea.domain.units import Q, DynamicLoader, nullset, meter, watt, kelvin, h
 from pyfea.utilities.boundaries import SystemBoundary
+from pyfea.domain.units import Q, DynamicLoader, meter, watt, kelvin, h
 
 
 @dataclass(slots=True, eq=False)
 class MagneticData(SystemBoundary):
     """ Defines magnetic properties for a geometry group """
-    group:          Q                       = field(metadata={Q: nullset})
     material:       DynamicLoader
-    circuit:        Optional[StaticCircuit] = field(default=None, metadata={})
-    turns:          Optional[Q]             = field(default=None, metadata={Q: nullset})
+    circuit:        Optional[MockCircuit]   = field(default=None, metadata={})
+    turns:          Optional[int]           = field(default=None, metadata={})
     diameter:       Optional[Q]             = field(default=None, metadata={Q: meter})
-    magnetization:  Optional[Q]             = field(default=None, metadata={Q: nullset})
+    magnetization:  Optional[float]         = field(default=None, metadata={})
 
     def __post_init__(self) -> None:
         """ Validates that non-typed parameters are correct """
@@ -33,7 +32,7 @@ class MagneticData(SystemBoundary):
             msg = f"Material must be a Material, not {type(self.material)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
-        if self.circuit is not None and not isinstance(self.circuit, StaticCircuit):
+        if self.circuit is not None and not isinstance(self.circuit, MockCircuit):
             msg = f"Circuit must be a Circuit, not {type(self.circuit)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
@@ -43,19 +42,18 @@ class MagneticData(SystemBoundary):
         """ Checks to see if both magnetic data are equivalent """
         if not isinstance(other, MagneticData):
             return NotImplemented
+
         return (
-            self.group        == other.group
-            and self.material == other.material
-            and self.circuit  == other.circuit
-            and self.turns    == other.turns
-            and self.diameter == other.diameter
-            and self.magnetization == other.magnetization
+            self.material           == other.material
+            and self.circuit        == other.circuit
+            and self.turns          == other.turns
+            and self.diameter       == other.diameter
+            and self.magnetization  == other.magnetization
         )
 
     def __hash__(self) -> int:
         """ Hashes the metadata for use in lookup tables """
         return hash((
-            self.group,
             self.material,
             self.circuit,
             self.turns,
@@ -66,20 +64,21 @@ class MagneticData(SystemBoundary):
     @property
     def _name(self) -> str:
         return (
-            f"<MagneticData=(group={self.group}, material={self.material}, "
-            f"circuit={self.circuit}, turns={self.turns}, diameter={self.diameter})>"
+            f"<MagneticData=(material={self.material}, "
+            f"circuit={self.circuit}, "
+            f"turns={self.turns}, "
+            f"diameter={self.diameter})>"
         )
 
 
 @dataclass(slots=True, eq=False)
 class ThermalData(SystemBoundary):
     """ Defines thermal properties and heat sources for a geometry group """
-    group:                  Q           = field(metadata={Q: nullset})
     material:               DynamicLoader
     heating_index:          Optional[Q] = field(default=None, metadata={})
     temperature:            Optional[Q] = field(default=None, metadata={Q: kelvin})
     heat_flow_value:        Optional[Q] = field(default=None, metadata={Q: watt})
-    volumetric_heating:     Optional[Q] = field(default=None, metadata={Q:watt/meter**3})
+    volumetric_heating:     Optional[Q] = field(default=None, metadata={Q: watt/meter**3})
     convection_coefficient: Optional[Q] = field(default=None, metadata={Q: h})
     ambient_temperature:    Optional[Q] = field(default=None, metadata={Q: kelvin})
 
@@ -95,12 +94,11 @@ class ThermalData(SystemBoundary):
         if not isinstance(other, ThermalData):
             return NotImplemented
         return (
-            self.group                  == other.group
-            and self.material           == other.material
-            and self.heating_index      == other.heating_index
-            and self.temperature        == other.temperature
-            and self.heat_flow_value    == other.heat_flow_value
-            and self.volumetric_heating == other.volumetric_heating
+            self.material                   == other.material
+            and self.heating_index          == other.heating_index
+            and self.temperature            == other.temperature
+            and self.heat_flow_value        == other.heat_flow_value
+            and self.volumetric_heating     == other.volumetric_heating
             and self.convection_coefficient == other.convection_coefficient
             and self.ambient_temperature    == other.ambient_temperature
         )
@@ -108,7 +106,6 @@ class ThermalData(SystemBoundary):
     def __hash__(self) -> int:
         """ Hashes the metadata for use in lookup tables """
         return hash((
-            self.group,
             self.material,
             self.heating_index,
             self.temperature,
@@ -121,8 +118,10 @@ class ThermalData(SystemBoundary):
     @property
     def _name(self) -> str:
         return (
-            f"<ThermalData=(group={self.group}, material={self.material}, "
-            f"T={self.temperature}, Q_flow={self.heat_flow_value}, "
-            f"Q_vol={self.volumetric_heating}, h={self.convection_coefficient}, "
+            f"<ThermalData=(material={self.material}, "
+            f"T={self.temperature}, "
+            f"Q_flow={self.heat_flow_value}, "
+            f"Q_vol={self.volumetric_heating}, "
+            f"h={self.convection_coefficient}, "
             f"T_amb={self.ambient_temperature})>"
         )

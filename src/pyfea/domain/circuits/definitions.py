@@ -73,12 +73,11 @@ class Terminal:
 
 
 @dataclass
-class StaticCircuit:
-    """ Static Circuit is not driven by solver. """
-    name: str
+class MockCircuit:
+    """ Fully controllable circuit object. """
     current: Q
     configuration: Configuration
 
     def __hash__(self):
         """ Hash based class attributes """
-        return hash((self.name, self.current, self.configuration))
+        return hash((self.current, self.configuration))

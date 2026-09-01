@@ -9,11 +9,10 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea.domain.units import Q
+from pyfea.domain.units import Q, DynamicLoader
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
-from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 
 
 @dataclass(slots=True)
@@ -21,7 +20,7 @@ class Domain:
     """ FEA simulation domain """
     parts: tuple[Part, ...]
     boundary_type: BoundaryType
-    meta_data: MagneticData | ThermalData
+    material: DynamicLoader
     coordinate_system: CoordinateSystem
     shape: VectorGeometry | CSGNode
     temperature: Q
@@ -31,8 +30,10 @@ class Domain:
         """ Returns its name as the auto definition """
         return (
             f"<Part=(parts={self.parts}, "
-            f"boundary={self.boundary_type}, meta_data={self.meta_data}, "
-            f"shape={self.shape}, Coordinate System={self.coordinate_system})>"
+            f"boundary={self.boundary_type}, "
+            f"material={self.material}, "
+            f"shape={self.shape}, "
+            f"Coordinate System={self.coordinate_system})>"
         )
 
     def __str__(self) -> str:
