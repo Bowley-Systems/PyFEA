@@ -17,4 +17,4 @@ disable=W0105,                      # pointless-string-statement - String statem
         R1710,                      # Inconsistent-return-statements
 
 [FORMAT]
-max-line-length=95                  # Maximum number of characters on a single line
+max-line-length=110                  # Maximum number of characters on a single line

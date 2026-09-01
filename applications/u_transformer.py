@@ -7,9 +7,8 @@ Description:
     approximate impedance at 50 Hz.
 """
 
-from pyfea.domain.materials.manager import Materials
+from pyfea import mm
+from pyfea.domain.geometry.builder import Builder, MagneticData
 
-# Pulls model materials
-copper = Materials.copper
-iron = Materials.iron
-Materials.display_materials()
+
+# Builds the geometry using construct solid geometry
