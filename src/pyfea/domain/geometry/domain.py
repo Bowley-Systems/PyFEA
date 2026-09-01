@@ -10,7 +10,7 @@ Description:
 from dataclasses import dataclass
 
 from pyfea.domain.units import Q, DynamicLoader
-from pyfea.domain.geometry.elements.parts import Part
+from pyfea.domain.geometry.elements.assemblies import Component
 from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 
@@ -18,7 +18,7 @@ from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 @dataclass(slots=True)
 class Domain:
     """ FEA simulation domain """
-    parts: tuple[Part, ...]
+    parts: tuple[Component, ...]
     boundary_type: BoundaryType
     material: DynamicLoader
     coordinate_system: CoordinateSystem

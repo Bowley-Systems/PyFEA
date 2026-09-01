@@ -1,5 +1,5 @@
 """
-Filename: parts.py
+Filename: assemblies.py
 
 Description:
     Defines dataclasses and enum's for physical
@@ -23,17 +23,11 @@ class Part:
     def __post_init__(self) -> None:
         """ Validates that metadata and geometry is correct type """
         if not isinstance(self.geometry, (VectorGeometry, CSGNode)):
-            msg = (
-                "self.geometry must be type CSGNode or VectorGeometry, not "
-                f"{type(self.geometry)}"
-            )
+            msg = f"self.geometry must be type CSGNode or VectorGeometry, not {type(self.geometry)}"
             raise PartError(self.__class__.__name__, msg)
 
         if not isinstance(self.metadata, (MagneticData | ThermalData)):
-            msg = (
-                "self.metadata must be type Metadata, not "
-                f"{type(self.metadata)}"
-            )
+            msg = f"self.metadata must be type Metadata, not {type(self.metadata)}"
             raise PartError(self.__class__.__name__, msg)
 
     def __eq__(self, other: object) -> bool:
@@ -47,9 +41,25 @@ class Part:
     @property
     def _name(self) -> str:
         """ Returns its name as the auto definition """
-        return (
-            f"<Part=(Geometry={self.geometry}, metadata={self.metadata})>"
-        )
+        return f"<Part=(Geometry={self.geometry}, metadata={self.metadata})>"
+
+    def __str__(self) -> str:
+        """ Returns the points name from Metadata.type """
+        return self._name
+
+    def __repr__(self) -> str:
+        """ Returns the points name from Metadata.type """
+        return self._name
+
+@dataclass(slots=True, eq=False)
+class Component:
+    """ Defines a physical component from a singular part or multiple """
+    parts: Part | list[Part]
+
+    @property
+    def _name(self) -> str:
+        """ Returns its name as the auto definition """
+        return f"<Component=(parts={self.parts})>"
 
     def __str__(self) -> str:
         """ Returns the points name from Metadata.type """
