@@ -7,7 +7,9 @@ Description:
     approximate impedance at 50 Hz.
 """
 
-from pyfea.domain.materials.manager import MaterialManager
+from pyfea.domain.materials.manager import Materials
 
-
-manager = MaterialManager()
+# Pulls model materials
+copper = Materials.copper
+iron = Materials.iron
+Materials.display_materials()

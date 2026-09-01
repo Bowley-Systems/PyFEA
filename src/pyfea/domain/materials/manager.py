@@ -6,6 +6,7 @@ Description:
     problem construction.
 """
 
+
 from typing import Any
 from importlib import resources
 
@@ -13,27 +14,48 @@ from pyfea.domain.units import Parser, DynamicLoader
 from pyfea.utilities.errors import MaterialError
 
 
-class MaterialManager:
+class _MaterialManager:
     """ Manages static material definitions from library """
     def __init__(self) -> None:
         """ Initialization of the material manager """
-        self.material_library: DynamicLoader = None
+        self._library: DynamicLoader = None
 
-        # Loads the package library
+        # Loads the package library & attaches attributes
         self._load_from_package()
+        self._import_attributes()
 
     def display_materials(self) -> None:
         """ Displays the materials tree to the user. """
-        if isinstance(self.material_library, DynamicLoader):
-            self.material_library.info()
+        if isinstance(self._library, DynamicLoader):
+            self._library.info("Materials")
+            return
 
-        msg = "Failed to display material tree due to loading error."
+        msg = "Failed to display material tree due to library loading error."
         raise MaterialError("MaterialManager", msg)
 
-    def use_material(self, name: str, **params: Any) -> DynamicLoader:
-        """ Retrieve a material by name and applies required parameters """
-        _, _ = name, params
-        return
+    def _import_attributes(self) -> None:
+        """ Imports all attributes from Library """
+        if self._library is None:
+            return
+
+        for name in dir(self._library):
+            if name.startswith('_') or name.startswith('lx_'):
+                # Skips private/magic attributes and loader internals
+                continue
+
+            try:
+                # Set it as an attribute on this instance
+                node = getattr(self._library, name)
+                setattr(self, name, node)
+
+            except AttributeError:
+                # Attempts to set next attribute
+                continue
+
+    def __getattr__(self, key: str) -> Any:
+        """ Allows dynamic attribute accesses """
+        msg = f"{key!r} not found within material library."
+        raise MaterialError("MaterialManager", msg)
 
     def _load_from_package(self) -> None:
         """ Loads the default material library """
@@ -41,8 +63,12 @@ class MaterialManager:
             library = resources.files("library")
             materials_path = library / "materials.uiv"
 
-            self.material_library = Parser.open(materials_path)
+            self._library = Parser.open(materials_path)
 
         except Exception as err:
             msg = f"Failed to load library from package resources: {err}"
             raise MaterialError("MaterialManager", msg) from err
+
+
+# Initializes the global reference
+Materials = _MaterialManager()
