@@ -75,7 +75,7 @@ GIGA    = G  = PrefixScale.GIGA
 MEGA    = M  = PrefixScale.MEGA
 KILO    = k  = PrefixScale.KILO
 CENTI   = c  = PrefixScale.CENTI
-MILLI   = _  = PrefixScale.MILLI
+MILLI   = mi = PrefixScale.MILLI
 MICRO   = u  = PrefixScale.MICRO
 NANO    = n  = PrefixScale.NANO
 PICO    = p  = PrefixScale.PICO
