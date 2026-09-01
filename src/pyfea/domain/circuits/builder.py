@@ -7,9 +7,7 @@ Description:
 """
 
 
-from dataclasses import dataclass
-
-from pyfea import Quantity as Q, check_quantity, ohm, farad, volt, kelvin, ampere
+from pyfea.domain.units import Q, check_quantity, ohm, farad, volt, kelvin, ampere
 
 from pyfea.domain.circuits.domain import Domain
 from pyfea.domain.circuits.definitions import Configuration, StaticCircuit

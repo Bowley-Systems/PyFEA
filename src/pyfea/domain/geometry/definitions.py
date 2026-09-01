@@ -1,28 +1,12 @@
 """
 Filename: definitions.py
 Description:
-    Defines the global geometry errors,
-    dataclasses and enums within the 
-    geometry modules.
+    Defines the dataclasses and 
+    enums within the geometry modules.
 """
+
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-
-
-class GeometryDimensionError(TypeError):
-    """ Exception for geometry dimension error """
-    def __init__(self, caller: str, error: str):
-        """ Returns a custom error message """
-        msg = f"{caller} raised error: {error}. "
-        super().__init__(msg)
-
-
-class PartError(TypeError):
-    """ Exception for part error """
-    def __init__(self, caller: str, error: str):
-        """ Returns a custom error message """
-        msg = f"{caller} raised error: {error}. "
-        super().__init__(msg)
 
 
 class GeometricPrimitives(ABC):

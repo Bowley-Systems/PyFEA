@@ -12,10 +12,11 @@ from typing import Any
 from abc import ABC
 from dataclasses import dataclass
 
-from pyfea import meter, Quantity
-from pyfea.domain.geometry.definitions import (
-    GeometricPrimitives, GeometryDimensionError, PrimitivesShapes, CSOperation
-)
+from pyfea.domain.units import Q, meter
+from pyfea.domain.geometry.definitions import GeometricPrimitives
+from pyfea.domain.geometry.definitions import PrimitivesShapes, CSOperation
+
+from pyfea.utilities.errors import GeometryDimensionError
 
 
 class GeometryElement(ABC):
@@ -34,12 +35,12 @@ class GeometryElement(ABC):
 
     def extrude(
         self,
-        height: Quantity,
-        direction: Quantity = (0, 0, 1) * meter,
+        height: Q,
+        direction: Q = (0, 0, 1) * meter,
         manifold: bool = True
     ) -> GeometryElement:
         """Extrudes the 2D VectorGeometry into 3D geometry"""
-        if not isinstance(height, Quantity) or not isinstance(direction, Quantity):
+        if not isinstance(height, Q) or not isinstance(direction, Q):
             msg = "3D geometry requires both height and direction to be quantities"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
@@ -48,25 +49,18 @@ class GeometryElement(ABC):
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
         if direction.magnitude == 0 or direction.unit != meter:
-            msg = (
-                f"3D geometry direction cannot have zero magnitude "
-                f"and has to be type {meter}"
-            )
+            msg = f"3D geometry direction cannot have zero magnitude and has to be type {meter}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
         return CSGNode(
             operation=CSOperation.EXTRUSION,
             operands=(self,),
-            params={
-                "height": height,
-                "direction": direction,
-                "manifold": manifold
-            }
+            params={"height": height, "direction": direction, "manifold": manifold}
         )
 
-    def smoothing_fillets(self, radius: Quantity) -> GeometryElement:
+    def smoothing_fillets(self, radius: Q) -> GeometryElement:
         """ Full Smoothing of part for both convex and concave """
-        if not isinstance(radius, Quantity):
+        if not isinstance(radius, Q):
             msg = "Smoothing fillet requires a radius to be a quantity"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 

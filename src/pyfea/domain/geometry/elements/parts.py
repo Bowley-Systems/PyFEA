@@ -10,7 +10,8 @@ from dataclasses import dataclass
 
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
-from pyfea.domain.geometry.definitions import PartError
+
+from pyfea.utilities.errors import PartError
 
 
 @dataclass(slots=True, eq=False)

@@ -7,7 +7,7 @@ Description:
 """
 
 
-from pyfea import Quantity as Q
+from pyfea.domain.units import Q
 from pyfea.domain.circuits.nodes import Terminal
 
 

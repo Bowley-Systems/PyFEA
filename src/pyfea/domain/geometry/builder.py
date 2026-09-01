@@ -6,8 +6,7 @@ Description:
     for constructing and defining solid geometry
 """
 
-
-from pyfea import Quantity as Q, nullset
+from pyfea.domain.units import Q, nullset
 from pyfea.domain.geometry.elements.parts import Part
 from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 

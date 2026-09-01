@@ -10,12 +10,11 @@ Description:
 from typing import Optional
 from dataclasses import dataclass, field
 
-from pyfea.domain.geometry.definitions import GeometryDimensionError
 from pyfea.domain.circuits.builder import StaticCircuit
+from pyfea.utilities.errors import GeometryDimensionError
 
-from pyfea import (
-    Quantity as Q, DynamicLoader, SystemBoundary, nullset, meter, watt, kelvin, h
-)
+from pyfea.domain.units import Q, DynamicLoader, nullset, meter, watt, kelvin, h
+from pyfea.utilities.boundaries import SystemBoundary
 
 
 @dataclass(slots=True, eq=False)

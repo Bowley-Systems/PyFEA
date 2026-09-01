@@ -10,8 +10,8 @@ Description:
 from dataclasses import dataclass
 
 from pyfea.domain.units import Q
-from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.parts import Part
+from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
 from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
 
