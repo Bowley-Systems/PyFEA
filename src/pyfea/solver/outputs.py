@@ -11,27 +11,27 @@ Description:
 from typing import Any, Iterable
 from enum import Enum, auto
 
-from pyfea.domain.geometry.domain import Part
-from pyfea.domain.circuits.builder import StaticCircuit, Component
+from pyfea.domain.geometry.domain import Component as GComponent
+from pyfea.domain.circuits.builder import Component as CComponent
 
 
 class ImageOptions(Enum):
     """Defines the different possible image outputs"""
-    field_contour = auto()
-    field_heatmap = auto()
-    vector_field = auto()
-    streamline = auto()
+    field_contour           = auto()
+    field_heatmap           = auto()
+    vector_field            = auto()
+    streamline              = auto()
 
 
 class CircuitOptions(Enum):
     """ Defines the different possible circuit output variables """
-    power           =   auto()
-    gain            =   auto()
-    phase           =   auto()
-    voltage         =   auto()
-    current         =   auto()
-    resistance      =   auto()
-    flux_linkage    =   auto()
+    power                   = auto()
+    gain                    = auto()
+    phase                   = auto()
+    voltage                 = auto()
+    current                 = auto()
+    resistance              = auto()
+    flux_linkage            = auto()
 
 
 class MagneticOptions(Enum):
@@ -48,45 +48,43 @@ class MagneticOptions(Enum):
 
 class ThermalOptions(Enum):
     """ Defines the different possible thermal output variables """
-    volume                      = auto()
-    cross_section               = auto()
-    average_temperature         = auto()
-    flux_over_element           = auto()
+    volume                  = auto()
+    cross_section           = auto()
+    average_temperature     = auto()
+    flux_over_element       = auto()
 
 
-class SolverOutputs:
-    """ Select outputs for the solver to compute """
+class SolverRequests:
+    """ Holds the users requested outputs from the solver. """
     def __init__(self):
         """ Initializes the internal map for reference """
-        # Tuple storage as key ensures that each combination is unique
-        self.registry: dict[tuple[Part | StaticCircuit | Component, Any]] = {}
+        self.registry: dict[tuple[GComponent, CComponent]] = {}
 
-    def _register(self, entity: Any, outputs: Any | Iterable[Any]) -> None:
-        """Handles both single output objects and lists/tuples of outputs."""
-        # Treat strings as single items, otherwise check if it's iterable
+    def _add(self, entity: Any, outputs: Any | Iterable[Any]) -> None:
+        """ Handles both single output objects and lists/tuples of outputs. """
         if isinstance(outputs, (list, tuple)):
+            # Check if it's iterable
             for opt in outputs:
                 self.registry[(entity, opt)] = entity
+
         else:
             self.registry[(entity, outputs)] = entity
 
-    def add_circuit(
-        self, node: StaticCircuit | Component, output: CircuitOptions
-    ) -> None:
+    def circuit(self, node: GComponent | CComponent, output: CircuitOptions) -> None:
         """" Requests a circuit output and the circuit to probe """
-        self._register(node, output)
+        self._add(node, output)
 
-    def add_magnetic(self, part: Part, output: MagneticOptions)-> None:
+    def magnetic(self, component: GComponent, output: MagneticOptions)-> None:
         """ Requests a magnetic output and the element to probe """
-        self._register(part, output)
+        self._add(component, output)
 
-    def add_thermal(self, part: Part, output: ThermalOptions) -> None:
+    def thermal(self, component: GComponent, output: ThermalOptions) -> None:
         """ Requests a thermal output and the element to probe """
-        self._register(part, output)
+        self._add(component, output)
 
-    def add_image(self, output: ImageOptions, part: Part | None = None) -> None:
+    def image(self, output: ImageOptions, component: GComponent | None = None) -> None:
         """ Requests an image of the field effects across the simulation. """
-        self._register(part, output)
+        self._add(component, output)
 
 
 class SolverSolutions:
@@ -113,6 +111,7 @@ class SolverSolutions:
         """ Gets values stored within the parent """
         try:
             return self._store[key]
+
         except KeyError:
             msg = f"No solution for {key!r}"
             raise AttributeError(msg) from None
@@ -123,8 +122,5 @@ class SolverSolutions:
         items = ", ".join([k.name if hasattr(k, 'name') else k for k in self._store])
         return f"<Solutions outputs: {items}>"
 
-    def __str__(self) -> str:
-        return self.name
-
-    def __repr__(self) -> str:
-        return self.name
+    def __str__(self) -> str: return self.name
+    def __repr__(self) -> str: return self.name

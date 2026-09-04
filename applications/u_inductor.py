@@ -12,6 +12,7 @@ from pyfea.domain import GBuilder, Cbuilder, Configuration
 from pyfea.domain import Materials, MagneticData
 
 from pyfea.domain import Domain, BoundaryType, CoordinateSystem
+from pyfea.solver import SolverRequests, CircuitOptions
 
 
 # Builds the core geometry using construct solid geometry (CSG)
@@ -47,3 +48,10 @@ domain = Domain(
     finalized_domain,
     297.15 * kelvin
 )
+
+# Defines the required outputs for the simulation
+request = SolverRequests()
+request.circuit(phase, CircuitOptions.resistance)
+request.circuit(phase, CircuitOptions.flux_linkage)
+request.circuit(phase, CircuitOptions.current)
+request.circuit(phase, CircuitOptions.voltage)
