@@ -44,7 +44,8 @@ It creates a consistent representation across domains because continuous problem
 - [/] Allow for the same methodology across domains: define, attach, and solve. 
 - [/] Support integration with solvers across finite element, lumped parameters, and SPICE models.
 - [/] Restrict all inputs and outputs to dimensionally consistent units.
-- [ ] Allow for solver-adaptors across `planar`, `axisymmetric`, and `full 3D` solutions using `CSG`.
+- [/] Allow for solver-adaptors across `planar`, `axisymmetric`, and `full 3D` solutions using `CSG`.
+- [ ] Provide solver adaptors for full 3D solutions.
 ```
 
 > *(Note). [ ] Not started. [/] In progress. [x] Complete.*
