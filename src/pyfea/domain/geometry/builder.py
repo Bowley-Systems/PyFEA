@@ -53,15 +53,24 @@ class Builder:
         metadata: MagneticData | ThermalData | None = None
     ) -> Component:
         """ Promotes a part or geometry to a component """
-        if not isinstance(objects, list):
-            # Normalize to list for consistent handling
+        # Handle tuple input
+        if isinstance(objects, tuple):
+            items = list(objects)
+
+        elif not isinstance(objects, list):
             items = [objects]
         else:
             items = objects
 
+        if not items:
+            # Check for empty list
+            msg = "Cannot create component from empty list"
+            raise ValueError(msg)
+
         # Check if all items are Parts or all are GeometryElements
-        is_part = isinstance(items[0], Part)
-        is_geometry = isinstance(items[0], GeometryElement)
+        reference_item = items[0]
+        is_part = isinstance(reference_item, Part)
+        is_geometry = isinstance(reference_item, GeometryElement)
 
         if is_part:
             # Verifies that the list contains the all the same type
