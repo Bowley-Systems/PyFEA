@@ -13,12 +13,12 @@ P.S: Thanks for downloading the PyFEA repository `▽`ʃ♡
 -->
 
 
-<!-- Need a higher DPI image for the logo before release - William Bowley 2026-08-24 -->
-<!-- The logo will update when this alpha-v0.1 is pushed to main - William Bowley 2026-09-05 -->
+<!-- Need a higher DPI (256) image for the logo before release - wgbowley 2026-08-24 -->
+<!-- The logo will update when this alpha-v0.1 is pushed to main - wgbowley 2026-09-05 -->
 
 <p align="center">
   <img 
-  src="https://raw.githubusercontent.com/Bowley-Systems/PyFEA/refs/heads/main/media/logo.png" 
+  src="./media/logo.png" 
   alt="pyFea" 
   style="width:100%; max-width:100%; display:block;"
 > 
@@ -114,6 +114,9 @@ pip install pyfea
 ---
 
 ### Documentation
+
+<!-- Need to reference the `docs` folder once this release version is closer to being finished. wgbowley 2026-09-05 -->
+<!-- Going to do a `changelog` for v0.1 even though its the first release. Good audit trail for future me. wgbowley 2026-09-05 -->
 
 All internal documentation can be found within this repo's [issues](https://github.com/Bowley-Systems/PyFEA/issues).
 
