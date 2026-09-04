@@ -9,7 +9,7 @@ description = "Solver-Adaptor Engine for Multi-Physics Problems"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
-keywords = ["finite element", "physics", "solver", "IR", "multi-physics"]
+keywords = ["finite element", "adaptor", "IR", "multi-physics"]
 
 authors = [
   { name = "William Bowley", email = "wgrantbowley@gmail.com" },
