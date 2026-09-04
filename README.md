@@ -39,7 +39,7 @@ P.S: Thanks for downloading the PyFEA repository `▽`ʃ♡
 PyFEA is a solver-adaptor engine that functions as an intermediate representation system for computational engineering. 
 It creates a consistent representation across domains because continuous problems should use continuous tooling. 
 
-> Objectives:
+#### Objectives:
 ```
 - [/] Allow for the same methodology across domains: define, attach, and solve. 
 - [/] Support integration with solvers across finite element, lumped parameters, and SPICE models.
