@@ -8,9 +8,9 @@ version = "0.0.4"
 description = "An intermediate representation system for multi-physics problems."
 
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { file = "LICENSE" }
-keywords = ["finite element", "physics", "solver", "IR"]
+keywords = ["finite element", "physics", "adaptor", "IR"]
 
 authors = [
   { name = "William Bowley", email = "wgrantbowley@gmail.com" },
