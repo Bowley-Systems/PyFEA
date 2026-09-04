@@ -7,6 +7,7 @@ from logging import getLogger, basicConfig, INFO
 
 from pyfea.core.units import *
 
+
 def _setup_logging(path: Path = None) -> None:
     """ Sets up logging configuration for the package """
     if path is None: 

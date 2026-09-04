@@ -11,9 +11,8 @@ from __future__ import annotations
 from typing import Any
 from dataclasses import dataclass
 
-from pyfea.core.circuits.definitions import (
-    NodalPrimitives, Configuration, ComponentTypes, Terminal
-)
+from pyfea.core.circuits.definitions import NodalPrimitives, Configuration
+from pyfea.core.circuits.definitions import ComponentTypes, Terminal
 
 
 @dataclass(slots=True, frozen=True)
@@ -35,17 +34,13 @@ class Component(NodalPrimitives):
 
 class Device(NodalPrimitives):
     """ Abstract component that cannot have a internal configuration """
-    def __init__(
-        self,
-        component: Component,
-        terminals: list = ("in_", "out")
-    ) -> None:
+    def __init__(self, component: Component,  terminals: list = ("inw", "outw")) -> None:
         """ Initialize the device """
         if not isinstance(component, (Component, Abstract)):
-            msg = f"item must be 'Component' or 'Branch' not {type(component).__name__}"
+            msg = f"item must be {Component!r} or {Abstract!r} not {type(component).__name__}"
             raise TypeError(msg)
 
-        self.component = component 
+        self.component = component
 
         # Constructs connection terminals
         self.terminals = {}
@@ -56,25 +51,24 @@ class Device(NodalPrimitives):
 
     @property
     def name(self) -> str:
+        """ Returns a clean, scannable string representation """
         return f"<Device=({self.component})>"
 
 
 class Abstract(NodalPrimitives):
     """ Abstract component defines how component and/or Abstract components relate """
     def __init__(
-        self,
-        configuration: Configuration,
-        *components: Component | Abstract,
-        terminals: list = ("in_", "out")
+        self, configuration: Configuration, *components: Component | Abstract,
+        terminals: list =  ("inw", "outw")
     ) -> None:
         """ Initialize the branch; Configuration enum and"""
         if not isinstance(configuration, Configuration):
-            msg = f"Relations must be defined use {Configuration}, not {configuration}"
+            msg = f"Relations must be defined use {Configuration!r}, not {configuration}"
             raise TypeError(msg)
 
         for item in components:
             if not isinstance(item, (Component, Abstract)):
-                msg = f"item must be 'Component' or 'Branch' not {type(item).__name__}"
+                msg = f"item must be {Component!r} or {Abstract!r} not {type(item).__name__}"
                 raise TypeError(msg)
 
         self.components = components
@@ -89,8 +83,14 @@ class Abstract(NodalPrimitives):
 
     @property
     def name(self) -> str:
-        parts = ', '.join(
-            item.name if isinstance(item, Abstract) else str(item.type)
-            for item in self.components
-        )
+        """ Returns a clean, scannable string representation """
+        formatted_items = []
+        for item in self.components:
+            if isinstance(item, Abstract):
+                formatted_items.append(item.name)
+
+            else:
+                formatted_items.append(str(item.type))
+
+        parts = ', '.join(formatted_items)
         return f"<abstract={self.configuration}, components=({parts})>"

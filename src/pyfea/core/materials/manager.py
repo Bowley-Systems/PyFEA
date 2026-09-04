@@ -69,7 +69,7 @@ class _MaterialManager:
             self._library = Parser.open(materials_path)
 
         except Exception as err:
-            msg = f"Failed to load library from package resources: {err}"
+            msg = f"Failed to load library from package resources: {err!r}"
             raise MaterialError("MaterialManager", msg) from err
 
 

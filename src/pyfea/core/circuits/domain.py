@@ -21,6 +21,10 @@ class Domain:
         self.linked = []
         self.gnd = Terminal("gnd", self)
 
+    def link(self, *terminals: Terminal) -> None:
+        """ Links different abstracts terminals together """
+        self.linked.append(terminals)
+
     @property
     def _name(self) -> str:
         """ Returns its name as the auto definition """
@@ -37,9 +41,6 @@ class Domain:
             f"temperature={self.temperature:.3f}, "
             f"nominal_temp={self.nominal_temperature:.3f})>"
         )
-    def link(self, *terminals: Terminal) -> None:
-        """ Links different abstracts terminals together """
-        self.linked.append(terminals)
 
     def __str__(self) -> str:
         """ Returns self._name """

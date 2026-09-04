@@ -51,6 +51,7 @@ class Part:
         """ Returns the points name from Metadata.type """
         return self._name
 
+
 @dataclass(slots=True, eq=False)
 class Component:
     """ Defines a physical component from a singular part or multiple """

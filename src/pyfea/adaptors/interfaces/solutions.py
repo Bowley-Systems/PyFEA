@@ -9,49 +9,12 @@ Description:
 """
 
 from typing import Any, Iterable
-from enum import Enum, auto
 
 from pyfea.core.geometry.domain import Component as GComponent
 from pyfea.core.circuits.builder import Component as CComponent
 
-
-class ImageOptions(Enum):
-    """Defines the different possible image outputs"""
-    field_contour           = auto()
-    field_heatmap           = auto()
-    vector_field            = auto()
-    streamline              = auto()
-
-
-class CircuitOptions(Enum):
-    """ Defines the different possible circuit output variables """
-    power                   = auto()
-    gain                    = auto()
-    phase                   = auto()
-    voltage                 = auto()
-    current                 = auto()
-    resistance              = auto()
-    flux_linkage            = auto()
-
-
-class MagneticOptions(Enum):
-    """ Defines the different possible magnetic output variables """
-    volume                  = auto()
-    cross_section           = auto()
-    force_lorentz           = auto()
-    torque_lorentz          = auto()
-    field_energy            = auto()
-    b_field                 = auto()
-    force_stress_tensor     = auto()
-    torque_stress_tensor    = auto()
-
-
-class ThermalOptions(Enum):
-    """ Defines the different possible thermal output variables """
-    volume                  = auto()
-    cross_section           = auto()
-    average_temperature     = auto()
-    flux_over_element       = auto()
+from pyfea.adaptors.interfaces.requests import *
+from pyfea.utilities.errors import ResultsError
 
 
 class SolverRequests:
@@ -66,7 +29,6 @@ class SolverRequests:
             # Check if it's iterable
             for opt in outputs:
                 self.registry[(entity, opt)] = entity
-
         else:
             self.registry[(entity, outputs)] = entity
 
@@ -82,10 +44,6 @@ class SolverRequests:
         """ Requests a thermal output and the element to probe """
         self._add(component, output)
 
-    def image(self, output: ImageOptions, component: GComponent | None = None) -> None:
-        """ Requests an image of the field effects across the simulation. """
-        self._add(component, output)
-
 
 class SolverSolutions:
     """ Loads solution from solver into class attributes """
@@ -96,7 +54,9 @@ class SolverSolutions:
     def __getitem__(self, key):
         """ Returns solution for a given object reference """
         if key not in self._store:
-            raise KeyError(f"No solution found for {key!r}")
+            msg = f"{key!r} not found within solution results."
+            raise ResultsError("SolverSolutions", msg)
+
         val = self._store[key]
         if isinstance(val, dict):
             return SolverSolutions(val)
@@ -114,12 +74,19 @@ class SolverSolutions:
 
         except KeyError:
             msg = f"No solution for {key!r}"
-            raise AttributeError(msg) from None
+            raise ResultsError("SolverSolutions", msg) from None
 
     @property
     def name(self):
         """ Constructs the name based on state """
-        items = ", ".join([k.name if hasattr(k, 'name') else k for k in self._store])
+        formatted_items = []
+        for k in self._store:
+            if hasattr(k, 'name'):
+                formatted_items.append(k.name)
+            else:
+                formatted_items.append(k)
+
+        items = ", ".join(formatted_items)
         return f"<Solutions outputs: {items}>"
 
     def __str__(self) -> str: return self.name

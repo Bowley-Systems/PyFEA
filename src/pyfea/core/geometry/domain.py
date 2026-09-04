@@ -17,7 +17,7 @@ from pyfea.core.geometry.elements.vectors import CSGNode, VectorGeometry
 
 @dataclass(slots=True)
 class Domain:
-    """ FEA simulation domain """
+    """ Simulation Domain """
     parts: tuple[Component, ...]
     boundary_type: BoundaryType
     material: DynamicLoader

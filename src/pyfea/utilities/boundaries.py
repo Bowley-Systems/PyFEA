@@ -13,7 +13,7 @@ from pyfea.core.units import UnitError, Quantity as Q
 
 
 class SystemBoundary(ABC):
-    """ Unit boundary checking for dataclass construction""" 
+    """ Unit boundary checking for dataclass construction """ 
     def validate_units(self) -> None:
         """ Generic validator that uses field metadata """
         for f in fields(self):

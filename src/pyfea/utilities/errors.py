@@ -8,23 +8,33 @@ Description:
 """
 
 # Generic Errors
-class MaterialError(TypeError):
+class MaterialError(Exception):
     """ Exception for Material Loader Error """
     def __init__(self, caller: str, error: str):
         """ Returns a custom error message """
         msg = f"{caller!r} raised error: {error} "
         super().__init__(msg)
 
-class GeometryDimensionError(TypeError):
+
+class GeometryDimensionError(Exception):
     """ Exception for geometry dimension error """
     def __init__(self, caller: str, error: str):
         """ Returns a custom error message """
         msg = f"{caller} raised error: {error}. "
         super().__init__(msg)
 
-class PartError(TypeError):
+
+class PartError(Exception):
     """ Exception for part error """
     def __init__(self, caller: str, error: str):
         """ Returns a custom error message """
         msg = f"{caller} raised error: {error}. "
+        super().__init__(msg)
+
+
+class ResultsError(Exception):
+    """ Exception for Material Loader Error """
+    def __init__(self, caller: str, error: str):
+        """ Returns a custom error message """
+        msg = f"{caller!r} raised error: {error} "
         super().__init__(msg)

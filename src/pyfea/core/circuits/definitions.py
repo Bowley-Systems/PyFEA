@@ -16,23 +16,6 @@ from enum import Enum, auto
 from pyfea.core.units import Q
 
 
-class NodalPrimitives(ABC):
-    """ Defines the behavior of nodal primitives when displayed """
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """ Dataclass name should be based of its properties """
-        return ""
-
-    def __str__(self) -> str:
-        """ Returns the points name from Point.name """
-        return self.name
-
-    def __repr__(self) -> str:
-        """ Returns the points name from Point.name """
-        return self.name
-
-
 class Configuration(Enum):
     """ Different circuit configuration available """
     series = auto()
@@ -53,23 +36,8 @@ class ComponentTypes(Enum):
         """ Returns its name as the auto definition """
         return f"<ComponentTypes={self.name}>"
 
-    def __str__(self) -> str:
-        """ Returns the points name from ComponentTypes.type """
-        return self._name
-
-    def __repr__(self) -> str:
-        """ Returns the points name from ComponentTypes.type """
-        return self._name
-
-
-class Terminal:
-    """ Represents a terminal (connection point)"""
-    def __init__(self, name, parent: Any):
-        self.name = name
-        self.parent = parent
-
-    def __repr__(self):
-        return f"<Terminal {self.name}>"
+    def __str__(self) -> str: return self._name
+    def __repr__(self) -> str: return self._name
 
 
 @dataclass
@@ -81,3 +49,34 @@ class MockCircuit:
     def __hash__(self):
         """ Hash based class attributes """
         return hash((self.current, self.configuration))
+
+    @property
+    def name(self) -> str:
+        """ Results it name as the auto definition """
+        return f"<ComponentTypes={self.name}>"
+
+    def __str__(self) -> str: return self.name
+    def __repr__(self) -> str: return self.name
+
+
+class NodalPrimitives(ABC):
+    """ Defines the behavior of nodal primitives when displayed """
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """ Dataclass name should be based of its properties """
+        return ""
+
+    def __str__(self) -> str: return self.name
+    def __repr__(self) -> str: return self.name
+
+
+
+class Terminal:
+    """ Represents a terminal (connection point)"""
+    def __init__(self, name, parent: Any):
+        self.name = name
+        self.parent = parent
+
+    def __repr__(self):
+        return f"<Terminal {self.name}>"
