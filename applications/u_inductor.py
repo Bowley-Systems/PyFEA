@@ -36,7 +36,7 @@ negative_slot = GBuilder.promote_to_part(negative_slot, slot)
 
 slots = GBuilder.promote_to_component((negative_slot, positive_slot))
 
-# Builds the domain and defines the environment
+# Builds the domain shape and defines the solution domain
 finalized_domain = GBuilder.circle((115 / 2 * mm, 101 / 2 *mm), 200 * mm)
 
 domain = Domain(

@@ -47,6 +47,9 @@ negative_slot = GBuilder.rectangle((130 * mm, 40 * mm), 7.5 * mm, 20 * mm)
 negative_slot = GBuilder.promote_to_part(negative_slot, slot)
 
 slots = GBuilder.promote_to_component((negative_slot, positive_slot))
+
+# Builds the domain shape and defines the solution domain
+finalized_domain = GBuilder.circle((115 / 2 * mm, 101 / 2 *mm), 200 * mm)
 ```
 
 > Example is of a u-inductor with a ferromagnetic core material.
