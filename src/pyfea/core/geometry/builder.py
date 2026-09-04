@@ -6,12 +6,12 @@ Description:
     for constructing and defining solid geometry
 """
 
-from pyfea.domain.units import Q, nullset
-from pyfea.domain.geometry.elements.assemblies import Part, Component
-from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
+from pyfea.core.units import Q, nullset
+from pyfea.core.geometry.elements.assemblies import Part, Component
+from pyfea.core.geometry.elements.metadata import MagneticData, ThermalData
 
-from pyfea.domain.geometry.elements.primitives import Point, LineSegment, Ellipsoid
-from pyfea.domain.geometry.elements.vectors import VectorGeometry, PrimitivesShapes, GeometryElement
+from pyfea.core.geometry.elements.primitives import Point, LineSegment, Ellipsoid
+from pyfea.core.geometry.elements.vectors import VectorGeometry, PrimitivesShapes, GeometryElement
 
 
 class Builder:

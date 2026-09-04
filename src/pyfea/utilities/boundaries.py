@@ -9,7 +9,7 @@ Description:
 from abc import ABC, abstractmethod
 from dataclasses import fields
 
-from pyfea.domain.units import UnitError, Quantity as Q
+from pyfea.core.units import UnitError, Quantity as Q
 
 
 class SystemBoundary(ABC):

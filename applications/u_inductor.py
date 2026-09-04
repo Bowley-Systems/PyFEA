@@ -8,11 +8,11 @@ Description:
 """
 
 from pyfea import mm, ampere, kelvin
-from pyfea.domain import GBuilder, Cbuilder, Configuration
-from pyfea.domain import Materials, MagneticData
+from pyfea.core import GBuilder, Cbuilder, Configuration
+from pyfea.core import Materials, MagneticData
 
-from pyfea.domain import Domain, BoundaryType, CoordinateSystem
-from pyfea.solver import SolverRequests, CircuitOptions
+from pyfea.core import Domain, BoundaryType, CoordinateSystem
+from pyfea.adaptors import SolverRequests, CircuitOptions
 
 
 # Builds the core geometry using construct solid geometry (CSG)

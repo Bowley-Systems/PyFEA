@@ -9,10 +9,10 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea.domain.units import Q, DynamicLoader
-from pyfea.domain.geometry.elements.assemblies import Component
-from pyfea.domain.geometry.definitions import CoordinateSystem, BoundaryType
-from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
+from pyfea.core.units import Q, DynamicLoader
+from pyfea.core.geometry.elements.assemblies import Component
+from pyfea.core.geometry.definitions import CoordinateSystem, BoundaryType
+from pyfea.core.geometry.elements.vectors import CSGNode, VectorGeometry
 
 
 @dataclass(slots=True)

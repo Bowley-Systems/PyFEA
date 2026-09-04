@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 from dataclasses import dataclass
 
-from pyfea.domain.circuits.definitions import (
+from pyfea.core.circuits.definitions import (
     NodalPrimitives, Configuration, ComponentTypes, Terminal
 )
 

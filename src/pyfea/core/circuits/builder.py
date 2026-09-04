@@ -7,11 +7,11 @@ Description:
 """
 
 
-from pyfea.domain.units import Q, check_quantity, ohm, farad, volt, kelvin, ampere
+from pyfea.core.units import Q, check_quantity, ohm, farad, volt, kelvin, ampere
 
-from pyfea.domain.circuits.domain import Domain
-from pyfea.domain.circuits.definitions import Configuration, MockCircuit
-from pyfea.domain.circuits.nodes import Component, ComponentTypes, Abstract, Device
+from pyfea.core.circuits.domain import Domain
+from pyfea.core.circuits.definitions import Configuration, MockCircuit
+from pyfea.core.circuits.nodes import Component, ComponentTypes, Abstract, Device
 
 
 class Builder:

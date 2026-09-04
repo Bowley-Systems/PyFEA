@@ -8,8 +8,8 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea.domain.units import Q, meter, dimensionless
-from pyfea.domain.geometry.definitions import GeometricPrimitives
+from pyfea.core.units import Q, meter, dimensionless
+from pyfea.core.geometry.definitions import GeometricPrimitives
 from pyfea.utilities.errors import GeometryDimensionError
 
 

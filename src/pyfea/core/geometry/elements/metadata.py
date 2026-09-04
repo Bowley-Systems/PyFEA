@@ -10,11 +10,11 @@ Description:
 from typing import Optional
 from dataclasses import dataclass, field
 
-from pyfea.domain.circuits.builder import MockCircuit
+from pyfea.core.circuits.builder import MockCircuit
 from pyfea.utilities.errors import GeometryDimensionError
 
 from pyfea.utilities.boundaries import SystemBoundary
-from pyfea.domain.units import Q, DynamicLoader, meter, watt, kelvin, h
+from pyfea.core.units import Q, DynamicLoader, meter, watt, kelvin, h
 
 
 @dataclass(slots=True, eq=False)

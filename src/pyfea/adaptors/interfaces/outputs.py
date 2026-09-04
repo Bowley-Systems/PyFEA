@@ -11,8 +11,8 @@ Description:
 from typing import Any, Iterable
 from enum import Enum, auto
 
-from pyfea.domain.geometry.domain import Component as GComponent
-from pyfea.domain.circuits.builder import Component as CComponent
+from pyfea.core.geometry.domain import Component as GComponent
+from pyfea.core.circuits.builder import Component as CComponent
 
 
 class ImageOptions(Enum):

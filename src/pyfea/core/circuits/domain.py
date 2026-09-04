@@ -7,8 +7,8 @@ Description:
 """
 
 
-from pyfea.domain.units import Q
-from pyfea.domain.circuits.nodes import Terminal
+from pyfea.core.units import Q
+from pyfea.core.circuits.nodes import Terminal
 
 
 

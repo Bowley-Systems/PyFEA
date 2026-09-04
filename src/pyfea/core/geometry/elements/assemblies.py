@@ -8,8 +8,8 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea.domain.geometry.elements.vectors import CSGNode, VectorGeometry
-from pyfea.domain.geometry.elements.metadata import MagneticData, ThermalData
+from pyfea.core.geometry.elements.vectors import CSGNode, VectorGeometry
+from pyfea.core.geometry.elements.metadata import MagneticData, ThermalData
 
 from pyfea.utilities.errors import PartError
 

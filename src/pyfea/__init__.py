@@ -5,7 +5,7 @@ from os import getcwd
 from pathlib import Path
 from logging import getLogger, basicConfig, INFO
 
-from pyfea.domain.units import *
+from pyfea.core.units import *
 
 def _setup_logging(path: Path = None) -> None:
     """ Sets up logging configuration for the package """
