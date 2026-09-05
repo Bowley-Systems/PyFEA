@@ -261,49 +261,18 @@ curie_temperature: 583.15 (K)
 alpha_remanence: -0.12 (K^-1)
 beta_coercivity: -0.6 (K^-1)
 
-[NdFeB.grades.N30]
-remanence: 1.10 (T)
-coercivity: 0.836 M(A_m)
-
-[NdFeB.grades.N33]
-remanence: 1.14 (T)
-coercivity: 0.879 M(A_m)
-
-[NdFeB.grades.N35]
-remanence: 1.17 (T)
-coercivity: 0.906 M(A_m)
-
-[NdFeB.grades.N38]
-remanence: 1.22 (T)
-coercivity: 0.945 M(A_m)
-
-[NdFeB.grades.N40]
-remanence: 1.25 (T)
-coercivity: 0.970 M(A_m)
-
-[NdFeB.grades.N42]
-remanence: 1.28 (T)
-coercivity: 0.995 M(A_m)
-
-[NdFeB.grades.N45]
-remanence: 1.32 (T)
-coercivity: 1.030 M(A_m)
-
-[NdFeB.grades.N48]
-remanence: 1.37 (T)
-coercivity: 1.015 M(A_m)
-
-[NdFeB.grades.N50]
-remanence: 1.40 (T)
-coercivity: 0.988 M(A_m)
-
-[NdFeB.grades.N52]
-remanence: 1.43 (T)
-coercivity: 0.956 M(A_m)
-
-[NdFeB.grades.N55]
-remanence: 1.47 (T)
-coercivity: 0.923 M(A_m)
+[NdFeB.grades]
+N30: [0.836, 1.10]  M(A_m), (T)
+N33: [0.879, 1.14]  M(A_m), (T)
+N35: [0.906, 1.17]  M(A_m), (T)
+N38: [0.945, 1.22]  M(A_m), (T)
+N40: [0.970, 1.25]  M(A_m), (T)
+N42: [0.995, 1.28]  M(A_m), (T)
+N45: [1.030, 1.32]  M(A_m), (T)
+N48: [1.015, 1.37]  M(A_m), (T)
+N50: [0.988, 1.40]  M(A_m), (T)
+N52: [0.956, 1.43]  M(A_m), (T)
+N55: [0.923, 1.47]  M(A_m), (T)
 
 [NdFeB.thermal]
 specific_heat: 460 (c)
