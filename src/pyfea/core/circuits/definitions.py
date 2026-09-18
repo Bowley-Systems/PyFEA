@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from pyfea.core.units import Q
+from pyfea.core.picomats import Q
 
 
 class Configuration(Enum):

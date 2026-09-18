@@ -8,7 +8,7 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea.core.units import Q, meter, dimensionless
+from pyfea.core.picomats import Q, meter, dimensionless
 from pyfea.core.geometry.definitions import GeometricPrimitives
 from pyfea.utilities.errors import GeometryDimensionError
 

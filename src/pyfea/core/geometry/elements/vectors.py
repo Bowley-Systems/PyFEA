@@ -12,7 +12,7 @@ from typing import Any
 from abc import ABC
 from dataclasses import dataclass
 
-from pyfea.core.units import Q, meter
+from pyfea.core.picomats import Q, meter
 from pyfea.core.geometry.definitions import GeometricPrimitives
 from pyfea.core.geometry.definitions import PrimitivesShapes, CSOperation
 

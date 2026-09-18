@@ -6,7 +6,7 @@ Description:
     for constructing and defining solid geometry
 """
 
-from pyfea.core.units import Q, nullset
+from pyfea.core.picomats import Q, nullset
 from pyfea.core.geometry.elements.assemblies import Part, Component
 from pyfea.core.geometry.elements.metadata import MagneticData, ThermalData
 

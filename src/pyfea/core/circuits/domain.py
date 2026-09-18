@@ -7,7 +7,7 @@ Description:
 """
 
 
-from pyfea.core.units import Q
+from pyfea.core.picomats import Q
 from pyfea.core.circuits.nodes import Terminal
 
 

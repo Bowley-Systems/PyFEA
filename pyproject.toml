@@ -19,12 +19,12 @@ maintainers = [
 ]
 
 dependencies = [
-    "PyYAML",
-    "pyfemm",
-    "matplotlib",
-    "bayesian-optimization",
-    "picounits",
-    "spicelib"
+  "PyYAML",
+  "pyfemm",
+  "matplotlib",
+  "bayesian-optimization",
+  "picomats",
+  "spicelib"
 ]
 
 classifiers = [

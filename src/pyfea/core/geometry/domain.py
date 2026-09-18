@@ -9,7 +9,7 @@ Description:
 
 from dataclasses import dataclass
 
-from pyfea.core.units import Q, DynamicLoader
+from pyfea.core.picomats import Q, Material
 from pyfea.core.geometry.elements.assemblies import Component
 from pyfea.core.geometry.definitions import CoordinateSystem, BoundaryType
 from pyfea.core.geometry.elements.vectors import CSGNode, VectorGeometry
@@ -20,7 +20,7 @@ class Domain:
     """ Simulation Domain """
     parts: tuple[Component, ...]
     boundary_type: BoundaryType
-    material: DynamicLoader
+    material: Material
     coordinate_system: CoordinateSystem
     shape: VectorGeometry | CSGNode
     temperature: Q

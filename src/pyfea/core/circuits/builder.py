@@ -7,7 +7,7 @@ Description:
 """
 
 
-from pyfea.core.units import Q, check_quantity, ohm, farad, volt, kelvin, ampere
+from pyfea.core.picomats import Q, check_quantity, ohm, farad, volt, kelvin, ampere
 
 from pyfea.core.circuits.domain import Domain
 from pyfea.core.circuits.definitions import Configuration, MockCircuit

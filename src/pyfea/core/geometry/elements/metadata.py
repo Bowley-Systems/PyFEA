@@ -14,13 +14,13 @@ from pyfea.core.circuits.builder import MockCircuit
 from pyfea.utilities.errors import GeometryDimensionError
 
 from pyfea.utilities.boundaries import SystemBoundary
-from pyfea.core.units import Q, DynamicLoader, meter, watt, kelvin, h
+from pyfea.core.picomats import Q, Material, meter, watt, kelvin, h
 
 
 @dataclass(slots=True, eq=False)
 class MagneticData(SystemBoundary):
     """ Defines magnetic properties for a geometry group """
-    material:       DynamicLoader
+    material:       Material
     circuit:        Optional[MockCircuit]   = field(default=None, metadata={})
     turns:          Optional[int]           = field(default=None, metadata={})
     diameter:       Optional[Q]             = field(default=None, metadata={Q: meter})
@@ -28,7 +28,7 @@ class MagneticData(SystemBoundary):
 
     def __post_init__(self) -> None:
         """ Validates that non-typed parameters are correct """
-        if not isinstance(self.material, DynamicLoader):
+        if not isinstance(self.material, Material):
             msg = f"Material must be a Material, not {type(self.material)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 
@@ -74,7 +74,7 @@ class MagneticData(SystemBoundary):
 @dataclass(slots=True, eq=False)
 class ThermalData(SystemBoundary):
     """ Defines thermal properties and heat sources for a geometry group """
-    material:               DynamicLoader
+    material:               Material
     heating_index:          Optional[Q] = field(default=None, metadata={})
     temperature:            Optional[Q] = field(default=None, metadata={Q: kelvin})
     heat_flow_value:        Optional[Q] = field(default=None, metadata={Q: watt})
@@ -83,7 +83,7 @@ class ThermalData(SystemBoundary):
     ambient_temperature:    Optional[Q] = field(default=None, metadata={Q: kelvin})
 
     def __post_init__(self) -> None:
-        if not isinstance(self.material, DynamicLoader):
+        if not isinstance(self.material, Material):
             msg = f"Material must be a Material, not {type(self.material)}"
             raise GeometryDimensionError(self.__class__.__name__, msg)
 

@@ -15,7 +15,6 @@
     "pyfemm",
     "Dunder",
     "levarges",
-    "picounits",
     "coercivity",
     "picometer",
     "weber",
@@ -71,6 +70,7 @@
     "pylint",
     "Cbuilder",
     "inw",
-    "outw"
+    "outw",
+    "picomats"
   ]
 }
