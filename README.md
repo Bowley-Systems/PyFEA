@@ -49,8 +49,6 @@ negative_slot = GBuilder.promote_to_part(negative_slot, slot)
 slots = GBuilder.promote_to_component((negative_slot, positive_slot))
 ```
 
-> Example is of a u-inductor with a ferromagnetic core material.
-
 ---
 
 ### Installation
